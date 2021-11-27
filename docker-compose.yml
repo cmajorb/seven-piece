@@ -1,0 +1,11 @@
+version: "2"
+services:
+  app:
+    build: ./app
+    container_name: seven-piece-app
+    environment:
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/usr/src/app/app
