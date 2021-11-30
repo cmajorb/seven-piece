@@ -7,5 +7,5 @@ var bgImage = new Image();
 bgImage.src = "static/images/background.jpeg";
 
 bgImage.onload = function(){
-    context.drawImage(bgImage, 0, 0, width/2, height);
+    context.drawImage(bgImage, 0, 0, width, height);
 };
