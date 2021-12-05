@@ -4,7 +4,8 @@ var path = require('path');
 const fs = require('fs');
 var socketIO = require('socket.io');
 const crypto = require("crypto");
-const Berserker = require('./models/berserker.js')
+const Berserker = require('./static/models/berserker.js')
+const GameState = require('./static/models/gameState.js')
 
 
 var app = express();
@@ -13,6 +14,7 @@ var io = socketIO(server);
 var refreshRate = 1000/2;
 
 var activeSessions = [];
+var games = [];
 
 app.set('port', process.env.PORT);
 app.use('/', express.static(__dirname + '/static'));
@@ -52,4 +54,8 @@ server.listen(process.env.PORT, function() {
     socket.on('player connect', function(data) {
         console.log("Connected");
     });
+    socket.on('createRoom', function(map,name) {
+        game = new GameState(map,name);
+        games.push(game);
+      });
   });
