@@ -1,12 +1,11 @@
 const crypto = require("crypto");
 class GameState{
-    constructor(map, player, size) {
+    constructor(map, size) {
         this.turnCount = 0;
         this.characters = [];
         this.room = crypto.randomBytes(16).toString("hex");
         this.map = map;
         this.players = [];
-        this.players.push(player);
         this.state = "waiting";
         this.size = size;
       }

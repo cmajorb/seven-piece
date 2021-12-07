@@ -15,22 +15,22 @@
                   <div class="col-sm-5" id = "centerbar">
               
                     <div id="myForm">
-                      <form>
-                        <div class="form-group">
-                          <label for="name">Name</label>
-                          <input class="form-control" type="text" placeholder="Name" id="name">
-                          <span class="help-block" id="error-msg"></span>
-                        </div>
+                      <form action="/create_room" method="post">
                         <div class="form-group">
                           <label for="gameSize">Number of Players</label>
-                          <select class="form-control" id="gameSize">
+                          <select class="form-control" id="gameSize" name="gameSize">
                             <option value="1">1 Player</option>
                             <option value="2">2 Player</option>
                             <option value="3">3 Player</option>
                             <option value="4">4 Player</option>
                           </select>
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="createRoom()">Create Room</button>
+                        <div class="form-group">
+                            <label for="map">Map</label>
+                            <select class="form-control" id="map" name="map">
+                            </select>
+                          </div>
+                        <button type="submit" class="btn btn-primary">Create Room</button>
                       </form>
                     </div>
                   </div>
