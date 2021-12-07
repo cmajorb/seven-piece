@@ -4,6 +4,7 @@ class Berserker extends Character {
     constructor() {
         super(1,1,3);
         this.name = "berserker";
+        this.image = "/images/wizard.png";
       }
     
     attack = function() {

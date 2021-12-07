@@ -25,16 +25,26 @@ function start(server) {
       console.log("Disconnected");
   
     });
-    socket.on('click', function(coor,data) {
-      console.log("clicked " + coor.x + "," + coor.y);
-    });
     socket.on('player connect', function(data) {
         console.log("Connected");
     });
+
+    socket.on('move', function(data) {
+      if(moveCharacter(socket,data)) {
+        io.to(data.room).emit('update',games[data.room].getState());
+      } else {
+        socket.emit('error-msg','illegal');
+      }
+      console.log("Connected");
+    });
+
   });
   return io;
 }
 
+function moveCharacter(socket,data) {
+  return games[data.room].moveCharacter(socket,data.character,data.x,data.y);
+}
 function joinGame(gameId) {
   if(games[gameId]) {
     return true;
