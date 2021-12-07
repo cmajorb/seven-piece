@@ -1,17 +1,12 @@
 const crypto = require("crypto");
 class Player{
-    constructor(name) {
+    constructor(name,socket) {
         this.name = name;
-        this.socketId = '';
-        this.sessionId = crypto.randomBytes(16).toString("hex");
-        this.ip = '';
-        this.state = "waiting";
+        this.socket = socket;
+        this.sessionId = socket.id;
+        this.ip = socket.handshake.address;
+        this.state = "joined";
       }
-  
-      connect = function(socket) {
-          this.socketID = socket.id;
-          this.ip = socket.handshake.address;
-      };
     }
 
     module.exports = Player;
