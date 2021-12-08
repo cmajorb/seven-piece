@@ -1,11 +1,12 @@
 const crypto = require("crypto");
 
 class Character {
-   constructor(health,range,attack) {
+   constructor(health,moveRange,attackRange,attack,location) {
         this.health = health;
-        this.range = range;
+        this.moveRange = moveRange;
+        this.attackRange = attackRange;
         this.attack = attack;
-        this.location = [1,0];
+        this.location = location;
         this.id = crypto.randomBytes(16).toString("hex");
      }
    

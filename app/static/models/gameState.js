@@ -5,7 +5,8 @@ class GameState{
     constructor(map, size) {
         this.turnCount = 0;
         this.characters = [];
-        this.characters.push(new Berserker());
+        this.characters.push(new Berserker([0,1]));
+        this.characters.push(new Berserker([2,4]));
         this.room = crypto.randomBytes(16).toString("hex");
         this.map = map;
         this.players = [];

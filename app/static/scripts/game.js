@@ -4,7 +4,7 @@ var ctx = canvas.getContext("2d");
 var width = canvas.getAttribute('width');
 var height = canvas.getAttribute('height');
 let sessionId = sessionStorage.getItem('data');
-var colors = ["brown","black","yellow","pink"];
+var highlightColor = "pink";
 var tileSize;
 var offSet = (width-height)/2;
 var state;
@@ -55,7 +55,10 @@ function renderMap(map) {
     tileSize = height/map.data.length;
     for(var x = 0; x < map.data.length; x++) {
         for(var y = 0; y < map.data[0].length; y++) {
-            ctx.fillStyle = colors[map.data[x][y]];
+            var tile = map.data[x][y];
+            console.log(tile.toString());
+            console.log(map);
+            ctx.fillStyle = map.colors[tile.toString()];
             ctx.fillRect(tileSize * x + offSet, tileSize * y, tileSize, tileSize);
         }
     }
@@ -89,7 +92,7 @@ function getMousePos(canvas, evt) {
 }
 
 function highlight(character) {
-  ctx.fillStyle = colors[3];
+  ctx.fillStyle = highlightColor;
   var moves = getMoves(character);
   for(var i=0; i < moves.length; i++) {
     ctx.fillRect(tileSize * moves[i][0] + offSet, tileSize * moves[i][1], tileSize, tileSize);
@@ -98,14 +101,14 @@ function highlight(character) {
 }
 
 function getMoves(character) {
-  //TODO: include objectives as valid moves
+  //TODO: include objectives as valid moves, make sure not player occupied
   var moves = [];
-  for(var i=1; i<=character.range; i++) {
+  for(var i=1; i<=character.moveRange; i++) {
     for(var x = character.location[0] - 1; x <= character.location[0] + 1; x++) {
       if(x >= 0 && x < state.map.data[0].length) {
         for(var y = character.location[1] - 1; y <= character.location[1] + 1; y++) {
           if(y >= 0 && y < state.map.data.length) {
-            if(state.map.data[x][y] == 0 && !(character.location[0] == x && character.location[1] == y)) {
+            if(state.map.data[x][y] == 1 && !(character.location[0] == x && character.location[1] == y)) {
               moves.push([x,y]);
             }
           }
