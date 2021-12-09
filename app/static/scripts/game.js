@@ -104,20 +104,30 @@ function highlight(character) {
 }
 
 function getMoves(character) {
-  //TODO: include objectives as valid moves, make sure not player occupied
   var moves = [];
+  var directions = [[],[],[],[],[],[],[],[]];
   if(!character.hasMoved) {
     for(var i=1; i<=character.moveRange; i++) {
-      for(var x = character.location[0] - i; x <= character.location[0] + i; x++) {
-        if(x >= 0 && x < state.map.data[0].length) {
-          for(var y = character.location[1] - i; y <= character.location[1] + i; y++) {
-            if(y >= 0 && y < state.map.data.length) {
-              if((state.map.data[x][y] & ~(NORMAL | OBJECTIVE)) == 0) {
-                moves.push([x,y]);
-              }
-            }
+      var x = character.location[0];
+      var y = character.location[1];
+      directions[0].push([x,y + i]);
+      directions[1].push([x + i,y + i]);
+      directions[2].push([x + i,y]);
+      directions[3].push([x + i,y - i]);
+      directions[4].push([x,y - i]);
+      directions[5].push([x - i,y - i]);
+      directions[6].push([x - i,y]);
+      directions[7].push([x - i,y + i]);
+      for(var j = 0; j < directions.length; j++) {
+        for(var k =0; k < directions[j].length; k++) {
+          var tx = directions[j][k][0];
+          var ty = directions[j][k][1];
+          if(tx >= 0 && ty >= 0 && tx < state.map.data[0].length && ty < state.map.data.length && (state.map.data[tx][ty] & ~(NORMAL | OBJECTIVE)) == 0) {
+              moves.push([tx,ty]);
+          } else {
+              break;
           }
-        }   
+        }
       }
     }
   }
@@ -135,6 +145,7 @@ function select(x,y) {
     } else {
       selectedCharacter = null;
       redraw(state);
+      select(x,y);
     }
   } else {
     for(var i = 0; i < state.characters.length; i++) {
