@@ -4,11 +4,16 @@ var ctx = canvas.getContext("2d");
 var width = canvas.getAttribute('width');
 var height = canvas.getAttribute('height');
 let sessionId = sessionStorage.getItem('data');
-var highlightColor = "pink";
+var highlightColor = "#FFC0CB80";
 var tileSize;
 var offSet = (width-height)/2;
 var state;
 var selectedCharacter = null;
+const EMPTY = 1
+const NORMAL = 2
+const WALL = 4
+const OBJECTIVE = 8
+const PLAYER = 16
 
 const roomId = window.location.pathname.split('/')[2];
 canvas.addEventListener("click", clickEvent);
@@ -55,9 +60,7 @@ function renderMap(map) {
     tileSize = height/map.data.length;
     for(var x = 0; x < map.data.length; x++) {
         for(var y = 0; y < map.data[0].length; y++) {
-            var tile = map.data[x][y];
-            console.log(tile.toString());
-            console.log(map);
+            var tile = map.data[x][y] & ~PLAYER;
             ctx.fillStyle = map.colors[tile.toString()];
             ctx.fillRect(tileSize * x + offSet, tileSize * y, tileSize, tileSize);
         }
@@ -103,17 +106,19 @@ function highlight(character) {
 function getMoves(character) {
   //TODO: include objectives as valid moves, make sure not player occupied
   var moves = [];
-  for(var i=1; i<=character.moveRange; i++) {
-    for(var x = character.location[0] - 1; x <= character.location[0] + 1; x++) {
-      if(x >= 0 && x < state.map.data[0].length) {
-        for(var y = character.location[1] - 1; y <= character.location[1] + 1; y++) {
-          if(y >= 0 && y < state.map.data.length) {
-            if(state.map.data[x][y] == 1 && !(character.location[0] == x && character.location[1] == y)) {
-              moves.push([x,y]);
+  if(!character.hasMoved) {
+    for(var i=1; i<=character.moveRange; i++) {
+      for(var x = character.location[0] - i; x <= character.location[0] + i; x++) {
+        if(x >= 0 && x < state.map.data[0].length) {
+          for(var y = character.location[1] - i; y <= character.location[1] + i; y++) {
+            if(y >= 0 && y < state.map.data.length) {
+              if((state.map.data[x][y] & ~(NORMAL | OBJECTIVE)) == 0) {
+                moves.push([x,y]);
+              }
             }
           }
-        }
-      }   
+        }   
+      }
     }
   }
   return moves;
