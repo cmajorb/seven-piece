@@ -1,15 +1,15 @@
 const Character = require('./character.js')
 
 class Berserker extends Character {
-    constructor(location) {
-        super(1,1,1,3,location);
-        this.name = "berserker";
-        this.image = "/images/wizard.png";
+    constructor(location, socketId) {
+        super(location, socketId);
+        this.health = 2;
+        this.moveRange = 1;
+        this.attackRange = 1;
+        this.attackStrength = 2;
+        this.name = "Berserker";
+        this.image = "/images/berserker.png";
       }
-    
-    attack = function() {
-        console.log('Berserker is attacking');
-    };
     
     }
 

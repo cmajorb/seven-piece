@@ -8,6 +8,25 @@
     "maps" : [
         {
             "name":"Main Map",
+            "characters" : 3,
+            "players" : [
+                {
+                    "color" : "purple",
+                    "start_tiles" : [
+                        [0,0],
+                        [0,1],
+                        [1,0]
+                    ]
+                },
+                {
+                    "color" : "green",
+                    "start_tiles" : [
+                        [10,10],
+                        [10,9],
+                        [9,10]
+                    ]
+                }
+            ],
             "data": 
                 [[2,2,4,2,1,1,1,1,1,1,1],
                 [2,8,2,2,2,4,2,4,2,4,1],
@@ -26,9 +45,20 @@
                 "4" : "black",
                 "8" : "yellow"
             }
+            
         },
         {
             "name":"test Map1",
+            "characters" : 2,
+            "players" : [
+                {
+                    "color" : "purple",
+                    "start_tiles" : [
+                        [0,1],
+                        [1,0]
+                    ]
+                }
+            ],
             "data": 
                 [[4,2,2,2,4],
                 [2,4,2,4,2],
@@ -44,6 +74,16 @@
         },
         {
             "name":"test Map2",
+            "characters" : 1,
+            "players" : [
+                {
+                    "color" : "purple",
+                    "start_tiles" : [
+                        [0,1],
+                        [1,0]
+                    ]
+                }
+            ],
             "data": 
                 [[4,2,2,2,4],
                 [2,2,2,2,2],
