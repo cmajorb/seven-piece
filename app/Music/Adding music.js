@@ -1,10 +1,8 @@
-var source = "Music/Loading Screen.mp3"
- var audio = document.createElement("audio");
- //
- audio.autoplay = true;
- //
- audio.load()
- audio.addEventListener("load", function() { 
-     audio.play(); 
- }, true);
- audio.src = source;
+function createAudio(src, options) {
+  var audio = document.createElement('audio');
+  audio.volume = options.volume || 0.5;
+  audio.loop   = options.loop;
+  audio.src    = src;
+  return audio;
+}
+var zap = createAudio('Music/Loading Screen.mp3');
