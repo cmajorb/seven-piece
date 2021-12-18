@@ -1,5 +1,6 @@
-const music = new Audio("../Music/Loading Screen.mp3");
-
-  music.play();
-  music.loop = true;
-  music.playbackRate = 2;
+<audio src='../Music/Loading Screen.mp3'></audio>
+const audioContext = new AudioContext();
+const element = document.querySelector(audio);
+const source = audioContext.createMediaElementSource(element);
+source.connect(audioContext.destination)
+audio.play();
