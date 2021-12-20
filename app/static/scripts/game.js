@@ -31,8 +31,7 @@ socket.on('startgame', function(gameState) {
     console.log(gameState);
     state = gameState;
     redraw(gameState);
-    var audio = new Audio("Loading Screen.mp3")
-      audio.play();
+    
   });
   socket.on('joinroom', function(status) {
     if(status == -1) {
