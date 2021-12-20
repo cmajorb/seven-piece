@@ -39,12 +39,7 @@ app.get('/join_room', function(request, response) {
   response.render('join_room',{"rooms": rooms});
 });  
 
-app.get("/Join_room2", function(request, response) {
-  var rooms = sock.getRoomIds();
-  response.render("Join_room2",{"rooms": rooms});
 
-
-});
 
 
 app.post('/create_room', function(request, response) {
