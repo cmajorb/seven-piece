@@ -37,7 +37,16 @@ app.get('/game/:id', function(request, response) {
 app.get('/join_room', function(request, response) {
   var rooms = sock.getRoomIds();
   response.render('join_room',{"rooms": rooms});
+});  
+
+app.get("/Join_room2", function(request, response) {
+  var rooms = sock.getRoomIds();
+  response.render("Join_room2",{"rooms": rooms});
+
+
 });
+
+
 app.post('/create_room', function(request, response) {
     let mapData = fs.readFileSync('static/maps.json');
     let maps = JSON.parse(mapData);
@@ -47,6 +56,8 @@ app.post('/create_room', function(request, response) {
     response.redirect("/game/" + game.room);
     //response.sendFile(path.join(__dirname, 'static/create_room.html'));
 });
+
+
 
 server.listen(process.env.PORT, function() {
     console.log('Starting server on port '+process.env.PORT);
