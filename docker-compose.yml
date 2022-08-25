@@ -1,11 +1,17 @@
 version: "2"
 services:
-  app:
-    build: ./app
-    container_name: seven-piece-app
-    environment:
-      - PORT=8000
+  web:
+    build: ./django
     ports:
-      - "8000:8000"
+        - "80:80"
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: sevenpiece
+    ports:
+      - '3306:3306'
     volumes:
-      - ./app:/usr/src/app/app
+        - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    expose:
+      - '3306'
