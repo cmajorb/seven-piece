@@ -15,3 +15,8 @@ services:
         - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
     expose:
       - '3306'
+  redis:
+    image: redis:6
+    container_name: sevenpiece_local_redis
+    ports:
+      - "6379:6379"
