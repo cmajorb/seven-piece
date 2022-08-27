@@ -82,7 +82,7 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -115,7 +115,15 @@ INSERT INTO `auth_permission` VALUES
 (21,'Can add session',6,'add_session'),
 (22,'Can change session',6,'change_session'),
 (23,'Can delete session',6,'delete_session'),
-(24,'Can view session',6,'view_session');
+(24,'Can view session',6,'view_session'),
+(25,'Can add color scheme',7,'add_colorscheme'),
+(26,'Can change color scheme',7,'change_colorscheme'),
+(27,'Can delete color scheme',7,'delete_colorscheme'),
+(28,'Can view color scheme',7,'view_colorscheme'),
+(29,'Can add map',8,'add_map'),
+(30,'Can change map',8,'change_map'),
+(31,'Can delete map',8,'delete_map'),
+(32,'Can view map',8,'view_map');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -231,7 +239,7 @@ CREATE TABLE `django_admin_log` (
   KEY `django_admin_log_user_id_c564eba6_fk_auth_user_id` (`user_id`),
   CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -240,6 +248,9 @@ CREATE TABLE `django_admin_log` (
 
 LOCK TABLES `django_admin_log` WRITE;
 /*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
+INSERT INTO `django_admin_log` VALUES
+(1,'2022-08-27 00:13:44.059127','2','Default(2) ',1,'[{\"added\": {}}]',7,1),
+(2,'2022-08-27 00:14:17.663371','1','First Map(2) ',1,'[{\"added\": {}}]',8,1);
 /*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -256,7 +267,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,6 +282,8 @@ INSERT INTO `django_content_type` VALUES
 (2,'auth','permission'),
 (4,'auth','user'),
 (5,'contenttypes','contenttype'),
+(7,'game','colorscheme'),
+(8,'game','map'),
 (6,'sessions','session');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -288,7 +301,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -315,7 +328,9 @@ INSERT INTO `django_migrations` VALUES
 (15,'auth','0010_alter_group_name_max_length','2022-08-25 04:08:40.967114'),
 (16,'auth','0011_update_proxy_permissions','2022-08-25 04:08:40.971410'),
 (17,'auth','0012_alter_user_first_name_max_length','2022-08-25 04:08:40.980274'),
-(18,'sessions','0001_initial','2022-08-25 04:08:40.994058');
+(18,'sessions','0001_initial','2022-08-25 04:08:40.994058'),
+(19,'game','0001_initial','2022-08-26 13:42:55.660172'),
+(20,'game','0002_map_num_characters','2022-08-27 00:09:52.695090');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -345,6 +360,64 @@ INSERT INTO `django_session` VALUES
 ('5tyiy3yd6vz1ltnlrgmcwaorhi2mjldb','.eJxVjEEOwiAQRe_C2pDSDi24dO8ZyDAzSNVAUtqV8e7apAvd_vfef6mA25rD1mQJM6uzMur0u0Wkh5Qd8B3LrWqqZV3mqHdFH7Tpa2V5Xg737yBjy9_aG-sICYjR8ZA61yXLDgVGY0bfwxB5SnHwxjsrACgIFibqMXIU8Fa9P-6kODo:1oR4Hg:DDc9PuMG8NveK8vwURBhBx1Fymax5poOcd1oG3HxInI','2022-09-08 04:16:00.297212');
 /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `game_colorscheme`
+--
+
+DROP TABLE IF EXISTS `game_colorscheme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `game_colorscheme` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `scheme` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`scheme`)),
+  `max_player_size` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `game_colorscheme`
+--
+
+LOCK TABLES `game_colorscheme` WRITE;
+/*!40000 ALTER TABLE `game_colorscheme` DISABLE KEYS */;
+INSERT INTO `game_colorscheme` VALUES
+(2,'Default','{\"tile_colors\": {\"1\": \"#00000000\", \"2\": \"brown\", \"4\": \"black\", \"8\": \"yellow\"}, \"start_tiles\": [\"purple\", \"green\"]}',2);
+/*!40000 ALTER TABLE `game_colorscheme` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `game_map`
+--
+
+DROP TABLE IF EXISTS `game_map`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `game_map` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`data`)),
+  `player_size` int(11) NOT NULL,
+  `color_scheme_id` bigint(20) DEFAULT NULL,
+  `num_characters` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `game_map_color_scheme_id_4a6335cf_fk_game_colorscheme_id` (`color_scheme_id`),
+  CONSTRAINT `game_map_color_scheme_id_4a6335cf_fk_game_colorscheme_id` FOREIGN KEY (`color_scheme_id`) REFERENCES `game_colorscheme` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `game_map`
+--
+
+LOCK TABLES `game_map` WRITE;
+/*!40000 ALTER TABLE `game_map` DISABLE KEYS */;
+INSERT INTO `game_map` VALUES
+(1,'First Map','{\"start_tiles\": [[[0, 0], [0, 1], [1, 0]], [[10, 10], [10, 9], [9, 10]]], \"data\": [[2, 2, 4, 2, 1, 1, 1, 1, 1, 1, 1], [2, 8, 2, 2, 2, 4, 2, 4, 2, 4, 1], [4, 2, 4, 4, 2, 2, 2, 2, 8, 2, 1], [2, 2, 4, 2, 2, 4, 4, 4, 2, 4, 1], [1, 2, 2, 2, 8, 2, 2, 4, 2, 2, 1], [1, 4, 2, 4, 2, 2, 2, 4, 2, 4, 1], [1, 2, 2, 4, 2, 2, 8, 2, 2, 2, 1], [1, 4, 2, 4, 4, 4, 2, 2, 4, 2, 2], [1, 2, 8, 2, 2, 2, 2, 4, 4, 2, 4], [1, 4, 2, 4, 2, 4, 2, 2, 2, 8, 2], [1, 1, 1, 1, 1, 1, 1, 2, 4, 2, 2]]}',2,2,3);
+/*!40000 ALTER TABLE `game_map` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -355,4 +428,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-25  4:18:55
+-- Dump completed on 2022-08-27  0:15:25
