@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-
+import { useLocation } from 'react-router-dom';
 
 export default function App() {
+  const { pathname } = useLocation();
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [messageHistory, setMessageHistory] = useState<any>([]);
-  const { readyState } = useWebSocket('ws://127.0.0.1/', {
+  const { readyState } = useWebSocket('ws://127.0.0.1/' + pathname.split("/")[1], {
     onOpen: () => {
       console.log("Connected!")
     },
     onClose: () => {
       console.log("Disconnected!")
     },
-    // New onMessage handler
     onMessage: (e) => {
       const data = JSON.parse(e.data)
       switch (data.type) {
@@ -22,6 +22,9 @@ export default function App() {
         case 'chat_message_echo':
           setMessageHistory((prev:any) => prev.concat(data));
           break;
+        case 'game_state':
+          console.log(data.message)
+          break;
         default:
           console.error('Unknown message type!');
           break;
@@ -29,7 +32,7 @@ export default function App() {
     }
   });
 
-  const { sendJsonMessage } = useWebSocket('ws://127.0.0.1/')
+  const { sendJsonMessage } = useWebSocket('ws://127.0.0.1/' + pathname.split("/")[1])
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -48,14 +51,25 @@ export default function App() {
     <button className='bg-gray-300 px-3 py-1' 
   onClick={() => {
     sendJsonMessage({
-      type: "chat_message",
-      message: "Hi!",
-      name: "user1",
+      type: "move",
+      selected_piece: 0,
+      target_x: 2,
+      target_y: 3,
+      action: "move",
     })
-    console.log("TEST")
   }}
 >
-  Say Hi
+  Make a move (2,3)
+</button>
+<button className='bg-gray-300 px-3 py-1' 
+  onClick={() => {
+    sendJsonMessage({
+      type: "join_room",
+      name: "room1",
+    })
+  }}
+>
+  Join room
 </button>
 <hr />
 <ul>
