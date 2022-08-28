@@ -4,3 +4,4 @@ django-environ==0.4.5
 mysqlclient
 channels
 channels_redis
+djangorestframework

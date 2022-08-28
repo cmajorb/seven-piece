@@ -1,0 +1,11 @@
+{
+    "players" : [
+        "player1",
+        "player2"
+    ],
+    "score" : [
+        0,
+        0
+    ],
+    "turn_count" : 0
+}

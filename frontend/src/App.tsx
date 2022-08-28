@@ -23,7 +23,7 @@ export default function App() {
           setMessageHistory((prev:any) => prev.concat(data));
           break;
         case 'game_state':
-          console.log(data.message)
+          console.log(data.state)
           break;
         default:
           console.error('Unknown message type!');

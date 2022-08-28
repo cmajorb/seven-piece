@@ -82,7 +82,7 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -123,7 +123,11 @@ INSERT INTO `auth_permission` VALUES
 (29,'Can add map',8,'add_map'),
 (30,'Can change map',8,'change_map'),
 (31,'Can delete map',8,'delete_map'),
-(32,'Can view map',8,'view_map');
+(32,'Can view map',8,'view_map'),
+(33,'Can add game state',9,'add_gamestate'),
+(34,'Can change game state',9,'change_gamestate'),
+(35,'Can delete game state',9,'delete_gamestate'),
+(36,'Can view game state',9,'view_gamestate');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -239,7 +243,7 @@ CREATE TABLE `django_admin_log` (
   KEY `django_admin_log_user_id_c564eba6_fk_auth_user_id` (`user_id`),
   CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,7 +254,8 @@ LOCK TABLES `django_admin_log` WRITE;
 /*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
 INSERT INTO `django_admin_log` VALUES
 (1,'2022-08-27 00:13:44.059127','2','Default(2) ',1,'[{\"added\": {}}]',7,1),
-(2,'2022-08-27 00:14:17.663371','1','First Map(2) ',1,'[{\"added\": {}}]',8,1);
+(2,'2022-08-27 00:14:17.663371','1','First Map(2) ',1,'[{\"added\": {}}]',8,1),
+(3,'2022-08-27 21:16:01.493891','c3caef71-52c1-496c-accf-b0290570a5c2','c3caef71-52c1-496c-accf-b0290570a5c2',1,'[{\"added\": {}}]',9,1);
 /*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -267,7 +272,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -283,6 +288,7 @@ INSERT INTO `django_content_type` VALUES
 (4,'auth','user'),
 (5,'contenttypes','contenttype'),
 (7,'game','colorscheme'),
+(9,'game','gamestate'),
 (8,'game','map'),
 (6,'sessions','session');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
@@ -301,7 +307,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -330,7 +336,8 @@ INSERT INTO `django_migrations` VALUES
 (17,'auth','0012_alter_user_first_name_max_length','2022-08-25 04:08:40.980274'),
 (18,'sessions','0001_initial','2022-08-25 04:08:40.994058'),
 (19,'game','0001_initial','2022-08-26 13:42:55.660172'),
-(20,'game','0002_map_num_characters','2022-08-27 00:09:52.695090');
+(20,'game','0002_map_num_characters','2022-08-27 00:09:52.695090'),
+(21,'game','0003_gamestate','2022-08-27 19:39:32.288495');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -389,6 +396,34 @@ INSERT INTO `game_colorscheme` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `game_gamestate`
+--
+
+DROP TABLE IF EXISTS `game_gamestate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `game_gamestate` (
+  `session` char(32) NOT NULL,
+  `state` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`state`)),
+  `map_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`session`),
+  KEY `game_gamestate_map_id_9245e46e_fk_game_map_id` (`map_id`),
+  CONSTRAINT `game_gamestate_map_id_9245e46e_fk_game_map_id` FOREIGN KEY (`map_id`) REFERENCES `game_map` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `game_gamestate`
+--
+
+LOCK TABLES `game_gamestate` WRITE;
+/*!40000 ALTER TABLE `game_gamestate` DISABLE KEYS */;
+INSERT INTO `game_gamestate` VALUES
+('c3caef7152c1496caccfb0290570a5c2','{\"players\": [\"player1\", \"player2\"], \"score\": [0, 0], \"turn_count\": 0}',1);
+/*!40000 ALTER TABLE `game_gamestate` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `game_map`
 --
 
@@ -428,4 +463,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-27  0:15:25
+-- Dump completed on 2022-08-28 16:54:41

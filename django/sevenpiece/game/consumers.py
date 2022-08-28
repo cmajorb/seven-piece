@@ -1,5 +1,7 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
+from game.models import GameState
+
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -9,6 +11,7 @@ class GameConsumer(JsonWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.room_name = None
+        self.current_game_state = None
 
     def connect(self):
         logging.info("Connected!")
@@ -18,11 +21,14 @@ class GameConsumer(JsonWebsocketConsumer):
             self.room_name,
             self.channel_name,
         )
-
+        
+        game_state = GameState.objects.get(session = self.room_name)
+        self.current_game_state = GameState.get_game_state(game_state)
+        
         self.send_json(
             {
-                "type": "welcome_message",
-                "message": "Hey there! You've successfully connected!",
+                "type": "game_state",
+                "state": self.current_game_state,
             }
         )
 
@@ -44,7 +50,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 self.room_name,
                 {
                     "type": "game_state",
-                    "message": content["action"] + " : " + self.room_name,
+                    "state": self.current_game_state,
                 },
             )
         else:
