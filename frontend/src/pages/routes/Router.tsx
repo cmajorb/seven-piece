@@ -1,18 +1,13 @@
 import { Suspense, lazy, ElementType } from 'react';
-import { Navigate, useRoutes, useLocation } from 'react-router-dom';
+import { Navigate, useRoutes } from 'react-router-dom';
+import GuestGuard from '../../components/guards/GuestGuard';
+import AuthGuard from '../../components/guards/AuthGuard';
 // components
-import MainBoard from '../MainBoard';
-import LoadingScreen from '../../components/LoadingScreen';
-
+import LoadingScreen from '../LoadingScreen';
+import { PATH_DASHBOARD, PATH_AUTH } from './paths';
 // ----------------------------------------------------------------------
 
 const Loadable = (Component: ElementType) => (props: any) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { pathname } = useLocation();
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  // const { isAuthenticated } = useAuth();
-
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Component {...props} />
@@ -21,20 +16,53 @@ const Loadable = (Component: ElementType) => (props: any) => {
 };
 
 export default function Router() {
+  
   return useRoutes([
-    // Dashboard Routes
     {
-      path: 'main',
+      path: 'auth',
       children: [
-        { path: 'app', element: <MainBoard /> },
+        {
+          path: 'login',
+          element: (
+            <Login />
+          ),
+        },
+        { path: 'register', element: <Register /> },
+      ],
+    },
+    {
+      path: 'dashboard',
+      element: (
+        <AuthGuard>
+        </AuthGuard>
+      ),
+      children: [
+        { element: <Navigate to={PATH_DASHBOARD.general.board} replace />, index: true },
+        {
+          path: 'main',
+          children: [
+            { path: 'board', element: <MainBoard /> },
+          ],
+        },
       ],
     },
     {
       path: '/',
       children: [
-        { element: <Navigate to="/auth/login" replace />, index: true },
+        { element: <Navigate to={PATH_AUTH.login} replace />, index: true },
       ],
     },
-    { path: '*', element: <Navigate to="/404" replace /> },
+    // {
+    //   path: '*',
+    //   children: [
+    //     { path: '404', element: <NotFound /> },
+    //     { path: '*', element: <Navigate to="/404" replace /> },
+    //   ],
+    // },
   ]);
 }
+
+const MainBoard = Loadable(lazy(() => import('../MainBoard')));
+const NotFound = Loadable(lazy(() => import('../Page404')));
+const Login = Loadable(lazy(() => import('../Login')));
+const Register = Loadable(lazy(() => import('../Register')));

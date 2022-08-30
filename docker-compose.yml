@@ -9,10 +9,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: sevenpiece
+    volumes:
+      - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
     ports:
       - '3306:3306'
-    volumes:
-        - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
     expose:
       - '3306'
   redis:

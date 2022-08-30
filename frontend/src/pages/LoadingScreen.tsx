@@ -3,7 +3,7 @@ import { m } from 'framer-motion';
 import { alpha, styled } from '@mui/material/styles';
 import { Box, SxProps } from '@mui/material';
 //
-import Logo from './Logo';
+import Logo from '../components/Logo';
 
 // ----------------------------------------------------------------------
 
