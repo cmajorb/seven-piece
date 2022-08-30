@@ -4,4 +4,3 @@ __pycache__/
 .env
 *.py[cod]
 7p/
-data/db

@@ -85,12 +85,12 @@ ASGI_APPLICATION = "sevenpiece.asgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'sevenpiece',
         'USER': 'root',
-        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'PASSWORD': env('MYSQL_PASSWORD'),
         'HOST':env('DATABASE_HOST'),
-        'PORT':5432,
+        'PORT':3306,
     }
 }
 

@@ -1,8 +1,14 @@
 import uuid
 import json
 from game.models import *
+from django.contrib.auth.models import User
+import environ
+
 
 def initial_setup():
+    env = environ.Env()
+    environ.Env.read_env()
+    User.objects.create_superuser('admin', 'admin@example.com', env("ADMIN_PASSWORD"))
     #Color Schemes
     scheme_data = (open('sevenpiece/game/data/color_schemes.json')).read()
     scheme = ColorScheme.objects.get_or_create(name="Default Scheme", scheme=json.loads(scheme_data), max_player_size=2)
@@ -18,3 +24,4 @@ def initial_setup():
     game_state_data = (open('sevenpiece/game/data/game_state.json')).read()
     game_state = GameState.objects.get_or_create(session=uuid.uuid4(), map=map[0], state=game_state_data)
     
+initial_setup()

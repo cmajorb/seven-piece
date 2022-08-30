@@ -4,4 +4,4 @@ django-environ==0.4.5
 channels
 channels_redis
 djangorestframework
-psycopg2>=2.8
+mysqlclient
