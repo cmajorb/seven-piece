@@ -4,17 +4,18 @@ services:
     build: ./django
     ports:
         - "80:80"
+    depends_on:
+      - db
   db:
-    image: mariadb:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: sevenpiece
-    ports:
-      - '3306:3306'
+    image: postgres
     volumes:
-        - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=sevenpiece
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=${POSTGRES_ROOT_PASSWORD}
     expose:
-      - '3306'
+      - '5432'
   redis:
     image: redis:6
     container_name: sevenpiece_local_redis

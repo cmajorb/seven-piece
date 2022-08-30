@@ -1,7 +1,9 @@
 from django.contrib import admin
-from game.models import Map, ColorScheme, GameState
+from game.models import Map, ColorScheme, GameState, Piece, Character
 # Register your models here.
 
 admin.site.register(Map)
 admin.site.register(ColorScheme)
 admin.site.register(GameState)
+admin.site.register(Piece)
+admin.site.register(Character)

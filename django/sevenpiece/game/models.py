@@ -17,6 +17,26 @@ class Map(models.Model):
     def __str__(self):
         return self.name + " (" + str(self.player_size) + ")"
 
+class Character(models.Model):
+    name = models.CharField(max_length=150, null=False, unique=False)
+    health = models.IntegerField()
+    attack = models.IntegerField()
+    speed = models.IntegerField()
+    special = models.CharField(max_length=150)
+    image = models.CharField(max_length=150)
+    description = models.CharField(max_length=500)
+    
+    def __str__(self):
+        return self.name
+
+class Piece(models.Model):
+    character = models.ForeignKey(Character, on_delete=models.SET_NULL, null=True)
+    location_x = models.IntegerField()
+    location_y = models.IntegerField()
+    
+    def __str__(self):
+        return self.character.name
+
 class GameState(models.Model):
     session = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     map = models.ForeignKey(Map, on_delete=models.SET_NULL, null=True)
