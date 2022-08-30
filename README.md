@@ -38,9 +38,9 @@ npm run start
 You need to have the following environment variables:
 
 - ./.env
-    - POSTGRES_ROOT_PASSWORD=sevenpiece123
+    - MYSQL_ROOT_PASSWORD=sevenpiece123
 - ./django/sevenpiece/sevenpiece/.env
-    - POSTGRES_PASSWORD=sevenpiece123
+    - MYSQL_ROOT_PASSWORD=sevenpiece123
     - DATABASE_HOST=db
     - REDIS_HOST=redis
     - REDIS_PORT=6379
