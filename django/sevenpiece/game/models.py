@@ -51,7 +51,9 @@ class GameState(models.Model):
 
 class Piece(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE, null=True)
-    #location
+    location_x = models.IntegerField()
+    location_y = models.IntegerField()
+    health = models.IntegerField()
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     def __str__(self):
         return self.character.name
