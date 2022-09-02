@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useLocation } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function MainBoard() {
   const { pathname } = useLocation();
+  const { user } = useContext(AuthContext);
   console.log("PATHNAME", pathname.split("/")[1]);
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [messageHistory, setMessageHistory] = useState<any>([]);
-  const { readyState } = useWebSocket('ws://127.0.0.1/' + pathname.split("/")[1], {
+
+  const { readyState } = useWebSocket(user ? ('ws://127.0.0.1/' + pathname.split("/")[1]) : null, {
+    queryParams: {
+      token: user ? user.token : "",
+    },
     onOpen: () => {
       console.log("Connected!")
     },

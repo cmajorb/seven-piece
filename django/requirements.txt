@@ -4,9 +4,6 @@ django-environ==0.4.5
 channels
 channels_redis
 djangorestframework
-djangorestframework-simplejwt
 django-cors-headers~=3.13.0
-drf-jwt~=1.19.2
 dj-rest-auth
-django-allauth
 mysqlclient

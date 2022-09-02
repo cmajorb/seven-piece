@@ -12,9 +12,13 @@ class GameConsumer(JsonWebsocketConsumer):
         super().__init__(args, kwargs)
         self.room_name = None
         self.current_game_state = None
+        self.user = None
 
     def connect(self):
         logging.info("Connected!")
+        self.user = self.scope["user"]
+        if not self.user.is_authenticated:
+            return
         self.room_name = f"{self.scope['url_route']['kwargs']['room']}"
         self.accept()
         async_to_sync(self.channel_layer.group_add)(

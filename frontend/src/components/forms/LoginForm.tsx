@@ -1,108 +1,104 @@
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-// form
-import { useForm } from 'react-hook-form';
-// @mui
-import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-// routes
-import { PATH_AUTH } from '../../pages/routes/paths';
-// hooks
-import { login } from '../../utils/jwt';
-import useIsMountedRef from '../../utils/useIsMountedRef';
-// components
-import FormProvider from './FormProvider&Fields';
-import { RHFTextField, RHFCheckbox } from './FormProvider&Fields';
-import Iconify from '../Iconify';
+// import { useState, useContext } from "react";
+// import { Link as RouterLink } from 'react-router-dom';
+// // form
+// import { useForm } from 'react-hook-form';
+// // @mui
+// import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
+// import { LoadingButton } from '@mui/lab';
+// // routes
+// import { PATH_AUTH } from '../../pages/routes/paths';
+// // hooks
+// import useIsMountedRef from '../../utils/useIsMountedRef';
+// // components
+// import FormProvider from './FormProvider&Fields';
+// import { RHFTextField, RHFCheckbox } from './FormProvider&Fields';
+// import Iconify from '../Iconify';
+// import { AuthContext } from "../../contexts/AuthContext";
 
+import { useState, useContext, useEffect } from "react";
+import { useFormik } from "formik";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 
 // ----------------------------------------------------------------------
 
-type FormValuesProps = {
-  username: string;
-  password: string;
-  remember: boolean;
-  afterSubmit?: string;
-};
+// type FormValuesProps = {
+//   username: string;
+//   password: string;
+//   remember: boolean;
+// };
 
 export default function LoginForm() {
-  const [loginError, setLoginError] = useState({ error: null });
-  const isMountedRef = useIsMountedRef();
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const { user, login } = useContext(AuthContext);
 
-  const [showPassword, setShowPassword] = useState(false);
-
-  const defaultValues = {
-    username: '',
-    password: '',
-    remember: true,
-  };
-
-  const methods = useForm<FormValuesProps>({
-    defaultValues,
+  const formik = useFormik({
+    initialValues: {
+      username: "",
+      password: "",
+    },
+    onSubmit: async (values, { setSubmitting }) => {
+      setSubmitting(true);
+      const { username, password } = values;
+      const res = await login(username, password);
+      if (res.error || res.data) {
+        if (res.data && res.data.detail) {
+          setError(res.data.detail);
+        }
+      } else {
+        navigate("/");
+      }
+      setSubmitting(false);
+    },
   });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
-
-  const onSubmit = async (data: FormValuesProps) => {
-    setLoginError({ error: null });
-    try {
-      await login(data.username, data.password);
-    } catch (error) {
-      if (isMountedRef.current) {
-        var message = null;
-        if(JSON.parse(error).password) {
-          message = JSON.parse(error).password;
-        } else if(JSON.parse(error).username) {
-          message = JSON.parse(error).username;
-        } else {
-          message = JSON.parse(error).detail;
-        }
-        setLoginError({ error: message });
-      }
+  useEffect(() => {
+    if (user) {
+      navigate("/");
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   return (
-    <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={3}>
-        {loginError?.error && <Alert severity="error">{loginError.error}</Alert>}
+    <div>
+      <div className="w-full max-w-md space-y-8">
+        <div>
+          <h1 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h1>
+        </div>
 
-        <RHFTextField name="username" label="Username" />
+        <form className="mt-8 space-y-6" onSubmit={formik.handleSubmit}>
+          {error && <div>{JSON.stringify(error)}</div>}
 
-        <RHFTextField
-          name="password"
-          label="Password"
-          type={showPassword ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Stack>
+          <div className="-space-y-px rounded-md">
+            <input
+              value={formik.values.username}
+              onChange={formik.handleChange}
+              type="text"
+              name="username"
+              placeholder="Username"
+              className="border-gray-300 text-gray-900 placeholder-gray-300 focus:ring-gray-500 focus:border-gray-500 block w-full pr-10 focus:outline-none sm:text-sm rounded-md"
+            />
+            <input
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              type="password"
+              name="password"
+              className="border-gray-300 text-gray-900 placeholder-gray-300 focus:ring-gray-500 focus:border-gray-500 block w-full pr-10 focus:outline-none sm:text-sm rounded-md"
+              placeholder="Password"
+            />
+          </div>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <RHFCheckbox name="remember" label="Remember me" />
-        <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.resetPassword}>
-          Forgot password?
-        </Link>
-      </Stack>
-
-      <LoadingButton
-        fullWidth
-        size="large"
-        type="submit"
-        variant="contained"
-        loading={isSubmitting}
-      >
-        Login
-      </LoadingButton>
-    </FormProvider>
+          <button
+            type="submit"
+            className="group relative flex w-full justify-center rounded-md border border-transparent bg-sky-600 py-2 px-4 text-sm font-medium text-white hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+          >
+            {formik.isSubmitting ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

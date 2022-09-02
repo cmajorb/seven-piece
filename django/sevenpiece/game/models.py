@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
 
 class ColorScheme(models.Model):
     name = models.CharField(max_length=150, null=False, unique=False)

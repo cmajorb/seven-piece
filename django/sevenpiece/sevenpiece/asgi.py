@@ -11,9 +11,11 @@ import os
 import sys
 from pathlib import Path
 from django.core.asgi import get_asgi_application
-from config import routing  # noqa isort:skip
+from config import routing
 
-from channels.routing import ProtocolTypeRouter, URLRouter  # noqa isort:skip
+from channels.routing import ProtocolTypeRouter, URLRouter
+from .middleware import TokenAuthMiddleware
+# from channels.security.websocket import AllowedHostsOriginValidator
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sevenpiece.settings')
 
@@ -27,6 +29,8 @@ sys.path.append(str(ROOT_DIR / "sevenpiece"))
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": URLRouter(routing.websocket_urlpatterns),
+        "websocket": TokenAuthMiddleware(
+            URLRouter(routing.websocket_urlpatterns)
+            ),
     }
 )
