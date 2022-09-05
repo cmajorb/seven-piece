@@ -24,6 +24,21 @@ For a data dump, use the following:
 docker exec seven-piece-db-1 /usr/bin/mysqldump -u root --password=sevenpiece123 sevenpiece > dump.sql
 ```
 
+To reload the database run the following:
+```
+docker compose down
+docker compose up --build -d
+docker compose run web python sevenpiece/manage.py migrate
+docker compose run web python sevenpiece/manage.py shell
+exec(open('/sevenpiece/game/helpers.py').read())
+```
+
+## Testing
+
+Use the following command to run tests:
+```
+docker compose run web python sevenpiece/manage.py test game
+```
 
 ## Front End
 

@@ -1,6 +1,46 @@
-from game.models import Piece, GameState
+from game.models import Piece, GameState, Map, Player, Character
 from game.data.constants import MAP_DEFINITION
-from game.exceptions import IllegalMoveError
+from game.exceptions import IllegalMoveError, GameDoesNotExist, IllegalPieceSelection, JoinGameError
+
+def create_game(user, map_id):
+    map = Map.objects.get(id=map_id)
+    game_state = GameState.objects.create(map=map)
+    Player.objects.create(user=user, game=game_state)
+    return game_state
+
+def join_game(user, session):
+    try:
+        game_state = GameState.objects.get(session=session)
+    except:
+        raise GameDoesNotExist
+    if len(game_state.player_set.all()) >= game_state.map.player_size:
+        raise JoinGameError
+    Player.objects.create(user=user, game=game_state)
+    if len(game_state.player_set.all()) == game_state.map.player_size:
+        game_state.state = "READY"
+        game_state.save()
+    return game_state
+
+def select_pieces(user, session, pieces):
+    game_state = GameState.objects.get(session=session)
+    if game_state.state != "READY":
+        return IllegalPieceSelection
+    if len(pieces) != game_state.map.num_characters:
+        raise IllegalPieceSelection
+    for piece in pieces:
+        character = Character.objects.get(name=piece)
+        Piece.objects.create(character=character, game=game_state, user=user)
+    if len(game_state.piece_set.all()) == game_state.map.num_characters * game_state.map.player_size:
+        init_game(game_state)
+
+
+def init_game(game_state):
+    game_state.state = "PLACING"
+    for piece in game_state.piece_set.all():
+        piece.health = piece.character.health
+        piece.range = piece.character.speed
+        piece.save()
+    game_state.save()
 
 def is_range_valid(piece, location, board):
     map_length_x = len(board)

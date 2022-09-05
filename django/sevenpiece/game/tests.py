@@ -1,8 +1,9 @@
 from django.test import TestCase
 from game.models import Piece, Character, GameState, Map, ColorScheme
 import json
-from game.controller import make_move, take_damage
-from game.exceptions import IllegalMoveError
+from game.controller import make_move, take_damage, create_game, join_game, select_pieces
+from game.exceptions import IllegalMoveError, JoinGameError
+from django.contrib.auth.models import User
 
 class PieceTestCase(TestCase):
     # def resetGame(self):
@@ -20,31 +21,53 @@ class PieceTestCase(TestCase):
         
         #Characters
         self.soldier = Character.objects.create(name="Soldier", health=3, attack=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
+        self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, speed=1, special="None", image="/images/berserker.png", description="Has strong attack")
+        self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
 
         #Game
-        self.game_state_data = (open('sevenpiece/game/data/game_state.json')).read()
-        self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
-        self.piece = Piece.objects.create(character=self.soldier, location_x=0, location_y=0, health=self.soldier.health, game=self.game_state, range=2)
+        # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
+        # self.piece = Piece.objects.create(character=self.soldier, location_x=0, location_y=0, health=self.soldier.health, game=self.game_state, range=2)
 
-    def test_movement(self):
-        make_move(self.piece.id,[1,1],self.game_state.session)
+        self.user = User.objects.create_user(username='user1', password='12345')
 
-        self.piece.refresh_from_db()
-        self.assertEqual(self.piece.location_x, 1)
-        self.assertEqual(self.piece.location_y, 1)
 
-    def test_move_empty_tile(self):
-        game_state = GameState.objects.all().first()
-        piece = game_state.piece_set.all().first()
-        with self.assertRaises(IllegalMoveError):
-            make_move(piece.id,[0,4],game_state.session)
+    # def test_movement(self):
+    #     make_move(self.piece.id,[1,1],self.game_state.session)
+
+    #     self.piece.refresh_from_db()
+    #     self.assertEqual(self.piece.location_x, 1)
+    #     self.assertEqual(self.piece.location_y, 1)
+
+    # def test_move_empty_tile(self):
+    #     game_state = GameState.objects.all().first()
+    #     piece = game_state.piece_set.all().first()
+    #     with self.assertRaises(IllegalMoveError):
+    #         make_move(piece.id,[0,4],game_state.session)
         
 
-    def test_attack(self):
-        game_state = GameState.objects.all().first()
-        for piece in game_state.piece_set.all():
-            take_damage(piece.id,1)
+    # def test_attack(self):
+    #     game_state = GameState.objects.all().first()
+    #     for piece in game_state.piece_set.all():
+    #         take_damage(piece.id,1)
 
-        game_state = GameState.objects.all().first()
-        for piece in game_state.piece_set.all():
-            self.assertEqual(piece.health, piece.character.health - 1)
+    #     game_state = GameState.objects.all().first()
+    #     for piece in game_state.piece_set.all():
+    #         self.assertEqual(piece.health, piece.character.health - 1)
+
+    def test_entire_game(self):
+        game_state = create_game(self.user, self.map.id)
+        user2 = User.objects.create_user(username='user2', password='12345')
+        join_game(user2, game_state.session)
+        pieces = ["Soldier", "Berserker"]
+        select_pieces(user2, game_state.session, pieces)
+        self.assertEqual(len(user2.piece_set.all()), len(pieces))
+        pieces = ["Ice Wizard", "Berserker"]
+        select_pieces(self.user, game_state.session, pieces)
+
+    def test_too_many_players_join(self):
+        game_state = create_game(self.user, self.map.id)
+        user2 = User.objects.create_user(username='test_user2', password='12345')
+        user3 = User.objects.create_user(username='test_user3', password='12345')
+        join_game(user2, game_state.session)
+        with self.assertRaises(JoinGameError):
+            join_game(user3, game_state.session)

@@ -23,7 +23,8 @@ def initial_setup():
     ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
 
     #Testing
-    game_state_data = (open('sevenpiece/game/data/game_state.json')).read()
-    game_state = GameState.objects.get_or_create(session=uuid.uuid4(), map=map[0], state=game_state_data)
+    # player_1 = Player.objects.get_or_create()
+    # player_2 = Player.objects.get_or_create()
+    # game_state = GameState.objects.get_or_create(map=map[0])
     
 initial_setup()

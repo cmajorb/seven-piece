@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
 
 class ColorScheme(models.Model):
     name = models.CharField(max_length=150, null=False, unique=False)
@@ -27,14 +28,15 @@ class Character(models.Model):
     description = models.CharField(max_length=500)
     
     def __str__(self):
-        return self.name
+        return self.name + " ({})".format(str(self.id))
 
 
 
 class GameState(models.Model):
     session = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     map = models.ForeignKey(Map, on_delete=models.CASCADE, null=True)
-    state = models.JSONField()
+    state = models.CharField(max_length=50, default='WAITING', choices=[('WAITING', 'Waiting for players'), ('READY', 'Ready to play'), ('PLACING', 'Placing pieces'), ('PLAYING', 'Game in progress'), ('FINISHED', 'Game Over')])
+    turn_count = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.session)
@@ -49,12 +51,19 @@ class GameState(models.Model):
 
         return dictionary
 
+class Player(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
+    score = models.IntegerField(default=0)
+
 class Piece(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE, null=True)
-    location_x = models.IntegerField()
-    location_y = models.IntegerField()
-    health = models.IntegerField()
+    location_x = models.IntegerField(null=True)
+    location_y = models.IntegerField(null=True)
+    health = models.IntegerField(default=0)
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
-    range = models.IntegerField()
+    range = models.IntegerField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+
     def __str__(self):
         return self.character.name
