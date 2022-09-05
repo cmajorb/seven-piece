@@ -31,10 +31,8 @@ SECRET_KEY = 'django-insecure-yajj*u8*_5g0!_)!_ia+(8a)de0662g!*eplwvclubbi%1n9f7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
-
-# Application definition
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
+# ALLOWED_HOSTS = ['*']
 
 DJANGO_APPS = [
     'django.contrib.auth',
@@ -48,9 +46,9 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
     'channels',
 ]
 
@@ -58,12 +56,12 @@ LOCAL_APPS = [
     'game.apps.GameConfig',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -85,26 +83,59 @@ REST_FRAMEWORK = {
     ]
 }
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost',
-#     'http://localhost:3000',
-#     'http://localhost:3000/',
-#     'http://localhost/',
-# ]
+CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'origin',
+    'dnt',
+    'user-agent',
+    'x-requested-with',
+    'csrftoken',
+    'X-CSRFToken',
+    'X-CSRF-Token',
+    'XSRF-TOKEN',
+]
+
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+CSRF_COOKIE_SECURE = True
+
+CORS_EXPOSE_HEADERS = [
+    'Date'
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost',
+    'http://localhost:3000',
+    'https://localhost',
+    'https://localhost:3000',
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost',
+    'http://localhost:3000',
+    'https://localhost',
+    'https://localhost:3000',
+]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://localhost:3000',
-    'http://localhost:3000/',
-    'http://localhost/',
+    'https://localhost',
+    'https://localhost:3000',
 ]
 
-SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = "DENY"
+# SESSION_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = True
+# SECURE_BROWSER_XSS_FILTER = True
+# X_FRAME_OPTIONS = "DENY"
 
 ROOT_URLCONF = 'sevenpiece.urls'
 

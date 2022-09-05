@@ -9,10 +9,21 @@ class AuthService {
   }
 
   async login(username: string, password: string): Promise<User> {
-    axios.defaults.xsrfCookieName = 'csrftoken';
+    // axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
     const csrftoken = Cookies.get('csrftoken');
-    const response = await axios.post(`${BASE_API.url}/log_activity/`, { username, password }, { headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'csrf_token': csrftoken!, 'content-type': 'multipart/form-data' } });
+    const response = await axios.post(`${BASE_API.url}/token_obtain/`,
+    { username, password },
+    { headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken!,
+        'X-CSRF-Token': csrftoken!,
+        'csrftoken': csrftoken!,
+        'XSRF-TOKEN': csrftoken!,
+        'content-type': 'multipart/form-data'
+    } });
     if (!response.data.token) {
       return response.data;
     }
