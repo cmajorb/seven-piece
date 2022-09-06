@@ -1,7 +1,7 @@
 from django.test import TestCase
 from game.models import Piece, Character, GameState, Map, ColorScheme
 import json
-from game.controller import make_move, take_damage, create_game, join_game, select_pieces
+from game.controller import make_move, take_damage, create_game, join_game, select_pieces, end_turn
 from game.exceptions import IllegalMoveError, JoinGameError
 from django.contrib.auth.models import User
 
@@ -71,6 +71,8 @@ class PieceTestCase(TestCase):
         make_move(pieces2[1].id,[10,9],game_state.session, user2)
 
         make_move(pieces1[0].id,[1,1],game_state.session, self.user)
+        end_turn(game_state, self.user)
+        make_move(pieces2[0].id,[9,10],game_state.session, user2)
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)

@@ -125,9 +125,17 @@ def take_damage(target_id, damage):
     target.health -= damage
     target.save()
     
-def end_move(game_state):
-    game_state.turn_count = game_state.turn_count + 1
-    game_state.save()
+def end_turn(game_state, user):
+    #Check to make sure all pieces have moved
+    if is_current_turn(game_state, user):
+        game_state.turn_count = game_state.turn_count + 1
+        game_state.save()
+        for piece in game_state.piece_set.all():
+            piece.range = piece.character.speed
+            piece.attack = piece.character.attack
+            piece.save()
+    else:
+        raise IllegalMoveError
 
 def is_current_turn(game_state, user):
     print("Turn count: {}".format(game_state.turn_count))
