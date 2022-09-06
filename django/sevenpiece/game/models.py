@@ -26,6 +26,7 @@ class Character(models.Model):
     special = models.CharField(max_length=150)
     image = models.CharField(max_length=150)
     description = models.CharField(max_length=500)
+    attack_range = models.IntegerField(default=1)
     
     def __str__(self):
         return self.name + " ({})".format(str(self.id))
@@ -49,6 +50,16 @@ class GameState(models.Model):
         dictionary["state"] = state.state
         dictionary["map"] = state.map.data
 
+        return dictionary
+
+    def get_game_summary(state):
+        if state == None:
+            return None
+        dictionary = {}
+        pieces = []
+        for piece in state.piece_set.all():
+            pieces.append("Name: {}({}), Range: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.user.id, piece.range, piece.attack, piece.health, piece.location_x, piece.location_y))
+        dictionary["pieces"] = pieces
         return dictionary
 
 class Player(models.Model):

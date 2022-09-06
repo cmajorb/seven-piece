@@ -46,17 +46,17 @@ def init_game(game_state):
         piece.save()
     game_state.save()
 
-def is_range_valid(piece, location, board):
+def is_range_valid(piece, location, board, range):
     map_length_x = len(board)
     map_length_y = len(board[0])
     x_diff = abs(piece.location_x - location[0])
     y_diff = abs(piece.location_y - location[1])
     if location[0] < map_length_x and location[1] < map_length_y and location[0] >= 0 and location[1] >= 0: 
-        if piece.location_x == location[0] and y_diff <= piece.range:
+        if piece.location_x == location[0] and y_diff <= range:
             return True
-        elif piece.location_y == location[1] and x_diff <= piece.range:
+        elif piece.location_y == location[1] and x_diff <= range:
             return True
-        elif x_diff == y_diff and x_diff <= piece.range:
+        elif x_diff == y_diff and x_diff <= range:
             return True
     return False
 
@@ -67,17 +67,20 @@ def make_move(piece_id, location, session, user):
     player = Player.objects.get(user=user, game=game_state)
     if game_state.state == "PLACING":
         place_piece(piece, location, game_state, player.number)
-        return
+        game_state.refresh_from_db()
+        return game_state
     if not is_current_turn(game_state, user):
         print("Not your turn")
         raise IllegalMoveError
-    if not is_range_valid(piece, location, board):
+    if not is_range_valid(piece, location, board, piece.range):
         print("Out of range")
         raise IllegalMoveError
     if board[location[0]][location[1]] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
         print("Not a valid tile")
         raise IllegalMoveError
     move_piece(piece, location, game_state)
+    game_state.refresh_from_db()
+    return game_state
 
 def move_piece(piece, location, game_state):
     previous_x = piece.location_x
@@ -120,8 +123,7 @@ def move_placed_piece(piece, location, game_state):
     game_state.map.data["board"] = board
     game_state.map.save()
 
-def take_damage(target_id, damage):
-    target = Piece.objects.get(id=target_id)
+def take_damage(target, damage):
     target.health -= damage
     target.save()
     
@@ -136,9 +138,36 @@ def end_turn(game_state, user):
             piece.save()
     else:
         raise IllegalMoveError
+    game_state.refresh_from_db()
+    return game_state
 
 def is_current_turn(game_state, user):
     print("Turn count: {}".format(game_state.turn_count))
     print(Player.objects.get(game=game_state, user=user).number)
     print(game_state.map.player_size)
     return game_state.turn_count % game_state.map.player_size == Player.objects.get(game=game_state, user=user).number
+
+def attack(game_state, location, user, piece_id):
+    #check to make sure it isn't on their team
+    piece = Piece.objects.get(id=piece_id)
+    print("Attack: {}/{}".format(piece.attack, piece.character.attack))
+    if not is_current_turn(game_state, user):
+        print("Not your turn")
+        raise IllegalMoveError
+    if piece.attack == 0:
+        print("No available attack")
+        raise IllegalMoveError
+    if not is_range_valid(piece, location, game_state.map.data["data"], piece.character.attack_range):
+        print("Out of range")
+        raise IllegalMoveError
+    target_piece = get_piece_by_location(game_state, location)
+    if target_piece:
+        take_damage(target_piece, piece.attack)
+    else:
+        print("No piece there")
+        raise IllegalMoveError
+    game_state.refresh_from_db()
+    return game_state
+    
+def get_piece_by_location(game_state, location):
+    return game_state.piece_set.all().filter(location_x=location[0], location_y=location[1]).first()

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from game.models import Piece, Character, GameState, Map, ColorScheme
 import json
-from game.controller import make_move, take_damage, create_game, join_game, select_pieces, end_turn
+from game.controller import make_move, take_damage, create_game, join_game, select_pieces, end_turn, attack
 from game.exceptions import IllegalMoveError, JoinGameError
 from django.contrib.auth.models import User
 
@@ -16,13 +16,13 @@ class PieceTestCase(TestCase):
         scheme = ColorScheme.objects.create(name="Default Scheme", scheme=json.loads(scheme_data), max_player_size=2)
 
         #Maps
-        maps_data = (open('sevenpiece/game/data/maps.json')).read()
-        self.map = Map.objects.create(name="Default Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme)
+        maps_data = (open('sevenpiece/game/data/test_maps.json')).read()
+        self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme)
         
         #Characters
-        self.soldier = Character.objects.create(name="Soldier", health=3, attack=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
-        self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, speed=1, special="None", image="/images/berserker.png", description="Has strong attack")
-        self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
+        self.soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, attack_range=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
+        self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, attack_range=1, speed=1, special="None", image="/images/berserker.png", description="Has strong attack")
+        self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, attack_range=1, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
 
         #Game
         # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
@@ -61,18 +61,26 @@ class PieceTestCase(TestCase):
         pieces = ["Soldier", "Berserker"]
         pieces2 = select_pieces(user2, game_state.session, pieces)
         self.assertEqual(len(user2.piece_set.all()), len(pieces))
-        pieces = ["Ice Wizard", "Berserker"]
+        pieces = ["Soldier", "Berserker"]
         pieces1 = select_pieces(self.user, game_state.session, pieces)
 
-        make_move(pieces1[0].id,[0,1],game_state.session, self.user)
-        make_move(pieces1[1].id,[1,0],game_state.session, self.user)
-            
-        make_move(pieces2[0].id,[10,10],game_state.session, user2)
-        make_move(pieces2[1].id,[10,9],game_state.session, user2)
+        game_state = make_move(pieces1[0].id,[1,1],game_state.session, self.user)
+        print(game_state.get_game_summary())
+        game_state = make_move(pieces1[1].id,[1,0],game_state.session, self.user)
+        print(game_state.get_game_summary()) 
+        game_state = make_move(pieces2[0].id,[3,3],game_state.session, user2)
+        print(game_state.get_game_summary())
+        game_state = make_move(pieces2[1].id,[4,3],game_state.session, user2)
+        print(game_state.get_game_summary())
 
-        make_move(pieces1[0].id,[1,1],game_state.session, self.user)
-        end_turn(game_state, self.user)
-        make_move(pieces2[0].id,[9,10],game_state.session, user2)
+        game_state = make_move(pieces1[0].id,[2,2],game_state.session, self.user)
+        print(game_state.get_game_summary())
+        game_state = end_turn(game_state, self.user)
+        print(game_state.get_game_summary())
+        game_state = make_move(pieces2[0].id,[2,3],game_state.session, user2)
+        print(game_state.get_game_summary())
+        game_state = attack(game_state, [2,2], user2, pieces2[0].id)
+        print(game_state.get_game_summary())
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)
