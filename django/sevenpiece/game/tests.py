@@ -59,10 +59,18 @@ class PieceTestCase(TestCase):
         user2 = User.objects.create_user(username='user2', password='12345')
         join_game(user2, game_state.session)
         pieces = ["Soldier", "Berserker"]
-        select_pieces(user2, game_state.session, pieces)
+        pieces2 = select_pieces(user2, game_state.session, pieces)
         self.assertEqual(len(user2.piece_set.all()), len(pieces))
         pieces = ["Ice Wizard", "Berserker"]
-        select_pieces(self.user, game_state.session, pieces)
+        pieces1 = select_pieces(self.user, game_state.session, pieces)
+
+        make_move(pieces1[0].id,[0,1],game_state.session, self.user)
+        make_move(pieces1[1].id,[1,0],game_state.session, self.user)
+            
+        make_move(pieces2[0].id,[10,10],game_state.session, user2)
+        make_move(pieces2[1].id,[10,9],game_state.session, user2)
+
+        make_move(pieces1[0].id,[1,1],game_state.session, self.user)
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)

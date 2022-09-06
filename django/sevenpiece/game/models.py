@@ -55,6 +55,7 @@ class Player(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     score = models.IntegerField(default=0)
+    number = models.IntegerField()
 
 class Piece(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE, null=True)
@@ -63,6 +64,7 @@ class Piece(models.Model):
     health = models.IntegerField(default=0)
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     range = models.IntegerField(default=0)
+    attack = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
