@@ -56,10 +56,13 @@ class GameState(models.Model):
         if state == None:
             return None
         dictionary = {}
+        dictionary["score"] = ""
         pieces = []
         for piece in state.piece_set.all():
-            pieces.append("Name: {}({}), Range: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.user.id, piece.range, piece.attack, piece.health, piece.location_x, piece.location_y))
+            pieces.append("Name: {}({}), Range: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.user.id, piece.range, piece.attack, piece.health, piece.location_x, piece.location_y))
         dictionary["pieces"] = pieces
+        for player in state.player_set.all():
+            dictionary["score"] += "{} ({}), ".format(player.id, player.score)
         return dictionary
 
 class Player(models.Model):
@@ -76,7 +79,7 @@ class Piece(models.Model):
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     range = models.IntegerField(default=0)
     attack = models.IntegerField(default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
         return self.character.name

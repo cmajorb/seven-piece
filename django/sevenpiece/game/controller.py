@@ -32,7 +32,7 @@ def select_pieces(user, session, pieces):
         raise IllegalPieceSelection
     for piece in pieces:
         character = Character.objects.get(name=piece)
-        all_pieces.append(Piece.objects.create(character=character, game=game_state, user=user))
+        all_pieces.append(Piece.objects.create(character=character, game=game_state, player=Player.objects.get(user=user, game=game_state)))
     if len(game_state.piece_set.all()) == game_state.map.num_characters * game_state.map.player_size:
         init_game(game_state)
     return all_pieces
@@ -126,7 +126,8 @@ def move_placed_piece(piece, location, game_state):
 def take_damage(target, damage):
     target.health -= damage
     target.save()
-    
+    return target
+
 def end_turn(game_state, user):
     #Check to make sure all pieces have moved
     if is_current_turn(game_state, user):
@@ -143,9 +144,14 @@ def end_turn(game_state, user):
 
 def is_current_turn(game_state, user):
     print("Turn count: {}".format(game_state.turn_count))
-    print(Player.objects.get(game=game_state, user=user).number)
-    print(game_state.map.player_size)
     return game_state.turn_count % game_state.map.player_size == Player.objects.get(game=game_state, user=user).number
+
+def remove_piece(game_state, target_piece, piece):
+    target_piece.health = 0
+    target_piece.save()
+    game_state.map.data["board"][target_piece.location_x][target_piece.location_y] &=  ~MAP_DEFINITION['player']
+    piece.player.score += 1
+    piece.player.save()
 
 def attack(game_state, location, user, piece_id):
     #check to make sure it isn't on their team
@@ -162,10 +168,12 @@ def attack(game_state, location, user, piece_id):
         raise IllegalMoveError
     target_piece = get_piece_by_location(game_state, location)
     if target_piece:
-        take_damage(target_piece, piece.attack)
+        target_piece = take_damage(target_piece, piece.attack)
     else:
         print("No piece there")
         raise IllegalMoveError
+    if target_piece.health <= 0:
+        remove_piece(game_state, target_piece, piece)
     game_state.refresh_from_db()
     return game_state
     

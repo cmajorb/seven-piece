@@ -1,5 +1,5 @@
 from django.test import TestCase
-from game.models import Piece, Character, GameState, Map, ColorScheme
+from game.models import Piece, Character, GameState, Map, ColorScheme, Player
 import json
 from game.controller import make_move, take_damage, create_game, join_game, select_pieces, end_turn, attack
 from game.exceptions import IllegalMoveError, JoinGameError
@@ -58,10 +58,10 @@ class PieceTestCase(TestCase):
         game_state = create_game(self.user, self.map.id)
         user2 = User.objects.create_user(username='user2', password='12345')
         join_game(user2, game_state.session)
-        pieces = ["Soldier", "Berserker"]
+        pieces = ["Berserker", "Soldier"]
         pieces2 = select_pieces(user2, game_state.session, pieces)
-        self.assertEqual(len(user2.piece_set.all()), len(pieces))
-        pieces = ["Soldier", "Berserker"]
+        self.assertEqual(len(Player.objects.get(user=user2).piece_set.all()), len(pieces))
+        pieces = ["Berserker", "Soldier"]
         pieces1 = select_pieces(self.user, game_state.session, pieces)
 
         game_state = make_move(pieces1[0].id,[1,1],game_state.session, self.user)
