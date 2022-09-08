@@ -1,20 +1,28 @@
+import { Card } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+
+// ----------------------------------------------------------------------
+
 type Props = {
-  status: number,
-  length: number,
-  row: number,
-  column: number,
-  fillColor: string,
-  strokeColor: string,
+  location: number[],
+  fillImageURL: string | undefined,
 };
 
-export default function renderCell({ status, length, row, column, fillColor, strokeColor }: Props) {
-    return (
-    <rect width={length}
-          height={length}
-          x={length * row}
-          y={length * column}
-          fill={fillColor}
-          stroke={strokeColor}
-          strokeWidth="1"/>
+// ----------------------------------------------------------------------
+
+export default function Cell({ location, fillImageURL }: Props) {
+  
+  const theme = useTheme();
+
+  return (
+    <Card
+      sx={{ minWidth: 50, minHeight: 50, border: 2,
+        borderColor: theme.palette.common.black,
+        '&:hover': { bgcolor: theme.palette.grey[200], cursor: 'pointer' },
+      }}
+      onClick={() => { console.log(location) }}
+    >
+      { fillImageURL && <img width={45} height={45} alt='test' src={fillImageURL}/> }
+    </Card>
   );
 }

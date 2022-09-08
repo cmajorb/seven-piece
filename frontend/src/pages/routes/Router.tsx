@@ -1,7 +1,5 @@
 import { Suspense, lazy, ElementType } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import GuestGuard from '../../components/guards/GuestGuard';
-import AuthGuard from '../../components/guards/AuthGuard';
 // components
 import LoadingScreen from '../LoadingScreen';
 import { PATH_DASHBOARD, PATH_AUTH } from './paths';
@@ -32,10 +30,6 @@ export default function Router() {
     },
     {
       path: 'dashboard',
-      element: (
-        <AuthGuard>
-        </AuthGuard>
-      ),
       children: [
         { element: <Navigate to={PATH_DASHBOARD.general.board} replace />, index: true },
         {

@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useLocation } from 'react-router-dom';
+import getUUID from '../utils/getUUID';
+import { useTheme } from '@mui/material/styles';
+import {
+  Grid,
+  Card,
+  Stack,
+} from '@mui/material';
+import MainGrid from '../components/MainGrid';
 
 export default function MainBoard() {
   const { pathname } = useLocation();
+  const theme = useTheme();
   console.log("PATHNAME", pathname.split("/")[1]);
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [messageHistory, setMessageHistory] = useState<any>([]);
-  const { readyState } = useWebSocket('ws://127.0.0.1/' + pathname.split("/")[1], {
+  const uuid = getUUID();
+  const path_str = pathname.split("/")[-1];
+  const { readyState } = useWebSocket('ws://127.0.0.1/' + path_str, {
     onOpen: () => {
       console.log("Connected!")
     },
@@ -46,40 +57,42 @@ export default function MainBoard() {
   return (
     <div>
     <div>
-      <span>The WebSocket is currently {connectionStatus}</span>
+      <span>The WebSocket is currently: {connectionStatus}</span>
       <p>{welcomeMessage}</p>
     </div>
     <button className='bg-gray-300 px-3 py-1' 
-  onClick={() => {
-    sendJsonMessage({
-      type: "move",
-      selected_piece: 0,
-      target_x: 2,
-      target_y: 3,
-      action: "move",
-    })
-  }}
->
-  Make a move (2,3)
-</button>
-<button className='bg-gray-300 px-3 py-1' 
-  onClick={() => {
-    sendJsonMessage({
-      type: "join_room",
-      name: "room1",
-    })
-  }}
->
-  Join room
-</button>
-<hr />
-<ul>
-  {messageHistory.map((message: any, idx: number) => (
-    <div className='border border-gray-200 py-3 px-3' key={idx}>
-      {message.name}: {message.message}
+      onClick={() => {
+        sendJsonMessage({
+          type: "move",
+          selected_piece: 0,
+          target_x: 2,
+          target_y: 3,
+          action: "move",
+          })
+      }}
+    >
+    Make a move (2,3)
+    </button>
+    <button className='bg-gray-300 px-3 py-1' 
+      onClick={() => {
+        sendJsonMessage({
+          type: "join_room",
+          name: "room1",
+        })
+      }}
+    >
+      Join room
+    </button>
+  <hr />
+  <ul>
+    {messageHistory.map((message: any, idx: number) => (
+      <div className='border border-gray-200 py-3 px-3' key={idx}>
+        {message.name}: {message.message}
+      </div>
+    ))}
+  </ul>
+      <MainGrid rows={5} columns={6}/>
     </div>
-  ))}
-</ul>
-    </div>
+
   );
 };
