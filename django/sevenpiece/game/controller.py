@@ -69,6 +69,8 @@ def make_move(piece_id, location, session, user):
         place_piece(piece, location, game_state, player.number)
         game_state.refresh_from_db()
         return game_state
+    if game_state.state != "PLAYING":
+        raise IllegalMoveError
     if not is_current_turn(game_state, user):
         print("Not your turn")
         raise IllegalMoveError
@@ -82,7 +84,22 @@ def make_move(piece_id, location, session, user):
     game_state.refresh_from_db()
     return game_state
 
+def capture_objective(game_state, player_number, location):
+    flat_board = sum(game_state.map.data["data"], [])
+    current_scores = game_state.objectives.split(",")
+    flat_location = location[0] * len(game_state.map.data["data"][0]) + location[1]
+    score_location = 0
+    for i, val in enumerate(flat_board):
+        if i == flat_location:
+            break
+        if val & MAP_DEFINITION['objective'] == MAP_DEFINITION['objective']:
+            score_location += 1
+    current_scores[score_location] = str(player_number)
+    game_state.objectives = ",".join(current_scores)
+    game_state.save()
+
 def move_piece(piece, location, game_state):
+    print("Player {} moved {} to ({}, {})".format(piece.player.number, piece.character.name, location[0], location[1]))
     previous_x = piece.location_x
     previous_y = piece.location_y
 
@@ -92,6 +109,9 @@ def move_piece(piece, location, game_state):
     piece.save()
 
     board = game_state.map.data["data"]
+    if board[location[0]][location[1]] == MAP_DEFINITION['objective']:
+        capture_objective(game_state, piece.player.number, location)
+        print("Captured Objective!")
     board[previous_x][previous_y] &=  ~MAP_DEFINITION['player']
     board[location[0]][location[1]] |=  MAP_DEFINITION['player']
     game_state.map.data["board"] = board
@@ -110,8 +130,12 @@ def place_piece(piece, location, game_state, player_num):
 
 def start_game(game_state):
     game_state.state = "PLAYING"
+    objectives = []
+    for val in sum(game_state.map.data["data"], []):
+        if val == MAP_DEFINITION['objective']:
+            objectives.append("-1")
+    game_state.objectives = ",".join(objectives)
     game_state.save()
-    print("Game started")
 
 def move_placed_piece(piece, location, game_state):
     piece.location_x = location[0]
@@ -129,15 +153,19 @@ def take_damage(target, damage):
     return target
 
 def end_game(game_state, winner):
-    print("The winner is {}".format(winner.user.id))
+    print("The winner is player {}".format(winner.number))
     game_state.state = "FINISHED"
     #Delete the game_state?
 
 def end_turn(game_state, user):
     #Check to make sure all pieces have moved
+    if game_state.state != "PLAYING":
+        raise IllegalMoveError
     if is_current_turn(game_state, user):
+        current_scores = game_state.objectives.split(",")
         for player in game_state.player_set.all():
-            if player.score >= game_state.map.score_to_win:
+            print("Player {} score: {}".format(player.number, player.score + current_scores.count(str(player.number))))
+            if player.score + current_scores.count(str(player.number)) >= game_state.map.score_to_win:
                 end_game(game_state, player)
         game_state.turn_count = game_state.turn_count + 1
         game_state.save()
@@ -151,18 +179,21 @@ def end_turn(game_state, user):
     return game_state
 
 def is_current_turn(game_state, user):
-    print("Turn count: {}".format(game_state.turn_count))
     return game_state.turn_count % game_state.map.player_size == Player.objects.get(game=game_state, user=user).number
 
 def remove_piece(game_state, target_piece, piece):
     target_piece.health = 0
+    piece.player.score += target_piece.point_value
+    piece.player.save()
+    target_piece.point_value = 0
     target_piece.save()
     game_state.map.data["board"][target_piece.location_x][target_piece.location_y] &=  ~MAP_DEFINITION['player']
-    piece.player.score += 1
-    piece.player.save()
-
+    game_state.save()
+    
 def attack(game_state, location, user, piece_id):
     #check to make sure it isn't on their team
+    if game_state.state != "PLAYING":
+        raise IllegalMoveError
     piece = Piece.objects.get(id=piece_id)
     print("Attack: {}/{}".format(piece.attack, piece.character.attack))
     if not is_current_turn(game_state, user):

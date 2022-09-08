@@ -39,6 +39,7 @@ class GameState(models.Model):
     map = models.ForeignKey(Map, on_delete=models.CASCADE, null=True)
     state = models.CharField(max_length=50, default='WAITING', choices=[('WAITING', 'Waiting for players'), ('READY', 'Ready to play'), ('PLACING', 'Placing pieces'), ('PLAYING', 'Game in progress'), ('FINISHED', 'Game Over')])
     turn_count = models.IntegerField(default=0)
+    objectives = models.CharField(max_length=50, default="")
 
     def __str__(self):
         return str(self.session)
@@ -81,6 +82,7 @@ class Piece(models.Model):
     range = models.IntegerField(default=0)
     attack = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
+    point_value = models.IntegerField(default=1)
 
     def __str__(self):
         return self.character.name
