@@ -15,7 +15,7 @@ def initial_setup():
     
     #Maps
     maps_data = (open('sevenpiece/game/data/maps.json')).read()
-    map = Map.objects.get_or_create(name="Default Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme[0])
+    map = Map.objects.get_or_create(name="Default Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme[0], score_to_win=5)
     
     #Characters
     soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, attack_range=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")

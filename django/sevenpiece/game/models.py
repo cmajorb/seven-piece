@@ -15,6 +15,7 @@ class Map(models.Model):
     player_size = models.IntegerField()
     num_characters = models.IntegerField()
     color_scheme = models.ForeignKey(ColorScheme, on_delete=models.CASCADE, null=True)
+    score_to_win = models.IntegerField(default = 5)
     def __str__(self):
         return self.name + " (" + str(self.player_size) + ")"
 

@@ -128,9 +128,17 @@ def take_damage(target, damage):
     target.save()
     return target
 
+def end_game(game_state, winner):
+    print("The winner is {}".format(winner.user.id))
+    game_state.state = "FINISHED"
+    #Delete the game_state?
+
 def end_turn(game_state, user):
     #Check to make sure all pieces have moved
     if is_current_turn(game_state, user):
+        for player in game_state.player_set.all():
+            if player.score >= game_state.map.score_to_win:
+                end_game(game_state, player)
         game_state.turn_count = game_state.turn_count + 1
         game_state.save()
         for piece in game_state.piece_set.all():

@@ -17,7 +17,7 @@ class PieceTestCase(TestCase):
 
         #Maps
         maps_data = (open('sevenpiece/game/data/test_maps.json')).read()
-        self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme)
+        self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=1)
         
         #Characters
         self.soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, attack_range=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
@@ -81,6 +81,7 @@ class PieceTestCase(TestCase):
         print(game_state.get_game_summary())
         game_state = attack(game_state, [2,2], user2, pieces2[0].id)
         print(game_state.get_game_summary())
+        game_state = end_turn(game_state, user2)
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)
