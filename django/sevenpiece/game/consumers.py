@@ -18,6 +18,7 @@ class GameConsumer(JsonWebsocketConsumer):
         logging.info("Connected!")
         self.user = self.scope["user"]
         if not self.user.is_authenticated:
+            print("NOT AUTHENTICATED")
             return
         self.room_name = f"{self.scope['url_route']['kwargs']['room']}"
         self.accept()

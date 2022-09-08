@@ -14,6 +14,7 @@ from pathlib import Path
 import environ
 import os
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 
 env = environ.Env()
 environ.Env.read_env()
@@ -31,8 +32,7 @@ SECRET_KEY = 'django-insecure-yajj*u8*_5g0!_)!_ia+(8a)de0662g!*eplwvclubbi%1n9f7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
 
 DJANGO_APPS = [
     'django.contrib.auth',
@@ -53,7 +53,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'game.apps.GameConfig',
+    'game.apps.GameConfig', # (ON REMOVAL) Exception in thread django-main-thread: RuntimeError: Model class game.models.ColorScheme doesn't declare an explicit app_label and isn't in an application in INSTALLED_APPS.
 ]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
@@ -70,72 +70,39 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAuthenticated',
-#     ),
-# }
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ]
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
-# CORS_ORIGIN_ALLOW_ALL = True
-
-CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.BasicAuthentication',
+#         'rest_framework.authentication.SessionAuthentication',
+#     ]
+# }
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'origin',
-    'dnt',
-    'user-agent',
-    'x-requested-with',
-    'csrftoken',
-    'X-CSRFToken',
-    'X-CSRF-Token',
-    'XSRF-TOKEN',
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFTOKEN',
 ]
 
-CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_SECURE = True
-
-CORS_EXPOSE_HEADERS = [
-    'Date'
-]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost',
     'http://localhost:3000',
-    'https://localhost',
-    'https://localhost:3000',
-]
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost',
-    'http://localhost:3000',
-    'https://localhost',
-    'https://localhost:3000',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://localhost:3000',
-    'https://localhost',
-    'https://localhost:3000',
 ]
 
-# SESSION_COOKIE_HTTPONLY = True
-# CSRF_COOKIE_HTTPONLY = True
-# SECURE_BROWSER_XSS_FILTER = True
-# X_FRAME_OPTIONS = "DENY"
+# CSRF_COOKIE_HTTPONLY = False
 
 ROOT_URLCONF = 'sevenpiece.urls'
 
@@ -155,7 +122,7 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'sevenpiece.wsgi.application'
+WSGI_APPLICATION = 'sevenpiece.wsgi.application'
 ASGI_APPLICATION = 'sevenpiece.asgi.application'
 
 
@@ -223,3 +190,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+SITE_ID = 1 # Otherwise, getting redirect error: Site matching query does not exist.

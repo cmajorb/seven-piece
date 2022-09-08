@@ -11,12 +11,8 @@ User = get_user_model()
 
 class TokenAuthentication:
     """
-    Simple token based authentication.
-
     Clients should authenticate by passing the token key in the query parameters.
-    For example:
-
-        ?token=401f7ac837da42b97f613d789819ff93537bee6a
+    For example: ...?token=401f7ac837da42b97f613d789819ff93537bee6a
     """
 
     model = None
@@ -56,14 +52,13 @@ def get_user(scope):
 
     if "token" not in scope:
         raise ValueError(
-            "Cannot find token in scope. You should wrap your consumer in "
-            "TokenAuthMiddleware."
+            "Cannot find token in scope. You should wrap your consumer in TokenAuthMiddleware."
         )
     token = scope["token"]
     user = None
     try:
         auth = TokenAuthentication()
-        user = auth.authenticate(token)
+        user = auth.authenticate_credentials(token)
     except AuthenticationFailed:
         pass
     return user or AnonymousUser()

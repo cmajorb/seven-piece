@@ -29,8 +29,9 @@ sys.path.append(str(ROOT_DIR / "sevenpiece"))
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": TokenAuthMiddleware(
-            URLRouter(routing.websocket_urlpatterns)
-            ),
+        # "websocket": TokenAuthMiddleware(
+        #     URLRouter(routing.websocket_urlpatterns)
+        #     ),
+        "websocket": URLRouter(routing.websocket_urlpatterns),
     }
 )
