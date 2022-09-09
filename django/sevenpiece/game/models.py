@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
+import json
 
 class ColorScheme(models.Model):
     name = models.CharField(max_length=150, null=False, unique=False)
@@ -51,8 +52,14 @@ class GameState(models.Model):
         dictionary["session"] = str(state.session)
         dictionary["state"] = state.state
         dictionary["map"] = state.map.data
+        dictionary["map"]["color_scheme"] = state.map.color_scheme.scheme
+        dictionary["turn_count"] = state.turn_count
+        dictionary["objectives"] = state.objectives.split(",")
+        dictionary["pieces"] = []
+        for piece in state.piece_set.all():
+            dictionary["pieces"].append(piece.get_info())
 
-        return dictionary
+        return json.dumps(dictionary, indent = 4)
 
     def get_game_summary(state):
         if state == None:
@@ -86,3 +93,16 @@ class Piece(models.Model):
 
     def __str__(self):
         return self.character.name
+
+    def get_info(piece):
+        if piece == None:
+            return None
+        dictionary = {}
+        dictionary["character"] = piece.character.name
+        dictionary["player"] = piece.player.number
+        dictionary["health"] = piece.health
+        dictionary["location"] = [piece.location_x, piece.location_y]
+        dictionary["range"] = piece.range
+        dictionary["attack"] = piece.attack
+        dictionary["image"] = piece.character.image
+        return dictionary

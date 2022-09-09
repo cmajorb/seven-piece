@@ -1,0 +1,149 @@
+{
+    "session": "76620a7d-29ba-49a7-a343-36c2c5e4b6bd",
+    "state": "FINISHED",
+    "map": {
+        "start_tiles": [
+            [
+                [
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    4,
+                    4
+                ],
+                [
+                    3,
+                    3
+                ],
+                [
+                    3,
+                    4
+                ],
+                [
+                    4,
+                    3
+                ]
+            ]
+        ],
+        "data": [
+            [
+                2,
+                2,
+                2,
+                2,
+                2
+            ],
+            [
+                18,
+                2,
+                2,
+                4,
+                2
+            ],
+            [
+                2,
+                8,
+                8,
+                24,
+                2
+            ],
+            [
+                2,
+                4,
+                2,
+                2,
+                2
+            ],
+            [
+                2,
+                2,
+                2,
+                18,
+                2
+            ]
+        ],
+        "color_scheme": {
+            "tile_colors": {
+                "1": "#00000000",
+                "2": "brown",
+                "4": "black",
+                "8": "yellow"
+            },
+            "start_tiles": [
+                "purple",
+                "green"
+            ]
+        }
+    },
+    "turn_count": 2,
+    "objectives": [
+        "-1",
+        "0",
+        "1"
+    ],
+    "pieces": [
+        {
+            "character": "Berserker",
+            "player": 1,
+            "health": 2,
+            "location": [
+                2,
+                3
+            ],
+            "range": 1,
+            "attack": 2,
+            "image": "/images/berserker.png"
+        },
+        {
+            "character": "Soldier",
+            "player": 1,
+            "health": 3,
+            "location": [
+                4,
+                3
+            ],
+            "range": 1,
+            "attack": 1,
+            "image": "/images/soldier.png"
+        },
+        {
+            "character": "Berserker",
+            "player": 0,
+            "health": 0,
+            "location": [
+                -1,
+                -1
+            ],
+            "range": 1,
+            "attack": 2,
+            "image": "/images/berserker.png"
+        },
+        {
+            "character": "Soldier",
+            "player": 0,
+            "health": 3,
+            "location": [
+                1,
+                0
+            ],
+            "range": 1,
+            "attack": 1,
+            "image": "/images/soldier.png"
+        }
+    ]
+}

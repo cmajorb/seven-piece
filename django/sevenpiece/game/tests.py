@@ -21,10 +21,12 @@ class PieceTestCase(TestCase):
         
         #Characters
         self.soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, attack_range=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
+        self.scout = Character.objects.get_or_create(name="Scout", health=2, attack=1, attack_range=1, speed=3, special="None", image="/images/scout.png", description="Can move quickly")
+        self.archer = Character.objects.get_or_create(name="Archer", health=2, attack=1, attack_range=3, speed=1, special="None", image="/images/archer.png", description="Has distance attack")
         self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, attack_range=1, speed=1, special="None", image="/images/berserker.png", description="Has strong attack")
         self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, attack_range=1, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
 
-        #Game
+            #Game
         # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
         # self.piece = Piece.objects.create(character=self.soldier, location_x=0, location_y=0, health=self.soldier.health, game=self.game_state, range=2)
 
@@ -82,6 +84,7 @@ class PieceTestCase(TestCase):
         game_state = attack(game_state, [2,2], user2, pieces2[0].id)
         print(game_state.get_game_summary())
         game_state = end_turn(game_state, user2)
+        print(game_state.get_game_state())
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)

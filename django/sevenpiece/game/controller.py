@@ -103,6 +103,9 @@ def move_piece(piece, location, game_state):
     previous_x = piece.location_x
     previous_y = piece.location_y
 
+    #For Scout
+    if max(abs(piece.location_x - location[0]), abs(piece.location_y - location[1])) == 3:
+        piece.attack = 0
     piece.location_x = location[0]
     piece.location_y = location[1]
     piece.range = 0
@@ -114,7 +117,7 @@ def move_piece(piece, location, game_state):
         print("Captured Objective!")
     board[previous_x][previous_y] &=  ~MAP_DEFINITION['player']
     board[location[0]][location[1]] |=  MAP_DEFINITION['player']
-    game_state.map.data["board"] = board
+    game_state.map.data["data"] = board
     game_state.map.save()
 
 def place_piece(piece, location, game_state, player_num):
@@ -144,7 +147,7 @@ def move_placed_piece(piece, location, game_state):
 
     board = game_state.map.data["data"]
     board[location[0]][location[1]] |=  MAP_DEFINITION['player']
-    game_state.map.data["board"] = board
+    game_state.map.data["data"] = board
     game_state.map.save()
 
 def take_damage(target, damage):
@@ -185,10 +188,12 @@ def remove_piece(game_state, target_piece, piece):
     target_piece.health = 0
     piece.player.score += target_piece.point_value
     piece.player.save()
+    game_state.map.data["data"][target_piece.location_x][target_piece.location_y] &=  ~MAP_DEFINITION['player']
+    game_state.map.save()
     target_piece.point_value = 0
+    target_piece.location_x = -1
+    target_piece.location_y = -1
     target_piece.save()
-    game_state.map.data["board"][target_piece.location_x][target_piece.location_y] &=  ~MAP_DEFINITION['player']
-    game_state.save()
     
 def attack(game_state, location, user, piece_id):
     #check to make sure it isn't on their team
