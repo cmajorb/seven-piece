@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useLocation } from 'react-router-dom';
-import getUUID from '../utils/getUUID';
-import { useTheme } from '@mui/material/styles';
-import {
-  Grid,
-  Card,
-  Stack,
-} from '@mui/material';
 import MainGrid from '../components/MainGrid';
 
 export default function MainBoard() {
+  const sample_board = require('../testing/sample_data.json');
+  const num_rows = (sample_board.game_state).length;
+  const num_columns = (sample_board.game_state[0]).length;
+  console.log("There are", num_rows, "rows, and", num_columns, "columns");
+
   const { pathname } = useLocation();
-  const theme = useTheme();
   console.log("PATHNAME", pathname.split("/")[1]);
+
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [messageHistory, setMessageHistory] = useState<any>([]);
-  const uuid = getUUID();
+  
   const path_str = pathname.split("/")[-1];
   const { readyState } = useWebSocket('ws://127.0.0.1/' + path_str, {
     onOpen: () => {
@@ -91,7 +89,7 @@ export default function MainBoard() {
       </div>
     ))}
   </ul>
-      <MainGrid rows={5} columns={6}/>
+      { sample_board && <MainGrid rows={num_rows} columns={num_columns} board={sample_board.game_state} /> }
     </div>
 
   );
