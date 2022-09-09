@@ -1,0 +1,20 @@
+{
+    "pieces" : [
+        {
+            "id" : 1,
+            "name" : "Soldier",
+            "image_url" : "https://www.svgrepo.com/show/71064/warrior.svg",
+            "attack" : 1,
+            "location_x" : 0,
+            "location_y" : 0
+        },
+        {
+            "id" : 2,
+            "name" : "Berserker",
+            "image_url" : "https://www.svgrepo.com/show/153027/warrior.svg",
+            "attack" : 2,
+            "location_x" : 1,
+            "location_y" : 1
+        }
+    ]
+}
