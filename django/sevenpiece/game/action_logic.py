@@ -18,7 +18,7 @@ def make_move(piece_id, location, session, user):
     if not is_current_turn(game_state, user):
         print("Not your turn")
         raise IllegalMoveError
-    if not is_range_valid(piece, location, board, piece.range):
+    if not is_range_valid(piece, location, board, 0, piece.speed):
         print("Out of range")
         raise IllegalMoveError
     if board[location[0]][location[1]] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
@@ -54,7 +54,7 @@ def attack(game_state, location, user, piece_id):
     if piece.attack == 0:
         print("No available attack")
         raise IllegalMoveError
-    if not is_range_valid(piece, location, game_state.map.data["data"], piece.character.attack_range):
+    if not is_range_valid(piece, location, game_state.map.data["data"], piece.character.attack_range_min, piece.character.attack_range_max):
         print("Out of range")
         raise IllegalMoveError
     target_piece = get_piece_by_location(game_state, location)
@@ -81,7 +81,7 @@ def end_turn(game_state, user):
         game_state.turn_count = game_state.turn_count + 1
         game_state.save()
         for piece in game_state.piece_set.all():
-            piece.range = piece.character.speed
+            piece.speed = piece.character.speed
             piece.attack = piece.character.attack
             piece.save()
     else:

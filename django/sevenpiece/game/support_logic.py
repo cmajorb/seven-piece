@@ -3,17 +3,17 @@ from game.data.constants import MAP_DEFINITION
 from game.exceptions import IllegalMoveError
 from game.game_logic import  start_game
 
-def is_range_valid(piece, location, board, range):
+def is_range_valid(piece, location, board, range_min, range_max):
     map_length_x = len(board)
     map_length_y = len(board[0])
     x_diff = abs(piece.location_x - location[0])
     y_diff = abs(piece.location_y - location[1])
     if location[0] < map_length_x and location[1] < map_length_y and location[0] >= 0 and location[1] >= 0: 
-        if piece.location_x == location[0] and y_diff <= range:
+        if piece.location_x == location[0] and y_diff <= range_max and y_diff >= range_min:
             return True
-        elif piece.location_y == location[1] and x_diff <= range:
+        elif piece.location_y == location[1] and x_diff <= range_max and x_diff >= range_min:
             return True
-        elif x_diff == y_diff and x_diff <= range:
+        elif x_diff == y_diff and x_diff <= range_max and x_diff >= range_min:
             return True
     return False
 
@@ -41,7 +41,7 @@ def move_piece(piece, location, game_state):
         piece.attack = 0
     piece.location_x = location[0]
     piece.location_y = location[1]
-    piece.range = 0
+    piece.speed = 0
     piece.save()
 
     board = game_state.map.data["data"]

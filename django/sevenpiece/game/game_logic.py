@@ -26,7 +26,7 @@ def init_game(game_state):
     game_state.state = "PLACING"
     for piece in game_state.piece_set.all():
         piece.health = piece.character.health
-        piece.range = piece.character.speed
+        piece.speed = piece.character.speed
         piece.attack = piece.character.attack
         piece.save()
     game_state.save()

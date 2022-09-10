@@ -28,7 +28,8 @@ class Character(models.Model):
     special = models.CharField(max_length=150)
     image = models.CharField(max_length=150)
     description = models.CharField(max_length=500)
-    attack_range = models.IntegerField(default=1)
+    attack_range_min = models.IntegerField(default=1)
+    attack_range_max = models.IntegerField(default=1)
     
     def __str__(self):
         return self.name + " ({})".format(str(self.id))
@@ -68,7 +69,7 @@ class GameState(models.Model):
         dictionary["score"] = ""
         pieces = []
         for piece in state.piece_set.all():
-            pieces.append("Name: {}({}), Range: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.user.id, piece.range, piece.attack, piece.health, piece.location_x, piece.location_y))
+            pieces.append("Name: {}({}), Range: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.user.id, piece.speed, piece.attack, piece.health, piece.location_x, piece.location_y))
         dictionary["pieces"] = pieces
         for player in state.player_set.all():
             dictionary["score"] += "{} ({}), ".format(player.id, player.score)
@@ -86,7 +87,7 @@ class Piece(models.Model):
     location_y = models.IntegerField(null=True)
     health = models.IntegerField(default=0)
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
-    range = models.IntegerField(default=0)
+    speed = models.IntegerField(default=0)
     attack = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
     point_value = models.IntegerField(default=1)
@@ -102,7 +103,7 @@ class Piece(models.Model):
         dictionary["player"] = piece.player.number
         dictionary["health"] = piece.health
         dictionary["location"] = [piece.location_x, piece.location_y]
-        dictionary["range"] = piece.range
+        dictionary["speed"] = piece.speed
         dictionary["attack"] = piece.attack
         dictionary["image"] = piece.character.image
         return dictionary

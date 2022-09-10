@@ -21,11 +21,11 @@ class PieceTestCase(TestCase):
         self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=2)
         
         #Characters
-        self.soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, attack_range=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
-        self.scout = Character.objects.get_or_create(name="Scout", health=2, attack=1, attack_range=1, speed=3, special="None", image="/images/scout.png", description="Can move quickly")
-        self.archer = Character.objects.get_or_create(name="Archer", health=2, attack=1, attack_range=3, speed=1, special="None", image="/images/archer.png", description="Has distance attack")
-        self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, attack_range=1, speed=1, special="None", image="/images/berserker.png", description="Has strong attack")
-        self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, attack_range=1, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
+        self.soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
+        self.scout = Character.objects.get_or_create(name="Scout", health=2, attack=1, speed=3, special="None", image="/images/scout.png", description="Can move quickly")
+        self.archer = Character.objects.get_or_create(name="Archer", health=2, attack=1, attack_range_min=2, attack_range_max=3, speed=1, special="None", image="/images/archer.png", description="Has distance attack")
+        self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, speed=1, special="None", image="/images/berserker.png", description="Has strong attack")
+        self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", health=1, attack=0, speed=1, special="Freeze", image="/images/ice_wizard.png", description="Freezes other pieces")
 
             #Game
         # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
