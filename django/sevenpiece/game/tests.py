@@ -1,8 +1,9 @@
 from django.test import TestCase
-from game.models import Piece, Character, GameState, Map, ColorScheme, Player
+from game.models import Character, Map, ColorScheme, Player
 import json
-from game.controller import make_move, take_damage, create_game, join_game, select_pieces, end_turn, attack
-from game.exceptions import IllegalMoveError, JoinGameError
+from game.action_logic import make_move, select_pieces, end_turn, attack
+from game.game_logic import create_game, join_game
+from game.exceptions import JoinGameError
 from django.contrib.auth.models import User
 
 class PieceTestCase(TestCase):

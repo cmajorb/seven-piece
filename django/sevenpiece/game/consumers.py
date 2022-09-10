@@ -1,7 +1,7 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
 from game.models import GameState
-from game.controller import make_move
+from game.action_logic import make_move
 
 import logging
 
