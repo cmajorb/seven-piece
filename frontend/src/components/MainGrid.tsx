@@ -41,9 +41,10 @@ export default function MainGrid({ rows, columns, pieces, constants, map }: Prop
     return (
         <Stack spacing={0.25} direction={'row'}>
             {column_nums.map((column) => (
-                <Stack spacing={0.25} direction={'column'}>
+                <Stack key={column} spacing={0.25} direction={'column'}>
                     {row_nums.map((row) => (
                         <Cell
+                            key={([row, column]).toString()}
                             location={[row, column]}
                             selected={calcSelectedTile(selectedTile, [row, column])}
                             updateSelectedTile={updateSelectedTile}

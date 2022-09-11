@@ -12,12 +12,7 @@ export type Map = {
     start_tiles: [[number[]]],
     data: [number[]],
     color_scheme: {
-        tile_colors: {
-            one: string;
-            two: string;
-            four: string;
-            eight: string;
-        }
+        tile_colors: Constants,
         start_tiles: string[]
     }
 };
@@ -32,9 +27,9 @@ export type GameState = {
 };
 
 export type Constants = {
-    empty: number;
-    normal: number;
-    wall: number;
-    objective: number;
-    player: number;
+    empty: number | string;
+    normal: number | string;
+    wall: number | string;
+    objective: number | string;
+    player: number | string;
 };
