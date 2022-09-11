@@ -2,7 +2,7 @@
     "tile_colors": {
         "empty": "#00000000",
         "normal": "brown",
-        "wall": "black",
+        "wall": "theme.palette.common.black",
         "objective": "yellow"
     },
     "start_tiles": [
