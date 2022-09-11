@@ -22,11 +22,19 @@ export type Map = {
     }
 };
 
-export type GameSate = {
+export type GameState = {
     session: string;
     state: string;
     map: Map;
     turn_count: number;
     objectives: string[];
     pieces: Piece[];
+};
+
+export type Constants = {
+    empty: number;
+    normal: number;
+    wall: number;
+    objective: number;
+    player: number;
 };

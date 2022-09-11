@@ -2,12 +2,13 @@ import { useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useLocation } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
+import { Constants, GameState } from '../types';
 
 export default function MainBoard() {
-  const sample_game_state = require('../testing/game_state.json');
+  const sample_game_state: GameState = require('../testing/game_state.json');
+  const constants: Constants = require('../testing/constants.json');
   const num_rows = (sample_game_state.map.data).length;
   const num_columns = (sample_game_state.map.data[0]).length;
-  console.log("There are", num_rows, "rows, and", num_columns, "columns");
 
   const { pathname } = useLocation();
   console.log("PATHNAME", pathname.split("/")[1]);
@@ -89,7 +90,14 @@ export default function MainBoard() {
       </div>
     ))}
   </ul>
-      { sample_game_state && <MainGrid rows={num_rows} columns={num_columns} board_base={sample_game_state.map.data} pieces={sample_game_state.pieces} /> }
+      { sample_game_state &&
+      <MainGrid
+        rows={num_rows}
+        columns={num_columns}
+        pieces={sample_game_state.pieces}
+        constants={constants}
+        map={sample_game_state.map}
+      /> }
     </div>
 
   );
