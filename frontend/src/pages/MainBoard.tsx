@@ -4,9 +4,9 @@ import { useLocation } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
 
 export default function MainBoard() {
-  const sample_board = require('../testing/sample_data.json');
-  const num_rows = (sample_board.game_state).length;
-  const num_columns = (sample_board.game_state[0]).length;
+  const sample_game_state = require('../testing/game_state.json');
+  const num_rows = (sample_game_state.map.data).length;
+  const num_columns = (sample_game_state.map.data[0]).length;
   console.log("There are", num_rows, "rows, and", num_columns, "columns");
 
   const { pathname } = useLocation();
@@ -54,10 +54,10 @@ export default function MainBoard() {
 
   return (
     <div>
-    <div>
-      <span>The WebSocket is currently: {connectionStatus}</span>
-      <p>{welcomeMessage}</p>
-    </div>
+      <div>
+        <span>The WebSocket is currently: {connectionStatus}</span>
+        <p>{welcomeMessage}</p>
+      </div>
     <button className='bg-gray-300 px-3 py-1' 
       onClick={() => {
         sendJsonMessage({
@@ -89,7 +89,7 @@ export default function MainBoard() {
       </div>
     ))}
   </ul>
-      { sample_board && <MainGrid rows={num_rows} columns={num_columns} board={sample_board.game_state} /> }
+      { sample_game_state && <MainGrid rows={num_rows} columns={num_columns} board_base={sample_game_state.map.data} pieces={sample_game_state.pieces} /> }
     </div>
 
   );
