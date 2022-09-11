@@ -1,9 +1,9 @@
 {
     "tile_colors": {
-        "1": "#00000000",
-        "2": "brown",
-        "4": "black",
-        "8": "yellow"
+        "empty": "#00000000",
+        "normal": "brown",
+        "wall": "black",
+        "objective": "yellow"
     },
     "start_tiles": [
         "purple",
