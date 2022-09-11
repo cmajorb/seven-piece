@@ -81,7 +81,7 @@
             "tile_colors": {
                 "1": "#00000000",
                 "2": "brown",
-                "4": "black",
+                "4": "theme.palette.common.black",
                 "8": "yellow"
             },
             "start_tiles": [
@@ -107,7 +107,7 @@
             ],
             "range": 1,
             "attack": 2,
-            "image": "/images/berserker.png"
+            "image": "https://www.svgrepo.com/show/153027/warrior.svg"
         },
         {
             "character": "Soldier",
@@ -119,7 +119,7 @@
             ],
             "range": 1,
             "attack": 1,
-            "image": "/images/soldier.png"
+            "image": "https://www.svgrepo.com/show/71064/warrior.svg"
         },
         {
             "character": "Berserker",
@@ -131,7 +131,7 @@
             ],
             "range": 1,
             "attack": 2,
-            "image": "/images/berserker.png"
+            "image": "https://www.svgrepo.com/show/153027/warrior.svg"
         },
         {
             "character": "Soldier",
@@ -143,7 +143,7 @@
             ],
             "range": 1,
             "attack": 1,
-            "image": "/images/soldier.png"
+            "image": "https://www.svgrepo.com/show/71064/warrior.svg"
         }
     ]
 }
