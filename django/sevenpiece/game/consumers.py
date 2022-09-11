@@ -1,7 +1,6 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
 from game.models import GameState
-from game.action_logic import make_move
 
 import logging
 
@@ -48,7 +47,7 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "move":
             #check to see if current turn
             logging.info("sending move info to {}".format(self.room_name))
-            make_move(content["selected_piece"], [content["target_x"],content["target_y"]], self.room_name)
+            # make_move(content["selected_piece"], [content["target_x"],content["target_y"]], self.room_name)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
                 {

@@ -1,8 +1,7 @@
 from django.test import TestCase
 from game.models import Character, Map, ColorScheme, Player
 import json
-from game.action_logic import make_move, select_pieces, end_turn, attack
-from game.game_logic import create_game, join_game
+from game.game_logic import create_game
 from game.exceptions import JoinGameError
 from django.contrib.auth.models import User
 
@@ -18,7 +17,7 @@ class PieceTestCase(TestCase):
 
         #Maps
         maps_data = (open('sevenpiece/game/data/test_maps.json')).read()
-        self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=2)
+        self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=3)
         
         #Characters
         self.soldier = Character.objects.get_or_create(name="Soldier", health=3, attack=1, speed=1, special="None", image="/images/soldier.png", description="Has a lot of health")
@@ -60,37 +59,44 @@ class PieceTestCase(TestCase):
     def test_entire_game(self):
         game_state = create_game(self.user, self.map.id)
         user2 = User.objects.create_user(username='user2', password='12345')
-        join_game(user2, game_state.session)
+        game_state.join_game(user2)
+        player1 = Player.objects.get(user=self.user, game=game_state)
+        player2 = Player.objects.get(user=user2, game=game_state)
+
+        pieces = ["Berserker", "Ice Wizard"]
+        pieces1 = player1.select_pieces(pieces)
         pieces = ["Berserker", "Soldier"]
-        pieces2 = select_pieces(user2, game_state.session, pieces)
+        pieces2 = player2.select_pieces(pieces)
         self.assertEqual(len(Player.objects.get(user=user2).piece_set.all()), len(pieces))
-        pieces = ["Berserker", "Soldier"]
-        pieces1 = select_pieces(self.user, game_state.session, pieces)
-
-        game_state = make_move(pieces1[0].id,[1,1],game_state.session, self.user)
+        
+        game_state = pieces1[0].make_move([1,1])
         print(game_state.get_game_summary())
-        game_state = make_move(pieces1[1].id,[1,0],game_state.session, self.user)
+        game_state = pieces1[1].make_move([1,0])
         print(game_state.get_game_summary()) 
-        game_state = make_move(pieces2[0].id,[3,3],game_state.session, user2)
+        game_state = pieces2[0].make_move([3,3])
         print(game_state.get_game_summary())
-        game_state = make_move(pieces2[1].id,[4,3],game_state.session, user2)
+        game_state = pieces2[1].make_move([4,3])
         print(game_state.get_game_summary())
 
-        game_state = make_move(pieces1[0].id,[2,2],game_state.session, self.user)
+        game_state = pieces1[0].make_move([2,2])
         print(game_state.get_game_summary())
-        game_state = end_turn(game_state, self.user)
+        game_state = pieces1[1].make_move([2,1])
         print(game_state.get_game_summary())
-        game_state = make_move(pieces2[0].id,[2,3],game_state.session, user2)
+
+        game_state = player1.end_turn()
         print(game_state.get_game_summary())
-        game_state = attack(game_state, [2,2], user2, pieces2[0].id)
+        game_state = pieces2[0].make_move([2,3])
+        game_state = pieces2[1].make_move([3,2])
         print(game_state.get_game_summary())
-        game_state = end_turn(game_state, user2)
+        game_state = pieces2[0].attack_piece([2,2])
+        print(game_state.get_game_summary())
+        game_state = player2.end_turn()
         print(game_state.get_game_state())
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)
         user2 = User.objects.create_user(username='test_user2', password='12345')
         user3 = User.objects.create_user(username='test_user3', password='12345')
-        join_game(user2, game_state.session)
+        game_state.join_game(user2)
         with self.assertRaises(JoinGameError):
-            join_game(user3, game_state.session)
+            game_state.join_game(user3)
