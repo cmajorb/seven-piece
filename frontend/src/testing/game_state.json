@@ -79,10 +79,10 @@
         ],
         "color_scheme": {
             "tile_colors": {
-                "1": "#00000000",
-                "2": "brown",
-                "4": "theme.palette.common.black",
-                "8": "yellow"
+                "one": "#00000000",
+                "two": "brown",
+                "four": "theme.palette.common.black",
+                "eight": "yellow"
             },
             "start_tiles": [
                 "purple",
