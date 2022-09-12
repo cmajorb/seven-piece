@@ -2,6 +2,7 @@ export type Piece = {
     character: string;
     player: number;
     health: number;
+    description: string;
     location: number[];
     range: number;
     attack: number;
