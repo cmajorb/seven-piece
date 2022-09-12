@@ -2,13 +2,14 @@ import { Card } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Constants, Piece, Map } from '../types';
 import { GetWallColor } from '../utils/getBasicColors';
+import { ObjectiveImg, PieceImg, ObjectiveAndPieceImg } from './getSVGImages';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   location: number[],
   selected: boolean,
-  updateSelectedTile: any,
+  updateSelected: any,
   status: number[],
   pieces: Piece[],
   constants: Constants,
@@ -17,11 +18,12 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, updateSelectedTile, status, pieces, constants, map }: Props) {
+export default function Cell({ location, selected, updateSelected, status, pieces, constants, map }: Props) {
   
   const theme = useTheme();
-  const is_wall = status.includes(constants.wall as number);
-  const contains_piece = status.includes(constants.player as number);
+  const is_wall: boolean = status.includes(constants.wall as number);
+  const contains_piece: boolean = status.includes(constants.player as number);
+  const contains_objective: boolean = status.includes(constants.objective as number);
 
   const getCellStatus = (location: number[], map: Map) => {
     const current_location = map.data[location[0]][location[1]];
@@ -51,17 +53,48 @@ export default function Cell({ location, selected, updateSelectedTile, status, p
         >
         </Card>
       }
-      { !is_wall &&
+
+      { !is_wall && piece &&
+        <Card
+          style={{ justifyContent: "center", display: "flex" }}
+          sx={{ minWidth: 50, minHeight: 50, border: 2,
+            borderColor: selected? theme.palette.primary.main : map.color_scheme.tile_colors.wall as string,
+            ...(piece && { bgcolor: map.color_scheme.start_tiles[piece.player as number] }),
+            '&:hover': {
+              cursor: 'pointer',
+              ...(piece ? { bgcolor: map.color_scheme.start_tiles[piece.player as number], opacity: 0.72 } :
+                { bgcolor: theme.palette.grey[200] })
+            },
+          }}
+          onClick={() => { getCellStatus(location, map); updateSelected(location, piece) }}
+        >
+          { contains_objective ? <PieceImg svg_image={piece.image} /> : <ObjectiveAndPieceImg player_id={1} svg_image={piece.image} /> }
+        </Card>
+      }
+
+      { !is_wall && !piece && contains_objective &&
+        <Card
+          style={{ justifyContent: "center", display: "flex" }}
+          sx={{ minWidth: 50, minHeight: 50, border: 2, alignItems: "center", alignContent: "center", justifyContent: "center",
+            borderColor: selected? theme.palette.primary.main : map.color_scheme.tile_colors.wall as string,
+            ...(selected && { bgcolor: theme.palette.grey[200] }),
+            '&:hover': { cursor: 'pointer', bgcolor: theme.palette.grey[200] },
+          }}
+          onClick={() => { getCellStatus(location, map); updateSelected(location) }}
+        >
+          <ObjectiveImg player_id={1} />
+        </Card>
+      }
+
+      { !is_wall && !piece && !contains_objective &&
         <Card
           sx={{ minWidth: 50, minHeight: 50, border: 2,
             borderColor: selected? theme.palette.primary.main : map.color_scheme.tile_colors.wall as string,
-            ...(selected && { bgcolor: selected && theme.palette.grey[200] }),
-            ...(piece && { bgcolor: piece && map.color_scheme.start_tiles[piece.player as number] }),
-            '&:hover': { bgcolor: theme.palette.grey[200], cursor: 'pointer' },
+            ...(selected && { bgcolor: theme.palette.grey[200] }),
+            '&:hover': { cursor: 'pointer', bgcolor: theme.palette.grey[200] },
           }}
-          onClick={() => { getCellStatus(location, map); updateSelectedTile(location) }}
+          onClick={() => { getCellStatus(location, map); updateSelected(location) }}
         >
-          { piece && piece.image && <img width={45} height={45} alt='test' src={piece.image}/> }
         </Card>
       }
     </>  

@@ -1,4 +1,4 @@
-export default function getTileStatusVals (board_base: any[], row: number, column: number, constants_vals: number[]) {
+export default function getTileStatusVals (board_base: [number[]], row: number, column: number, constants_vals: number[]) {
     let current_status_vals = [];
     let tile_status_val = board_base[row][column];
     for (let index in constants_vals) {

@@ -97,6 +97,9 @@ export default function MainBoard() {
         pieces={sample_game_state.pieces}
         constants={constants}
         map={sample_game_state.map}
+        round={sample_game_state.turn_count}
+        team_1_score={3}
+        team_2_score={4}
       /> }
     </div>
 
