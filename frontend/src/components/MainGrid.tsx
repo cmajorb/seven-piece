@@ -74,8 +74,8 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                 </Stack>
                 <Divider orientation="vertical" flexItem color={theme.palette.common.black} />
                 <Stack alignContent={'center'} sx={{ pt: 4 }}>
-                    { selectedPiece &&
-                    <Card sx={{ width: 300 }}>
+                    { selectedPiece ?
+                    <Card sx={{ width: 300, height: 355 }}>
                         <Stack spacing={2} sx={{ p: 1 }} alignItems={'center'}>
                             <Typography variant='h6'>{selectedPiece.character}</Typography>
                             <Stack spacing={1}>
@@ -95,16 +95,26 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                                 </Stack> }
                             </Stack>
                         </Stack>
-                    </Card> }
+                    </Card> : <Card sx={{ width: 300, height: 355, bgcolor: theme.palette.grey[200] }}></Card> }
                 </Stack>
             </Stack>
             <Divider flexItem color={theme.palette.common.black} />
             <Stack direction={'row'} spacing={2} alignContent={'center'} justifyContent={'space-around'}>
                 <Typography variant='h6'>Round: {round}</Typography>
                 <Stack direction={'row'} spacing={2}>
-                    <Typography variant='h6'>Team 1: {team_1_score}</Typography>
+                    <Card sx={{ pl: 1, pr: 1 }}>
+                        <Stack alignItems={'center'}>
+                            <Typography variant='h5' fontWeight={'bold'}>{team_1_score}</Typography>
+                            <Typography variant='h6'>Team 1</Typography>
+                        </Stack>
+                    </Card>
                     <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
-                    <Typography variant='h6'>Team 2: {team_2_score}</Typography>
+                    <Card sx={{ pl: 1, pr: 1 }}>
+                        <Stack alignItems={'center'}>
+                            <Typography variant='h5' fontWeight={'bold'}>{team_2_score}</Typography>
+                            <Typography variant='h6'>Team 2</Typography>
+                        </Stack>
+                    </Card>
                 </Stack>
                 <Button variant={'contained'}>End Turn</Button>
             </Stack>
