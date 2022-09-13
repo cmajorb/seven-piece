@@ -1,10 +1,10 @@
-import { Stack, Divider, useTheme, Button, Typography, Card } from '@mui/material';
+import { Stack, Divider, useTheme, Button, Typography, Card, Paper } from '@mui/material';
 import Cell from './Cell';
 import { useState, useEffect } from 'react';
 import getStatusConstants from '../utils/getStatusConstants';
 import getTileStatusVals from '../utils/getTileStatusVals';
 import { Constants, Piece, Map } from '../types';
-import { PieceImg } from './getSVGImages';
+import { PieceImg } from './getPNGImages';
 
 // ----------------------------------------------------------------------
 
@@ -54,32 +54,34 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
     return (
         <Stack spacing={2}>
             <Stack direction={'row'} spacing={2} alignContent={'center'} justifyContent={'space-around'}>
-                <Stack spacing={0.25} direction={'row'}>
-                    {column_nums.map((column) => (
-                        <Stack key={column} spacing={0.25} direction={'column'}>
-                            {row_nums.map((row) => (
-                                <Cell
-                                    key={([row, column]).toString()}
-                                    location={[row, column]}
-                                    selected={calcSelectedTile(selectedTile, [row, column])}
-                                    updateSelected={updateSelected}
-                                    status={getTileStatusVals(map.data, row, column, constants_vals)}
-                                    pieces={pieces}
-                                    constants={constants}
-                                    map={map}
-                                />
-                            ))}
-                        </Stack>
-                    ))}
-                </Stack>
+                <Paper sx={{ p: 1, backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")` }} elevation={2}>
+                    <Stack spacing={0.25} direction={'row'}>
+                        {column_nums.map((column) => (
+                            <Stack key={column} spacing={0.25} direction={'column'}>
+                                {row_nums.map((row) => (
+                                    <Cell
+                                        key={([row, column]).toString()}
+                                        location={[row, column]}
+                                        selected={calcSelectedTile(selectedTile, [row, column])}
+                                        updateSelected={updateSelected}
+                                        status={getTileStatusVals(map.data, row, column, constants_vals)}
+                                        pieces={pieces}
+                                        constants={constants}
+                                        map={map}
+                                    />
+                                ))}
+                            </Stack>
+                        ))}
+                    </Stack>
+                </Paper>
                 <Divider orientation="vertical" flexItem color={theme.palette.common.black} />
-                <Stack alignContent={'center'} sx={{ pt: 4 }}>
+                <Stack alignContent={'center'} sx={{ pt: 1 }}>
                     { selectedPiece ?
-                    <Card sx={{ width: 300, height: 355 }}>
+                    <Card sx={{ width: 300, height: 570 }}>
                         <Stack spacing={2} sx={{ p: 1 }} alignItems={'center'}>
                             <Typography variant='h6'>{selectedPiece.character}</Typography>
                             <Stack spacing={1}>
-                                <PieceImg svg_image={selectedPiece.image} />
+                                <PieceImg piece_name={selectedPiece.character} on_board={false} />
                                 <Divider variant="middle" flexItem color={theme.palette.common.black} />
                                 <Typography variant='h6'>Attack: {selectedPiece.attack}</Typography>
                                 <Typography variant='h6'>Health: {selectedPiece.health}</Typography>
@@ -116,7 +118,7 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                         </Stack>
                     </Card>
                 </Stack>
-                <Button variant={'contained'}>End Turn</Button>
+                <Button variant={'contained'} onClick={() => { console.log("ENDING TURN") }}>End Turn</Button>
             </Stack>
         </Stack>
     );
