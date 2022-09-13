@@ -188,6 +188,7 @@ class Piece(models.Model):
         dictionary["speed"] = piece.speed
         dictionary["attack"] = piece.attack
         dictionary["image"] = piece.character.image
+        dictionary["id"] = piece.id
         return dictionary
     
     def take_damage(self, damage):

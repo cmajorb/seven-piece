@@ -29,6 +29,7 @@ export default function MainBoard() {
       switch (data.type) {
         case 'game_state':
           console.log("Received state data")
+          console.log(data.state)
           setGameState(JSON.parse(data.state))
           break;
         case 'error':
@@ -54,8 +55,9 @@ export default function MainBoard() {
   return (
     <div>
       <div>
-        <span>The WebSocket is currently: {connectionStatus}</span>
-        <span>Current session: {gameState ? gameState.session : "None"} </span>
+        <p>The WebSocket is currently: {connectionStatus}</p>
+        <p>Current session: {gameState ? gameState.session : "None"} </p>
+        <p>Game State: {gameState ? gameState.state : "None"} </p>
       </div>
     <button className='bg-gray-300 px-3 py-1' 
       onClick={() => {
@@ -89,6 +91,57 @@ export default function MainBoard() {
       }}
     >
       Create game
+    </button>
+    <button className='bg-gray-300 px-3 py-1' 
+      onClick={() => {
+        let piece_array = JSON.stringify(["Soldier", "Berserker"])
+        sendJsonMessage({
+          type: "select_pieces",
+          pieces: piece_array
+        })
+      }}
+    >
+      Select Pieces
+    </button>
+    <button className='bg-gray-300 px-3 py-1' 
+      onClick={() => {
+        sendJsonMessage({
+          type: "action",
+          piece: gameState ? gameState.pieces[2].id : "",
+          location_x: 0,
+          location_y: 0,
+          action_type: "move"
+        })
+        sendJsonMessage({
+          type: "action",
+          piece: gameState ? gameState.pieces[3].id : "",
+          location_x: 0,
+          location_y: 1,
+          action_type: "move"
+        })
+      }}
+    >
+      Place Pieces1
+    </button>
+    <button className='bg-gray-300 px-3 py-1' 
+      onClick={() => {
+        sendJsonMessage({
+          type: "action",
+          piece: gameState ? gameState.pieces[0].id : "",
+          location_x: 10,
+          location_y: 10,
+          action_type: "move"
+        })
+        sendJsonMessage({
+          type: "action",
+          piece: gameState ? gameState.pieces[1].id : "",
+          location_x: 9,
+          location_y: 10,
+          action_type: "move"
+        })
+      }}
+    >
+      Place Pieces2
     </button>
   <hr />
       { gameState &&

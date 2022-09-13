@@ -7,6 +7,7 @@ export type Piece = {
     range: number;
     attack: number;
     image: string;
+    id: number;
   };
 
 export type Map = {

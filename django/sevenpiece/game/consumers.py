@@ -1,8 +1,8 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
-from game.models import GameState
+from game.models import GameState, Player, Piece
 from game.game_logic import create_game
-
+import json
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -13,6 +13,7 @@ class GameConsumer(JsonWebsocketConsumer):
         super().__init__(args, kwargs)
         self.room_name = None
         self.current_game_state = None
+        self.player = None
 
     def connect(self):
         logging.info("Connected!")
@@ -54,6 +55,7 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state = game.join_game(self.session)
+                self.player = Player.objects.get(session=self.session, game=self.current_game_state)
                 logging.info("Joined game")
             except:
                 logging.info("Failed to join game")
@@ -70,9 +72,27 @@ class GameConsumer(JsonWebsocketConsumer):
             logging.info("End turn")
         elif message_type == "select_pieces":
             logging.info("selecting pieces")
-        elif message_type == "move":
+            try:
+                logging.info(content["pieces"])
+                logging.info(json.loads(content["pieces"]))
+                self.player.select_pieces(json.loads(content["pieces"]))
+            except:
+                logging.info("Failed to select pieces")
+                async_to_sync(self.channel_layer.group_send)(
+                self.session,
+                {
+                    "type": "error",
+                    "message": "Could not select pieces",
+                },
+                )
+
+        elif message_type == "action":
             logging.info("sending move info to {}".format(self.room_name))
-            # make_move(content["selected_piece"], [content["target_x"],content["target_y"]], self.room_name)
+            #Make sure it belongs to the user
+            piece = Piece.objects.get(player=self.player, id=content["piece"])
+            if content["action_type"] == "move":
+                piece.make_move([content["location_x"], content["location_y"]])
+                
         else:
             logging.info("Uknown message")
         logging.info("Sending to {}".format(self.room_name))
