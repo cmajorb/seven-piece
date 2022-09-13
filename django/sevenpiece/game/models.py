@@ -130,7 +130,10 @@ class Player(models.Model):
             raise IllegalPieceSelection
         for piece in pieces:
             character = Character.objects.get(name=piece)
-            all_pieces.append(Piece.objects.create(character=character, game=self.game, player=self))
+            if piece == "Ice Wizard":
+                all_pieces.append(IceWizard.objects.create(character=character, game=self.game, player=self))
+            else:
+                all_pieces.append(Piece.objects.create(character=character, game=self.game, player=self))
         if len(self.game.piece_set.all()) == self.game.map.num_characters * self.game.map.player_size:
             self.game.init_game()
         return all_pieces
@@ -326,3 +329,8 @@ class Piece(models.Model):
         self.save(update_fields=['location_x','location_y','point_value','health'])
         return point_value
     
+class IceWizard(Piece):
+    class Meta:
+        proxy = True
+    def freeze(self):
+        print("Running freeze move")
