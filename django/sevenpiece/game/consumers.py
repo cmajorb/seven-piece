@@ -48,6 +48,7 @@ class GameConsumer(JsonWebsocketConsumer):
         
     def receive_json(self, content, **kwargs):
         message_type = content["type"]
+        error = ""
         if message_type == "create_game":
             self.current_game_state = create_game(self.session, content["map"])
             logging.info(str(self.current_game_state.session))
@@ -70,6 +71,10 @@ class GameConsumer(JsonWebsocketConsumer):
 
         elif message_type == "end_turn":
             logging.info("End turn")
+            try:
+                self.player.end_turn()
+            except:
+                error = "Failed to end turn"
         elif message_type == "select_pieces":
             logging.info("selecting pieces")
             try:
@@ -77,30 +82,38 @@ class GameConsumer(JsonWebsocketConsumer):
                 logging.info(json.loads(content["pieces"]))
                 self.player.select_pieces(json.loads(content["pieces"]))
             except:
-                logging.info("Failed to select pieces")
-                async_to_sync(self.channel_layer.group_send)(
-                self.session,
-                {
-                    "type": "error",
-                    "message": "Could not select pieces",
-                },
-                )
-
+                error = "Failed to select pieces"
         elif message_type == "action":
             logging.info("sending move info to {}".format(self.room_name))
             #Make sure it belongs to the user
             piece = Piece.objects.get(player=self.player, id=content["piece"])
             if content["action_type"] == "move":
-                piece.make_move([content["location_x"], content["location_y"]])
-                
+                try:
+                    piece.make_move([content["location_x"], content["location_y"]])
+                except:
+                    error = "Failed to move piece"
+            elif content["action_type"] == "attack":
+                try:
+                    piece.attack_piece([content["location_x"], content["location_y"]])
+                except:
+                    error = "Failed to attack piece"
         else:
             logging.info("Uknown message")
         logging.info("Sending to {}".format(self.room_name))
-        async_to_sync(self.channel_layer.group_send)(
-                self.room_name,
-                {
-                    "type": "game_state",
-                    "state": self.current_game_state.get_game_state(),
-                },
-            )
+        if error == "":
+            async_to_sync(self.channel_layer.group_send)(
+                    self.room_name,
+                    {
+                        "type": "game_state",
+                        "state": self.current_game_state.get_game_state(),
+                    },
+                )
+        else:
+            async_to_sync(self.channel_layer.group_send)(
+                    self.room_name,
+                    {
+                        "type": "error",
+                        "state": error,
+                    },
+                )
         return super().receive_json(content, **kwargs)
