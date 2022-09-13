@@ -12,9 +12,8 @@ export default function MainBoard() {
 
   const { pathname } = useLocation();
   console.log("PATHNAME", pathname.split("/")[1]);
-
-  const [welcomeMessage, setWelcomeMessage] = useState('')
-  const [messageHistory, setMessageHistory] = useState<any>([]);
+  
+  const [gameState, setGameState] = useState<GameState>()
   const { game_id } = useParams();
   
   const path_str = "game/" + game_id;
@@ -29,7 +28,8 @@ export default function MainBoard() {
       const data = JSON.parse(e.data)
       switch (data.type) {
         case 'game_state':
-          console.log(data.state)
+          console.log("Received state data")
+          setGameState(JSON.parse(data.state))
           break;
         case 'error':
           console.log(data.message)
@@ -55,7 +55,7 @@ export default function MainBoard() {
     <div>
       <div>
         <span>The WebSocket is currently: {connectionStatus}</span>
-        <p>{welcomeMessage}</p>
+        <span>Current session: {gameState ? gameState.session : "None"} </span>
       </div>
     <button className='bg-gray-300 px-3 py-1' 
       onClick={() => {
@@ -91,21 +91,14 @@ export default function MainBoard() {
       Create game
     </button>
   <hr />
-  <ul>
-    {messageHistory.map((message: any, idx: number) => (
-      <div className='border border-gray-200 py-3 px-3' key={idx}>
-        {message.name}: {message.message}
-      </div>
-    ))}
-  </ul>
-      { sample_game_state &&
+      { gameState &&
       <MainGrid
-        rows={num_rows}
-        columns={num_columns}
-        pieces={sample_game_state.pieces}
+        rows={gameState.map.data.length}
+        columns={gameState.map.data[0].length}
+        pieces={gameState.pieces}
         constants={constants}
-        map={sample_game_state.map}
-        round={sample_game_state.turn_count}
+        map={gameState.map}
+        round={gameState.turn_count}
         team_1_score={3}
         team_2_score={4}
       /> }
