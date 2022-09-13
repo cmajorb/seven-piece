@@ -1,5 +1,5 @@
 from django.test import TestCase
-from game.models import Character, Map, ColorScheme, Player
+from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard
 import json
 from game.game_logic import create_game
 from game.exceptions import JoinGameError
@@ -92,6 +92,7 @@ class PieceTestCase(TestCase):
         print(game_state.get_game_summary())
         game_state = player2.end_turn()
         print(game_state.get_game_state())
+        pieces1[1].freeze()
 
     def test_too_many_players_join(self):
         game_state = create_game(self.user, self.map.id)
