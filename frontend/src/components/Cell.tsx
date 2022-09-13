@@ -2,7 +2,7 @@ import { Card } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Constants, Piece, Map } from '../types';
 import { GetWallColor } from '../utils/getBasicColors';
-import { ObjectiveImg, PieceImg, ObjectiveAndPieceImg } from './getSVGImages';
+import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './getPNGImages';
 
 // ----------------------------------------------------------------------
 
@@ -45,20 +45,27 @@ export default function Cell({ location, selected, updateSelected, status, piece
     <>
       { is_wall &&
         <Card
-          sx={{ minWidth: 50, minHeight: 50, border: 2,
+          style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
+          sx={{ width: 58, height: 58, border: 2,
             borderColor: GetWallColor(map),
-            backgroundColor: GetWallColor(map),
+            backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
+            backgroundPosition: 'center',
+            backgroundSize: '1000%',
             '&:hover': { cursor: 'pointer' },
           }}
         >
+          <WallImg/>    
         </Card>
       }
 
       { !is_wall && piece &&
         <Card
-          style={{ justifyContent: "center", display: "flex" }}
-          sx={{ minWidth: 50, minHeight: 50, border: 2,
-            borderColor: selected? theme.palette.primary.main : map.color_scheme.tile_colors.wall as string,
+          style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
+          sx={{ width: 58, height: 58, border: 2,
+            borderColor: selected? theme.palette.primary.main : map.color_scheme.start_tiles[piece.player],
+            backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
+            backgroundPosition: 'center',
+            backgroundSize: '1000%',
             ...(piece && { bgcolor: map.color_scheme.start_tiles[piece.player as number] }),
             '&:hover': {
               cursor: 'pointer',
@@ -68,28 +75,35 @@ export default function Cell({ location, selected, updateSelected, status, piece
           }}
           onClick={() => { getCellStatus(location, map); updateSelected(location, piece) }}
         >
-          { contains_objective ? <PieceImg svg_image={piece.image} /> : <ObjectiveAndPieceImg player_id={1} svg_image={piece.image} /> }
+          { contains_objective ? <ObjectiveAndPieceImg player_id={piece.player} start_tiles={map.color_scheme.start_tiles} piece_name={piece.character}/> : <PieceImg piece_name={piece.character} on_board={true}/> }
         </Card>
       }
 
       { !is_wall && !piece && contains_objective &&
         <Card
-          style={{ justifyContent: "center", display: "flex" }}
-          sx={{ minWidth: 50, minHeight: 50, border: 2, alignItems: "center", alignContent: "center", justifyContent: "center",
+          style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
+          sx={{ width: 58, height: 58, border: 2, alignItems: "center", alignContent: "center", justifyContent: "center",
             borderColor: selected? theme.palette.primary.main : map.color_scheme.tile_colors.wall as string,
+            backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
+            backgroundPosition: 'center',
+            backgroundSize: '1000%',
             ...(selected && { bgcolor: theme.palette.grey[200] }),
             '&:hover': { cursor: 'pointer', bgcolor: theme.palette.grey[200] },
           }}
           onClick={() => { getCellStatus(location, map); updateSelected(location) }}
         >
-          <ObjectiveImg player_id={1} />
+          <ObjectiveImg player_id={-1}/>
         </Card>
       }
 
       { !is_wall && !piece && !contains_objective &&
         <Card
-          sx={{ minWidth: 50, minHeight: 50, border: 2,
+          style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
+          sx={{ width: 58, height: 58, border: 2,
             borderColor: selected? theme.palette.primary.main : map.color_scheme.tile_colors.wall as string,
+            backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
+            backgroundPosition: 'center',
+            backgroundSize: '1000%',
             ...(selected && { bgcolor: theme.palette.grey[200] }),
             '&:hover': { cursor: 'pointer', bgcolor: theme.palette.grey[200] },
           }}
