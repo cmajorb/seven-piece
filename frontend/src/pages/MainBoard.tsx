@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
 import { Constants, GameState } from '../types';
 
@@ -15,8 +15,9 @@ export default function MainBoard() {
 
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [messageHistory, setMessageHistory] = useState<any>([]);
+  const { game_id } = useParams();
   
-  const path_str = pathname.split("/")[-1];
+  const path_str = "game/" + game_id;
   const { readyState } = useWebSocket('ws://127.0.0.1/' + path_str, {
     onOpen: () => {
       console.log("Connected!")
@@ -27,14 +28,11 @@ export default function MainBoard() {
     onMessage: (e) => {
       const data = JSON.parse(e.data)
       switch (data.type) {
-        case 'welcome_message':
-          setWelcomeMessage(data.message)
-          break;
-        case 'chat_message_echo':
-          setMessageHistory((prev:any) => prev.concat(data));
-          break;
         case 'game_state':
           console.log(data.state)
+          break;
+        case 'error':
+          console.log(data.message)
           break;
         default:
           console.error('Unknown message type!');
@@ -43,7 +41,7 @@ export default function MainBoard() {
     }
   });
 
-  const { sendJsonMessage } = useWebSocket('ws://127.0.0.1/' + pathname.split("/")[1])
+  const { sendJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -75,12 +73,22 @@ export default function MainBoard() {
     <button className='bg-gray-300 px-3 py-1' 
       onClick={() => {
         sendJsonMessage({
-          type: "join_room",
-          name: "room1",
+          type: "join_game",
+          session: game_id,
         })
       }}
     >
-      Join room
+      Join game
+    </button>
+    <button className='bg-gray-300 px-3 py-1' 
+      onClick={() => {
+        sendJsonMessage({
+          type: "create_game",
+          map: "1",
+        })
+      }}
+    >
+      Create game
     </button>
   <hr />
   <ul>

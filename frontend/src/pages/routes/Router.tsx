@@ -35,7 +35,7 @@ export default function Router() {
         {
           path: 'main',
           children: [
-            { path: 'board', element: <MainBoard /> },
+            { path: 'board/:game_id', element: <MainBoard /> },
           ],
         },
       ],

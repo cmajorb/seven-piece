@@ -30,3 +30,24 @@ application = ProtocolTypeRouter(
         "websocket": URLRouter(routing.websocket_urlpatterns),
     }
 )
+
+
+from django.urls import re_path
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+from channels.security.websocket import AllowedHostsOriginValidator
+
+from game import consumers
+
+application = ProtocolTypeRouter({
+
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
+            URLRouter([
+                re_path(r"^game/(?P<game_id>.+)$", consumers.GameConsumer.as_asgi()),
+            ])
+        )
+    ),
+
+})

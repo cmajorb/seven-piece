@@ -1,6 +1,5 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User
 import json
 from game.data.constants import MAP_DEFINITION
 from game.exceptions import IllegalMoveError, JoinGameError, IllegalPieceSelection
@@ -69,11 +68,11 @@ class GameState(models.Model):
         self.objectives = ",".join(objectives)
         self.save(update_fields=['objectives','state'])
 
-    def join_game(self, user):
+    def join_game(self, session):
         num_of_players = len(self.player_set.all())
         if num_of_players >= self.map.player_size:
             raise JoinGameError
-        Player.objects.create(user=user, game=self, number=num_of_players)
+        Player.objects.create(session=session, game=self, number=num_of_players)
         if num_of_players + 1 == self.map.player_size:
             self.state = "READY"
             self.save(update_fields=['state'])
@@ -107,14 +106,14 @@ class GameState(models.Model):
         dictionary["score"] = ""
         pieces = []
         for piece in state.piece_set.all():
-            pieces.append("Name: {}({}:{}), Speed: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.user.id, piece.id, piece.speed, piece.attack, piece.health, piece.location_x, piece.location_y))
+            pieces.append("Name: {}({}:{}), Speed: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.session, piece.id, piece.speed, piece.attack, piece.health, piece.location_x, piece.location_y))
         dictionary["pieces"] = pieces
         for player in state.player_set.all():
             dictionary["score"] += "{} ({}), ".format(player.id, player.score)
         return dictionary
 
 class Player(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    session = models.CharField(max_length=50, null=False, default="")
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     score = models.IntegerField(default=0)
     number = models.IntegerField()
@@ -184,6 +183,7 @@ class Piece(models.Model):
         dictionary["character"] = piece.character.name
         dictionary["player"] = piece.player.number
         dictionary["health"] = piece.health
+        dictionary["description"] = piece.character.description
         dictionary["location"] = [piece.location_x, piece.location_y]
         dictionary["speed"] = piece.speed
         dictionary["attack"] = piece.attack

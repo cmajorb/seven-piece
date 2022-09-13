@@ -3,7 +3,7 @@ from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard
 import json
 from game.game_logic import create_game
 from game.exceptions import JoinGameError
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 class PieceTestCase(TestCase):
     # def resetGame(self):
@@ -30,7 +30,7 @@ class PieceTestCase(TestCase):
         # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
         # self.piece = Piece.objects.create(character=self.soldier, location_x=0, location_y=0, health=self.soldier.health, game=self.game_state, range=2)
 
-        self.user = User.objects.create_user(username='user1', password='12345')
+        # self.user = User.objects.create_user(username='user1', password='12345')
 
 
     # def test_movement(self):
@@ -57,17 +57,19 @@ class PieceTestCase(TestCase):
     #         self.assertEqual(piece.health, piece.character.health - 1)
 
     def test_entire_game(self):
-        game_state = create_game(self.user, self.map.id)
-        user2 = User.objects.create_user(username='user2', password='12345')
-        game_state.join_game(user2)
-        player1 = Player.objects.get(user=self.user, game=game_state)
-        player2 = Player.objects.get(user=user2, game=game_state)
+        session0 = "123"
+        session1 = "789"
+        game_state = create_game(session0, self.map.id)
+        # user2 = User.objects.create_user(username='user2', password='12345')
+        game_state.join_game(session1)
+        player1 = Player.objects.get(session=session0, game=game_state)
+        player2 = Player.objects.get(session=session1, game=game_state)
 
         pieces = ["Berserker", "Ice Wizard"]
         pieces1 = player1.select_pieces(pieces)
         pieces = ["Berserker", "Soldier"]
         pieces2 = player2.select_pieces(pieces)
-        self.assertEqual(len(Player.objects.get(user=user2).piece_set.all()), len(pieces))
+        self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
         
         game_state = pieces1[0].make_move([1,1])
         print(game_state.get_game_summary())
@@ -95,9 +97,12 @@ class PieceTestCase(TestCase):
         pieces1[1].freeze()
 
     def test_too_many_players_join(self):
-        game_state = create_game(self.user, self.map.id)
-        user2 = User.objects.create_user(username='test_user2', password='12345')
-        user3 = User.objects.create_user(username='test_user3', password='12345')
-        game_state.join_game(user2)
+        session0 = "123"
+        session1 = "456"
+        session2 = "789"
+        game_state = create_game(session0, self.map.id)
+        # user2 = User.objects.create_user(username='test_user2', password='12345')
+        # user3 = User.objects.create_user(username='test_user3', password='12345')
+        game_state.join_game(session1)
         with self.assertRaises(JoinGameError):
-            game_state.join_game(user3)
+            game_state.join_game(session2)
