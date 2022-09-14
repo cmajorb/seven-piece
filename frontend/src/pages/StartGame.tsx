@@ -3,7 +3,7 @@ import useWebSocket from 'react-use-websocket';
 import { useNavigate } from 'react-router-dom';
 import { PATH_DASHBOARD } from './routes/paths';
 // @mui
-import { Stack, Button, Container, TextField } from '@mui/material';
+import { Stack, Button, Container, Typography, TextField } from '@mui/material';
 
 export default function StartGame() {
     const navigate = useNavigate();
@@ -16,9 +16,13 @@ export default function StartGame() {
         setGameID(event.target.value);
     };
 
+    const checkGameID = (gameID: string | undefined) => {
+        if (gameID && gameID.length > 0) { return false };
+        return true;
+    };
+
     useEffect(() => {
         if (lastJsonMessage !== null) {
-            console.log("LAST MESSAGE", lastJsonMessage);
             const message_str = JSON.stringify(lastJsonMessage);
             const message = JSON.parse(message_str);
             switch (message.type) {
@@ -39,11 +43,15 @@ export default function StartGame() {
 
     return (
         <Container>
-            <Stack spacing={2}>
-                <Button variant='contained'
+            <Stack spacing={2} alignItems={'center'}>
+                <Stack alignItems={'center'}>
+                    <Typography variant='h6'>Keep up the good work, guys!</Typography>
+                    <Typography variant='h6' fontWeight={'bold'}>BUILD ME!!</Typography>
+                </Stack>
+                <Button variant='contained' sx={{ width: 300 }}
                     onClick={() => { sendJsonMessage({ type: "create_game", map: "1" }) }}
                 >Create Game</Button>
-                <Button variant='contained'
+                <Button variant='contained' sx={{ width: 300 }} disabled={checkGameID(gameID)}
                     onClick={() => {
                         sendJsonMessage({ type: "join_game", session: gameID });
                         navigate(PATH_DASHBOARD.general.board + gameID)
