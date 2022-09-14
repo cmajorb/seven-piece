@@ -8,7 +8,7 @@ import { Stack, Button, Container, Typography, TextField } from '@mui/material';
 export default function StartGame() {
     const navigate = useNavigate();
 
-    const path_str = "game/none";
+    const path_str = "menu";
     const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
 
     const [gameID, setGameID] = useState<string>('');
@@ -26,9 +26,9 @@ export default function StartGame() {
             const message_str = JSON.stringify(lastJsonMessage);
             const message = JSON.parse(message_str);
             switch (message.type) {
-                case 'game_state':
-                const game_state = JSON.parse(message.state);
-                navigate(PATH_DASHBOARD.general.board + game_state.session);
+                case 'start_game':
+                const session_id = message.session_id;
+                navigate(PATH_DASHBOARD.general.board + session_id);
                 break;
                 case 'error':
                 console.log(message.message);
@@ -53,7 +53,6 @@ export default function StartGame() {
                 >Create Game</Button>
                 <Button variant='contained' sx={{ width: 300 }} disabled={checkGameID(gameID)}
                     onClick={() => {
-                        sendJsonMessage({ type: "join_game", session: gameID });
                         navigate(PATH_DASHBOARD.general.board + gameID)
                     }}
                 >Join Game</Button>

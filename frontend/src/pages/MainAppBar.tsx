@@ -15,8 +15,8 @@ import { PATH_DASHBOARD } from './routes/paths';
 export default function MainAppBar() {
   const navigate = useNavigate();
   const { game_id } = useParams();
-  const path_str = "game/" + game_id;
-  const connectionStatus = ConnectWebSocket(path_str);
+  // const path_str = "game/" + game_id;
+  // const connectionStatus = ConnectWebSocket(path_str);
 
   return (
     <>
@@ -26,7 +26,7 @@ export default function MainAppBar() {
             <Stack direction={'row'} alignItems={'center'}>
               <Stack direction={'row'} spacing={1}>
                 <Typography variant="button">WebSocket:</Typography>
-                <Typography variant="button">{connectionStatus}</Typography>
+                {/* <Typography variant="button">{connectionStatus}</Typography> */}
               </Stack>
             </Stack>
             <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>

@@ -46,13 +46,7 @@ class GameConsumer(JsonWebsocketConsumer):
     def receive_json(self, content, **kwargs):
         message_type = content["type"]
         error = ""
-        if message_type == "create_game":
-            try:
-                self.current_game_state = create_game(self.session_id, content["map"])
-                logging.info(str(self.current_game_state.session))
-            except:
-                error = "Could not create game"
-        elif message_type == "join_game":
+        if message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state = game.join_game(self.session_id)
@@ -114,6 +108,59 @@ class GameConsumer(JsonWebsocketConsumer):
                     {
                         "type": "error",
                         "message": error,
+                    },
+                )
+        return super().receive_json(content, **kwargs)
+
+
+class MenuConsumer(JsonWebsocketConsumer):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.room_name = None
+
+    def connect(self):
+        logging.info("Connected to menu!")
+        self.scope["session"].save()
+        self.room_name = self.scope["session"].session_key
+        logging.info(self.room_name)
+        self.accept()
+        
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_name,
+            self.channel_name,
+        )
+                
+    def disconnect(self, code):
+        logging.info("Disconnected from menu!")
+        async_to_sync(self.channel_layer.group_discard)(self.room_name, self.channel_name)
+        return super().disconnect(code)
+
+    def start_game(self, event):
+        self.send_json(event)
+
+    def error(self, event):
+        self.send_json(event)
+        
+    def receive_json(self, content, **kwargs):
+        message_type = content["type"]
+        if message_type == "create_game":            
+            try:
+                current_game_state = create_game(content["map"])
+                logging.info(str(current_game_state.session))
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_name,
+                    {
+                        "type": "start_game",
+                        "session_id": str(current_game_state.session),
+                    },
+                )
+            except:
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_name,
+                    {
+                        "type": "error",
+                        "message": "Could not create game from menu",
                     },
                 )
         return super().receive_json(content, **kwargs)

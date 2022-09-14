@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useLocation, useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
@@ -44,6 +44,11 @@ export default function MainBoard() {
 
   const { sendJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
 
+  useEffect(() => {
+    console.log("Joining:");
+    sendJsonMessage({ type: "join_game", session: game_id });
+  }, []);
+
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
     [ReadyState.OPEN]: 'Open',
@@ -59,39 +64,7 @@ export default function MainBoard() {
         <p>Current session: {gameState ? gameState.session : "None"} </p>
         <p>Game State: {gameState ? gameState.state : "None"} </p>
       </div>
-    <button className='bg-gray-300 px-3 py-1' 
-      onClick={() => {
-        sendJsonMessage({
-          type: "move",
-          selected_piece: 0,
-          target_x: 2,
-          target_y: 3,
-          action: "move",
-          })
-      }}
-    >
-    Make a move (2,3)
-    </button>
-    <button className='bg-gray-300 px-3 py-1' 
-      onClick={() => {
-        sendJsonMessage({
-          type: "join_game",
-          session: game_id,
-        })
-      }}
-    >
-      Join game
-    </button>
-    <button className='bg-gray-300 px-3 py-1' 
-      onClick={() => {
-        sendJsonMessage({
-          type: "create_game",
-          map: "1",
-        })
-      }}
-    >
-      Create game
-    </button>
+  
     <button className='bg-gray-300 px-3 py-1' 
       onClick={() => {
         let piece_array = JSON.stringify(["Soldier", "Berserker"])
