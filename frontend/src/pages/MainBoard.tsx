@@ -125,8 +125,8 @@ export default function MainBoard() {
         constants={constants}
         map={gameState.map}
         round={gameState.turn_count}
-        team_1_score={3}
-        team_2_score={4}
+        team_1_score={gameState.players[0].score}
+        team_2_score={gameState.players[1].score}
       /> }
     </div>
 

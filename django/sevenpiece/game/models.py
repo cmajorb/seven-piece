@@ -94,8 +94,11 @@ class GameState(models.Model):
         dictionary["turn_count"] = state.turn_count
         dictionary["objectives"] = state.objectives.split(",")
         dictionary["pieces"] = []
+        dictionary["players"] = []
         for piece in state.piece_set.all():
             dictionary["pieces"].append(piece.get_info())
+        for player in state.player_set.all():
+            dictionary["players"].append(player.get_info())
 
         return json.dumps(dictionary, indent = 4)
 
@@ -117,6 +120,14 @@ class Player(models.Model):
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     score = models.IntegerField(default=0)
     number = models.IntegerField()
+
+    def get_info(self):
+        dictionary = {}
+        current_scores = self.game.objectives.split(",")
+        dictionary["number"] = self.number
+        dictionary["session"] = self.session
+        dictionary["score"] = self.score + current_scores.count(str(self.number))
+        return dictionary
 
     def is_current_turn(self):
         return self.game.turn_count % self.game.map.player_size == self.number

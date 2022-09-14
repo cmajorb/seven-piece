@@ -10,6 +10,12 @@ export type Piece = {
     id: number;
   };
 
+  export type Player = {
+    number: number;
+    session: string;
+    score: number;
+  };
+
 export type Map = {
     start_tiles: [[number[]]],
     data: [number[]],
@@ -26,6 +32,7 @@ export type GameState = {
     turn_count: number;
     objectives: string[];
     pieces: Piece[];
+    players: Player[];
 };
 
 export type Constants = {
