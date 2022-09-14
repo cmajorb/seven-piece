@@ -30,11 +30,13 @@ export default function Router() {
     },
     {
       path: 'dashboard',
+      element: <MainAppBar />,
       children: [
         { element: <Navigate to={PATH_DASHBOARD.general.board} replace />, index: true },
         {
           path: 'main',
           children: [
+            { path: 'start', element: <StartGame /> },
             { path: 'board/:game_id', element: <MainBoard /> },
           ],
         },
@@ -57,6 +59,8 @@ export default function Router() {
 }
 
 const MainBoard = Loadable(lazy(() => import('../MainBoard')));
+const StartGame = Loadable(lazy(() => import('../StartGame')));
 const NotFound = Loadable(lazy(() => import('../Page404')));
 const Login = Loadable(lazy(() => import('../Login')));
 const Register = Loadable(lazy(() => import('../Register')));
+const MainAppBar = Loadable(lazy(() => import('../MainAppBar')));
