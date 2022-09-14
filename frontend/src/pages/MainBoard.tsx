@@ -33,7 +33,7 @@ export default function MainBoard() {
           setGameState(JSON.parse(data.state))
           break;
         case 'error':
-          console.log(data.message)
+          console.log("Error: " + data.message)
           break;
         default:
           console.error('Unknown message type!');

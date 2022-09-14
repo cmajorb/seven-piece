@@ -24,20 +24,17 @@ class GameConsumer(JsonWebsocketConsumer):
         logging.info(self.scope)
         self.user = self.scope["user"]
         self.scope["session"].save()
-        self.session = self.scope["session"].session_key
-        logging.info(self.session)
+        self.session_id = self.scope["session"].session_key
+        
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
-            self.channel_name,
-        )
-        async_to_sync(self.channel_layer.group_add)(
-            self.session,
             self.channel_name,
         )
                 
 
     def disconnect(self, code):
         logging.info("Disconnected!")
+        async_to_sync(self.channel_layer.group_discard)(self.room_name, self.channel_name)
         return super().disconnect(code)
 
     def game_state(self, event):
@@ -50,18 +47,21 @@ class GameConsumer(JsonWebsocketConsumer):
         message_type = content["type"]
         error = ""
         if message_type == "create_game":
-            self.current_game_state = create_game(self.session, content["map"])
-            logging.info(str(self.current_game_state.session))
+            try:
+                self.current_game_state = create_game(self.session_id, content["map"])
+                logging.info(str(self.current_game_state.session))
+            except:
+                error = "Could not create game"
         elif message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
-                self.current_game_state = game.join_game(self.session)
-                self.player = Player.objects.get(session=self.session, game=self.current_game_state)
+                self.current_game_state = game.join_game(self.session_id)
+                self.player = Player.objects.get(session=self.session_id, game=self.current_game_state)
                 logging.info("Joined game")
             except:
                 logging.info("Failed to join game")
                 async_to_sync(self.channel_layer.group_send)(
-                self.session,
+                self.room_name,
                 {
                     "type": "error",
                     "message": "Could not join game",
@@ -78,15 +78,15 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "select_pieces":
             logging.info("selecting pieces")
             try:
-                logging.info(content["pieces"])
-                logging.info(json.loads(content["pieces"]))
                 self.player.select_pieces(json.loads(content["pieces"]))
             except:
                 error = "Failed to select pieces"
         elif message_type == "action":
-            logging.info("sending move info to {}".format(self.room_name))
             #Make sure it belongs to the user
-            piece = Piece.objects.get(player=self.player, id=content["piece"])
+            try:
+                piece = Piece.objects.get(player=self.player, id=content["piece"])
+            except:
+                error = "Piece does not exist"
             if content["action_type"] == "move":
                 try:
                     piece.make_move([content["location_x"], content["location_y"]])
@@ -98,8 +98,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 except:
                     error = "Failed to attack piece"
         else:
-            logging.info("Uknown message")
-        logging.info("Sending to {}".format(self.room_name))
+            error = "Unknown command"
         if error == "":
             async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
@@ -109,11 +108,12 @@ class GameConsumer(JsonWebsocketConsumer):
                     },
                 )
         else:
+            logging.error(error)
             async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
                     {
                         "type": "error",
-                        "state": error,
+                        "message": error,
                     },
                 )
         return super().receive_json(content, **kwargs)
