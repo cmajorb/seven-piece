@@ -59,3 +59,7 @@ You need to have the following environment variables:
     - DATABASE_HOST=db
     - REDIS_HOST=redis
     - REDIS_PORT=6379
+
+## Activate venv
+
+source 7p/bin/activate
