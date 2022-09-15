@@ -1,10 +1,10 @@
 import { Stack, Divider, useTheme, Button, Typography, Card, Paper } from '@mui/material';
 import Cell from './Cell';
 import { useState, useEffect } from 'react';
-import getStatusConstants from '../utils/getStatusConstants';
-import getTileStatusVals from '../utils/getTileStatusVals';
+import { getTileStatusVals, getStatusConstants } from '../utils/getTileStatusVals';
 import { Constants, Piece, Map } from '../types';
 import { PieceImg } from './getPNGImages';
+import calcSelectedTile from '../utils/calcSelectedTile';
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ type Props = {
 export default function MainGrid({ rows, columns, pieces, constants, map, round, team_1_score, team_2_score, endTurn }: Props) {
     
     const theme = useTheme();
-    const constants_vals = getStatusConstants();
+    const constants_vals = getStatusConstants(constants);
 
     const column_nums = Array.from(Array(columns).keys());
     const row_nums = Array.from(Array(rows).keys());
@@ -47,20 +47,6 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
         // printCellStatus(location, map.data);
     }
 
-    const calcSelectedTile = (selected_tile: number[], current_tile: number[]) => {
-        if ((selected_tile[0] === current_tile[0]) && (selected_tile[1] === current_tile[1])) { return true }
-        else { return false }
-    }
-
-    const getPiece = (curr_location: number[]) => {
-        console.log("Getting piece")
-          for (let index in pieces) {
-            const piece = pieces[index];
-            if (curr_location[0] === piece.location[0] && curr_location[1] === piece.location[1]) { return piece };
-          }
-          console.log("No piece found at " + curr_location)
-      }
-
     return (
         <Stack spacing={2}>
             <Stack direction={'row'} spacing={2} alignContent={'center'} justifyContent={'space-around'}>
@@ -69,18 +55,14 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                         {column_nums.map((column) => (
                             <Stack key={column} spacing={0.25} direction={'column'}>
                                 {row_nums.map((row) => (
-                                    <Cell
-                                        key={([row, column]).toString()}
+                                    <Cell key={([row, column]).toString()}
                                         location={[row, column]}
-                                        value={map.data[row][column]}
                                         selected={calcSelectedTile(selectedTile, [row, column])}
-                                        updateSelected={updateSelected}
-                                        status={getTileStatusVals(map.data, row, column, constants_vals)}
+                                        cell_status={getTileStatusVals(map.data, row, column, constants_vals)}
                                         pieces={pieces}
-                                        getPiece={getPiece}
                                         constants={constants}
                                         map={map}
-                                        color_scheme={map.color_scheme}
+                                        updateSelected={updateSelected}
                                     />
                                 ))}
                             </Stack>
@@ -131,33 +113,10 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                         </Stack>
                     </Card>
                 </Stack>
-                <Button variant={'contained'} onClick={() => { console.log("ENDING TURN") 
-                endTurn()
-            }}>End Turn</Button>
+                <Button variant={'contained'} onClick={() => { console.log("ENDING TURN"); endTurn() }}>
+                    End Turn
+                </Button>
             </Stack>
         </Stack>
     );
 }
-
-    // TEST FUNCTIONS
-
-    // const printRows = (board: any[]) => {
-    //     for (let index in board) {
-    //         const row = board[index];
-    //         console.log("ROW", index, row);
-    //       };
-    // }
-    // printRows(board);
-
-    // const printCellStatus = (location: number[], gameState: any[]) => {
-    //     const constants_info = require('../testing/constants.json');
-    //     const current_location = gameState[location[0]][location[1]];
-    //     const constants_keys = Object.keys(constants_info);
-    //     for (let index in constants_keys) {
-    //       const key = constants_keys[index];
-    //       if (constants_info[key as keyof typeof constants_info] === current_location) {
-    //         console.log(`LOCATION: [${location}], CELL STATUS: ${key}, STATUS NUMBER: ${current_location}`);
-    //         break;
-    //       }
-    //     };
-    //   }

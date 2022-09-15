@@ -1,87 +1,69 @@
 import { Card } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { Constants, Piece, Map, ColorScheme } from '../types';
-import { GetWallColor } from '../utils/getBasicColors';
+import { Constants, Piece, Map } from '../types';
+import GetBorderColor from '../utils/getBorderColor';
+import getPiece from '../utils/getPiece';
 import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './getPNGImages';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   location: number[],
-  value: number,
   selected: boolean,
-  updateSelected: any,
-  status: number[],
+  cell_status: number[],
   pieces: Piece[],
-  getPiece: any,
   constants: Constants,
   map: Map,
-  color_scheme: ColorScheme
+  updateSelected: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, value, selected, updateSelected, status, pieces, getPiece, constants, map, color_scheme }: Props) {
+export default function Cell({ location, selected, cell_status, pieces, constants, map, updateSelected }: Props) {
   
-  const theme = useTheme();
-  const is_wall: boolean = status.includes(constants.wall as number);
-  const contains_piece: boolean = status.includes(constants.player as number);
-  const contains_objective: boolean = status.includes(constants.objective as number);
-
-  const getCellStatus = (location: number[], map: Map) => {
-    const current_location = map.data[location[0]][location[1]];
-    return current_location;
-  }
-
-  const getPresentPiece = (curr_location: number[], pieces: any, status: number[]) => {
-    if (contains_piece) {
-      for (let index in pieces) {
-        const piece = pieces[index];
-        if (curr_location[0] === piece.location[0] && curr_location[1] === piece.location[1]) { return piece };
-      }
-    } else { return undefined };
-  }
-
-  const piece: Piece | undefined = getPresentPiece(location, pieces, status);
-
-  const getBorderColor = (value: number) => {
-    if ((value & constants.wall as number) == constants.wall) {
-      return GetWallColor(color_scheme)
-    }
-    else if ((value & constants.player as number) == constants.player) {
-      if (selected) {
-        return theme.palette.primary.main
-      } else {
-        return "purple"
-      }
-    }
-
-    if (selected) {
-      return theme.palette.primary.main
-    }
-      return color_scheme.tile_colors.wall as string
-  }
+  const is_wall: boolean = cell_status.includes(constants.wall as number);
+  const contains_objective: boolean = cell_status.includes(constants.objective as number) && !(cell_status.includes(constants.player as number));
+  const contains_piece: boolean = cell_status.includes(constants.player as number) && !(cell_status.includes(constants.objective as number));
+  const contains_objective_and_piece: boolean = cell_status.includes(constants.objective as number) && cell_status.includes(constants.player as number);
+  const piece: Piece | undefined = getPiece(location, pieces);
 
   return (
-    <>
-      { <Card
-          style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
-          sx={{ width: 58, height: 58, border: 2,
-            borderColor: getBorderColor(value),
-            backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
-            backgroundPosition: 'center',
-            backgroundSize: '1000%',
-            '&:hover': { cursor: 'pointer' },
-          }}
-          onClick={() => { updateSelected(location) }}
-        >
-          {(value & constants.wall as number) == constants.wall  && <WallImg/>}
-          {(value & constants.player as number) == constants.player  && <PieceImg piece_name={getPiece(location).character.name} on_board={true}/>}
-          {(value & constants.objective as number) == constants.objective  && <ObjectiveImg player_id={-1}/>}
-          
-        </Card>
+    <Card
+      style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
+      sx={{ width: 58, height: 58, border: 2,
+        borderColor: (
+          GetBorderColor(
+            (contains_objective || contains_piece),
+            map.color_scheme,
+            (piece ? piece.player : -1),
+            selected
+          )
+        ),
+        backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
+        backgroundPosition: 'center',
+        backgroundSize: '1000%',
+        '&:hover': { cursor: 'pointer' },
+      }}
+      onClick={() => { updateSelected(location) }}
+    >
+      { is_wall &&
+        <WallImg/>
       }
-
-    </>  
+      { contains_objective_and_piece &&
+        <ObjectiveAndPieceImg
+          player_id={piece!.player}
+          piece_name={piece!.character}
+          start_tiles={map.color_scheme.start_tiles}
+        />
+      }
+      { contains_objective &&
+        <ObjectiveImg player_id={-1}/>
+      }
+      { contains_piece &&
+        <PieceImg
+          piece_name={getPiece(location, pieces)!.character}
+          on_board={true}
+        />
+      }
+    </Card>
   );
 }
