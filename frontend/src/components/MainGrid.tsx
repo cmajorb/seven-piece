@@ -5,6 +5,7 @@ import { getTileStatusVals, getStatusConstants } from '../utils/getTileStatusVal
 import { Constants, Piece, Map } from '../types';
 import { PieceImg } from './getPNGImages';
 import calcSelectedTile from '../utils/calcSelectedTile';
+import checkSameLocation from '../utils/checkSameLocation';
 
 // ----------------------------------------------------------------------
 
@@ -33,24 +34,38 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
     const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
 
     useEffect(() => {}, [selectedTile])
+    useEffect(() => {
+        if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) }
+    }, [selectedPiece])
 
-    const updateSelected = (location: number[], piece: Piece | undefined) => {
-        if ((location[0] !== selectedTile[0]) || (location[1] !== selectedTile[1])) {
-            setSelectedTile(location);
-            if (piece) { setSelectedPiece(piece) }
-            else { setSelectedPiece(undefined) };
-        }
-        else if ((location[0] === selectedTile[0]) && (location[1] === selectedTile[1])) {
+    const updateSelected = (location: number[], piece: Piece | undefined, cell_status: number[]) => {
+        const same_location = checkSameLocation(location, selectedTile);
+        if (same_location) {
             setSelectedTile([]);
             setSelectedPiece(undefined);
-        };
-        // printCellStatus(location, map.data);
+        } else {
+            // if (selectedPiece) {
+            //     console.log("OLD LOCATION:", selectedPiece.location);
+            //     selectedPiece.location = location;
+            //     console.log("NEW LOCATION:", selectedPiece.location);
+            // }
+            setSelectedTile(location);
+            if (piece) {
+                setSelectedPiece(piece)
+            }
+            else { setSelectedPiece(undefined) };
+        }
     }
 
     return (
         <Stack spacing={2}>
             <Stack direction={'row'} spacing={2} alignContent={'center'} justifyContent={'space-around'}>
-                <Paper sx={{ p: 1, backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")` }} elevation={2}>
+                <Paper
+                    sx={{ p: 1, backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")` }}
+                    elevation={2}
+                    onContextMenu={(e)=> e.preventDefault()}
+                    onMouseDown={(e)=> e.preventDefault()}
+                >
                     <Stack spacing={0.25} direction={'row'}>
                         {column_nums.map((column) => (
                             <Stack key={column} spacing={0.25} direction={'column'}>

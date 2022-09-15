@@ -43,7 +43,8 @@ export default function Cell({ location, selected, cell_status, pieces, constant
         backgroundSize: '1000%',
         '&:hover': { cursor: 'pointer' },
       }}
-      onClick={() => { updateSelected(location) }}
+      onClick={() => { updateSelected(location, piece, cell_status) }}
+      onContextMenu={() => { console.log("RIGHT CLICKED!", location, piece) }}
     >
       { is_wall &&
         <WallImg/>
@@ -60,7 +61,7 @@ export default function Cell({ location, selected, cell_status, pieces, constant
       }
       { contains_piece &&
         <PieceImg
-          piece_name={getPiece(location, pieces)!.character}
+          piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.character : ''}
           on_board={true}
         />
       }
