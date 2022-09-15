@@ -1,5 +1,5 @@
 from django.test import TestCase
-from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard
+from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard, MapTemplate
 import json
 from game.game_logic import create_game
 from game.exceptions import JoinGameError
@@ -17,7 +17,7 @@ class PieceTestCase(TestCase):
 
         #Maps
         maps_data = (open('sevenpiece/game/data/test_maps.json')).read()
-        self.map = Map.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=3)
+        self.map = MapTemplate.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=3)
         
         #Characters
         self.soldier = Character.objects.get_or_create(name="Soldier", health=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has a lot of health")

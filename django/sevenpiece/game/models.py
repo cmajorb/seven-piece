@@ -24,6 +24,16 @@ class Map(models.Model):
     def __str__(self):
         return self.name + " (" + str(self.player_size) + ")"
 
+class MapTemplate(models.Model):
+    name = models.CharField(max_length=150, null=False, unique=False)
+    data = models.JSONField()
+    player_size = models.IntegerField()
+    num_characters = models.IntegerField()
+    color_scheme = models.ForeignKey(ColorScheme, on_delete=models.CASCADE, null=True)
+    score_to_win = models.IntegerField(default = 5)
+    def __str__(self):
+        return self.name + " (" + str(self.player_size) + ")"
+
 class Character(models.Model):
     name = models.CharField(max_length=150, null=False, unique=False)
     health = models.IntegerField(default=1)
@@ -77,7 +87,7 @@ class GameState(models.Model):
             raise JoinGameError
         Player.objects.create(session=session, game=self, number=num_of_players)
         if num_of_players + 1 == self.map.player_size:
-            self.state = "READY"
+            self.state = "PLACING"
             self.save(update_fields=['state'])
         return self
 
@@ -137,21 +147,23 @@ class Player(models.Model):
 
     def select_pieces(self, pieces):
         all_pieces = []
-        logging.info("Selecting for {}".format(self.number))
-        if self.game.state != "READY":
+        if self.game.state != "PLACING":
             return IllegalPieceSelection
         if len(pieces) != self.game.map.num_characters:
             raise IllegalPieceSelection
         if len(self.piece_set.all()) != 0:
             logging.error("You already have pieces")
             raise IllegalPieceSelection
+        logging.info("Selecting for {}".format(self.number))
         for i, piece in enumerate(pieces):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
             if piece == "Ice Wizard":
-                all_pieces.append(IceWizard.objects.create(character=character, game=self.game, player=self, location_x = start_tile[0], location_y = start_tile[1]))
+                new_piece = IceWizard.objects.create(character=character, game=self.game, player=self)
             else:
-                all_pieces.append(Piece.objects.create(character=character, game=self.game, player=self, location_x = start_tile[0], location_y = start_tile[1]))
+                new_piece = Piece.objects.create(character=character, game=self.game, player=self)
+            new_piece.make_move([start_tile[0],start_tile[1]])
+            all_pieces.append(new_piece)
         if len(self.game.piece_set.all()) == self.game.map.num_characters * self.game.map.player_size:
             self.game.init_game()
         return all_pieces

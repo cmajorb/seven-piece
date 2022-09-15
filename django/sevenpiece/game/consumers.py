@@ -99,6 +99,7 @@ class GameConsumer(JsonWebsocketConsumer):
         else:
             error = "Unknown command"
         if error == "":
+            self.current_game_state.refresh_from_db()
             async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
                     {
