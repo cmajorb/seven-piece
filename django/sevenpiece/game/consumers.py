@@ -91,6 +91,11 @@ class GameConsumer(JsonWebsocketConsumer):
                     piece.attack_piece([content["location_x"], content["location_y"]])
                 except:
                     error = "Failed to attack piece"
+            elif content["action_type"] == "freeze":
+                try:
+                    piece.freeze([content["location_x"], content["location_y"]])
+                except:
+                    error = "Failed to attack piece"
         else:
             error = "Unknown command"
         if error == "":
