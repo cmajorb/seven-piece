@@ -51,7 +51,6 @@ export default function MainBoard() {
     <div>
       <div>
         <p>The WebSocket is currently: {connectionStatus}</p>
-        <p>Current session: {gameState ? gameState.session : "None"} </p>
         <p>Game State: {gameState ? gameState.state : "None"} </p>
       </div>
   
