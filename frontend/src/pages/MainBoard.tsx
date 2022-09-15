@@ -1,53 +1,43 @@
 import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
 import { Constants, GameState } from '../types';
 
 export default function MainBoard() {
-  const sample_game_state: GameState = require('../testing/game_state.json');
   const constants: Constants = require('../testing/constants.json');
-  const num_rows = (sample_game_state.map.data).length;
-  const num_columns = (sample_game_state.map.data[0]).length;
-
-  const { pathname } = useLocation();
-  console.log("PATHNAME", pathname.split("/")[1]);
   
   const [gameState, setGameState] = useState<GameState>()
   const { game_id } = useParams();
   
   const path_str = "game/" + game_id;
-  const { readyState } = useWebSocket('ws://127.0.0.1/' + path_str, {
-    onOpen: () => {
-      console.log("Connected!")
-    },
-    onClose: () => {
-      console.log("Disconnected!")
-    },
-    onMessage: (e) => {
-      const data = JSON.parse(e.data)
-      switch (data.type) {
-        case 'game_state':
-          console.log("Received state data")
-          console.log(data.state)
-          setGameState(JSON.parse(data.state))
-          break;
-        case 'error':
-          console.log("Error: " + data.message)
-          break;
-        default:
-          console.error('Unknown message type!');
-          break;
-      }
-    }
-  });
-
-  const { sendJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
+  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
 
   useEffect(() => {
     console.log("Joining:");
     sendJsonMessage({ type: "join_game", session: game_id });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (lastJsonMessage !== null) {
+        const message_str = JSON.stringify(lastJsonMessage);
+        const message = JSON.parse(message_str);
+        switch (message.type) {
+            case 'game_state':
+            console.log('Set GameState:', JSON.parse(message.state));
+            setGameState(JSON.parse(message.state));
+            break;
+            case 'error':
+            console.log(message.message);
+            break;
+            default:
+            console.error('Unknown message type!');
+            break;
+        }
+    }
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [lastJsonMessage]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -126,7 +116,7 @@ export default function MainBoard() {
         map={gameState.map}
         round={gameState.turn_count}
         team_1_score={gameState.players[0].score}
-        team_2_score={gameState.players[1].score}
+        team_2_score={gameState.players.length === 2 ? gameState.players[1].score : 0}
       /> }
     </div>
 
