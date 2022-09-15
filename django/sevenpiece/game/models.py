@@ -23,14 +23,15 @@ class Map(models.Model):
 
 class Character(models.Model):
     name = models.CharField(max_length=150, null=False, unique=False)
-    health = models.IntegerField()
-    attack = models.IntegerField()
-    speed = models.IntegerField()
-    special = models.CharField(max_length=150)
+    health = models.IntegerField(default=1)
+    attack = models.IntegerField(default=1)
+    speed = models.IntegerField(default=1)
+    special = models.CharField(max_length=150, default="None")
     image = models.CharField(max_length=150)
     description = models.CharField(max_length=500)
     attack_range_min = models.IntegerField(default=1)
     attack_range_max = models.IntegerField(default=1)
+    special_range = models.IntegerField(default=1)
     
     def __str__(self):
         return self.name + " ({})".format(str(self.id))
@@ -53,10 +54,9 @@ class GameState(models.Model):
     def init_game(self):
         self.state = "PLACING"
         for piece in self.piece_set.all():
+            piece.reset_stats()
             piece.health = piece.character.health
-            piece.speed = piece.character.speed
-            piece.attack = piece.character.attack
-            piece.save(update_fields=['health','speed','attack'])
+            piece.save(update_fields=['health'])
         self.save(update_fields=['state'])
 
     def start_game(self):
@@ -162,10 +162,8 @@ class Player(models.Model):
                     self.game.end_game(player)
             self.game.turn_count = self.game.turn_count + 1
             self.game.save(update_fields=['turn_count'])
-            for piece in self.game.piece_set.all():
-                piece.speed = piece.character.speed
-                piece.attack = piece.character.attack
-                piece.save(update_fields=['speed', 'attack'])
+            for piece in self.game.piece_set.all().filter(player = self):
+                piece.reset_stats()
         else:
             print("Not your turn")
             raise IllegalMoveError
@@ -181,11 +179,25 @@ class Piece(models.Model):
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     speed = models.IntegerField(default=0)
     attack = models.IntegerField(default=0)
+    special = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
     point_value = models.IntegerField(default=1)
 
     def __str__(self):
         return self.character.name
+
+    def reset_stats(self):
+        self.speed = self.character.speed
+        self.attack = self.character.attack
+        if self.character.special != "None":
+            self.special = 1
+        self.save(update_fields=['speed','attack','special'])
+
+    def freeze(self):
+        self.speed = 0
+        self.save(update_fields=['speed'])
+        return self
+        #Change image
 
     def get_info(piece):
         if piece == None:
@@ -224,6 +236,8 @@ class Piece(models.Model):
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
             target_piece = target_piece.take_damage(self.attack)
+            self.attack = 0
+            self.save(update_fields=['attack'])
         else:
             print("No piece there")
             raise IllegalMoveError
@@ -317,6 +331,7 @@ class Piece(models.Model):
             self.game.start_game()
 
     def is_range_valid(self, location, range_min, range_max):
+        #This fails to check if there is an obstacle in the way
         map_length_x = len(self.game.map.data["data"])
         map_length_y = len(self.game.map.data["data"][0])
         x_diff = abs(self.location_x - location[0])
@@ -344,5 +359,26 @@ class Piece(models.Model):
 class IceWizard(Piece):
     class Meta:
         proxy = True
-    def freeze(self):
+    def freeze_special(self, location):
         print("Running freeze move")
+        if self.game.state != "PLAYING":
+            raise IllegalMoveError
+        if not self.player.is_current_turn():
+            print("Not your turn")
+            raise IllegalMoveError
+        if self.special == 0:
+            print("No available special")
+            raise IllegalMoveError
+        if not self.is_range_valid(location, 0, self.character.special_range):
+            print("Out of range")
+            raise IllegalMoveError
+        target_piece = self.game.get_piece_by_location(location)
+        if target_piece:
+            target_piece = target_piece.freeze()
+            self.special = 0
+            self.save(update_fields=['special'])
+        else:
+            print("No piece there")
+            raise IllegalMoveError
+        self.game.refresh_from_db()
+        return self.game
