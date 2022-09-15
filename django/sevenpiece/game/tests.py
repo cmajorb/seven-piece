@@ -71,7 +71,7 @@ class PieceTestCase(TestCase):
         pieces = ["Berserker", "Soldier"]
         pieces2 = player2.select_pieces(pieces)
         self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
-        
+
         game_state = pieces1[0].make_move([1,1])
         print(game_state.get_game_summary())
         game_state = pieces1[1].make_move([1,0])
@@ -80,6 +80,8 @@ class PieceTestCase(TestCase):
         print(game_state.get_game_summary())
         game_state = pieces2[1].make_move([4,3])
         print(game_state.get_game_summary())
+
+        game_state = player1.end_turn()
 
         game_state = pieces1[0].make_move([2,2])
         print(game_state.get_game_summary())

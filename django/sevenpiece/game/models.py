@@ -3,6 +3,9 @@ from django.db import models
 import json
 from game.data.constants import MAP_DEFINITION
 from game.exceptions import IllegalMoveError, JoinGameError, IllegalPieceSelection
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class ColorScheme(models.Model):
     name = models.CharField(max_length=150, null=False, unique=False)
@@ -134,16 +137,21 @@ class Player(models.Model):
 
     def select_pieces(self, pieces):
         all_pieces = []
+        logging.info("Selecting for {}".format(self.number))
         if self.game.state != "READY":
             return IllegalPieceSelection
         if len(pieces) != self.game.map.num_characters:
             raise IllegalPieceSelection
-        for piece in pieces:
+        if len(self.piece_set.all()) != 0:
+            logging.error("You already have pieces")
+            raise IllegalPieceSelection
+        for i, piece in enumerate(pieces):
+            start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
             if piece == "Ice Wizard":
-                all_pieces.append(IceWizard.objects.create(character=character, game=self.game, player=self))
+                all_pieces.append(IceWizard.objects.create(character=character, game=self.game, player=self, location_x = start_tile[0], location_y = start_tile[1]))
             else:
-                all_pieces.append(Piece.objects.create(character=character, game=self.game, player=self))
+                all_pieces.append(Piece.objects.create(character=character, game=self.game, player=self, location_x = start_tile[0], location_y = start_tile[1]))
         if len(self.game.piece_set.all()) == self.game.map.num_characters * self.game.map.player_size:
             self.game.init_game()
         return all_pieces
@@ -151,6 +159,9 @@ class Player(models.Model):
     def end_turn(self):
         #Check to make sure all pieces have moved
         self.game.refresh_from_db()
+        if self.game.state == "PLACING":
+            self.game.start_game()
+            return self.game
         if self.game.state != "PLAYING":
             print("Not in the right game state")
             raise IllegalMoveError
@@ -327,8 +338,8 @@ class Piece(models.Model):
             raise IllegalMoveError
 
         #Check to see if all pieces are placed
-        if len(self.game.piece_set.all().filter(location_x__isnull=False)) == self.game.map.num_characters * self.game.map.player_size:
-            self.game.start_game()
+        # if len(self.game.piece_set.all().filter(location_x__isnull=False)) == self.game.map.num_characters * self.game.map.player_size:
+        #     self.game.start_game()
 
     def is_range_valid(self, location, range_min, range_max):
         #This fails to check if there is an obstacle in the way
