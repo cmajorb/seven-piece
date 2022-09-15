@@ -35,7 +35,7 @@ export default function MainAppBar() {
               { currentSession &&
               <Stack direction={'row'} spacing={1} alignItems={'center'}>
                 <Typography variant="button">Session:</Typography>
-                <Button color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { console.log('copied'); copy(currentSession) }}>{currentSession}</Button>
+                <Button color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
               </Stack> }
             </Stack>
             <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
