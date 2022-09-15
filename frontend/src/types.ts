@@ -16,13 +16,14 @@ export type Piece = {
     score: number;
   };
 
+export type ColorScheme = {
+    tile_colors: Constants,
+    start_tiles: string[]
+}
 export type Map = {
     start_tiles: [[number[]]],
     data: [number[]],
-    color_scheme: {
-        tile_colors: Constants,
-        start_tiles: string[]
-    }
+    color_scheme: ColorScheme
 };
 
 export type GameState = {

@@ -52,6 +52,15 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
         else { return false }
     }
 
+    const getPiece = (curr_location: number[]) => {
+        console.log("Getting piece")
+          for (let index in pieces) {
+            const piece = pieces[index];
+            if (curr_location[0] === piece.location[0] && curr_location[1] === piece.location[1]) { return piece };
+          }
+          console.log("No piece found at " + curr_location)
+      }
+
     return (
         <Stack spacing={2}>
             <Stack direction={'row'} spacing={2} alignContent={'center'} justifyContent={'space-around'}>
@@ -63,12 +72,15 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                                     <Cell
                                         key={([row, column]).toString()}
                                         location={[row, column]}
+                                        value={map.data[row][column]}
                                         selected={calcSelectedTile(selectedTile, [row, column])}
                                         updateSelected={updateSelected}
                                         status={getTileStatusVals(map.data, row, column, constants_vals)}
                                         pieces={pieces}
+                                        getPiece={getPiece}
                                         constants={constants}
                                         map={map}
+                                        color_scheme={map.color_scheme}
                                     />
                                 ))}
                             </Stack>

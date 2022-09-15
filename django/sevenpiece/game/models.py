@@ -320,11 +320,15 @@ class Piece(models.Model):
         self.game.map.save(update_fields=['data'])
 
     def move_placed_piece(self, location):
+        previous_x = self.location_x
+        previous_y = self.location_y
         self.location_x = location[0]
         self.location_y = location[1]
         self.save(update_fields=['location_x','location_y'])
 
         board = self.game.map.data["data"]
+        if previous_x != None:
+            board[previous_x][previous_y] &=  ~MAP_DEFINITION['player']
         board[location[0]][location[1]] |=  MAP_DEFINITION['player']
         self.game.map.data["data"] = board
         self.game.map.save(update_fields=['data'])
