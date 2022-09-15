@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { PATH_DASHBOARD } from './routes/paths';
 // @mui
 import { Stack, Button, Container, Typography, TextField } from '@mui/material';
+import getValidUUID from '../utils/getValidUUID';
 
 export default function StartGame() {
     const navigate = useNavigate();
@@ -17,8 +18,7 @@ export default function StartGame() {
     };
 
     const checkGameID = (gameID: string | undefined) => {
-        if (gameID && gameID.length > 0) { return false };
-        return true;
+        if (getValidUUID(gameID)) { return false } else { return true };
     };
 
     useEffect(() => {
