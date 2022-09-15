@@ -16,12 +16,13 @@ type Props = {
     map: Map,
     round: number,
     team_1_score: number,
-    team_2_score: number
+    team_2_score: number,
+    endTurn: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, constants, map, round, team_1_score, team_2_score }: Props) {
+export default function MainGrid({ rows, columns, pieces, constants, map, round, team_1_score, team_2_score, endTurn }: Props) {
     
     const theme = useTheme();
     const constants_vals = getStatusConstants();
@@ -118,7 +119,9 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                         </Stack>
                     </Card>
                 </Stack>
-                <Button variant={'contained'} onClick={() => { console.log("ENDING TURN") }}>End Turn</Button>
+                <Button variant={'contained'} onClick={() => { console.log("ENDING TURN") 
+                endTurn()
+            }}>End Turn</Button>
             </Stack>
         </Stack>
     );

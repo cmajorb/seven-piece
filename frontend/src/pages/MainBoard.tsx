@@ -39,6 +39,12 @@ export default function MainBoard() {
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [lastJsonMessage]);
 
+const endTurn = () => {
+  sendJsonMessage({
+    type: "end_turn",
+  })
+}
+
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
     [ReadyState.OPEN]: 'Open',
@@ -116,6 +122,7 @@ export default function MainBoard() {
         round={gameState.turn_count}
         team_1_score={gameState.players[0] ? gameState.players[0].score : -1}
         team_2_score={gameState.players[1] ? gameState.players[1].score : -1}
+        endTurn={endTurn}
       /> }
     </div>
 
