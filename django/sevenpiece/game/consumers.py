@@ -44,6 +44,8 @@ class GameConsumer(JsonWebsocketConsumer):
         self.send_json(event)
         
     def receive_json(self, content, **kwargs):
+        if self.player:
+            self.player.refresh_from_db()
         message_type = content["type"]
         error = ""
         if message_type == "join_game":

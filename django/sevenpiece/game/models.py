@@ -148,7 +148,7 @@ class Player(models.Model):
     def select_pieces(self, pieces):
         all_pieces = []
         if self.game.state != "PLACING":
-            return IllegalPieceSelection
+            raise IllegalPieceSelection
         if len(pieces) != self.game.map.num_characters:
             raise IllegalPieceSelection
         if len(self.piece_set.all()) != 0:
