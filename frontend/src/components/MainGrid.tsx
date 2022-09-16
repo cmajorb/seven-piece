@@ -72,6 +72,7 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                                 {row_nums.map((row) => (
                                     <Cell key={([row, column]).toString()}
                                         location={[row, column]}
+                                        value={map.data[row][column]}
                                         selected={calcSelectedTile(selectedTile, [row, column])}
                                         cell_status={getTileStatusVals(map.data, row, column, constants_vals)}
                                         pieces={pieces}

@@ -17,7 +17,7 @@ export type Piece = {
   };
 
 export type ColorScheme = {
-    tile_colors: Constants,
+    tile_colors: ColorConstants,
     start_tiles: string[]
 }
 export type Map = {
@@ -37,9 +37,17 @@ export type GameState = {
 };
 
 export type Constants = {
-    empty: number | string;
-    normal: number | string;
-    wall: number | string;
-    objective: number | string;
-    player: number | string;
+    empty: number;
+    normal: number;
+    wall: number;
+    objective: number;
+    player: number;
+};
+
+export type ColorConstants = {
+    empty: string;
+    normal: string;
+    wall: string;
+    objective: string;
+    player: string;
 };

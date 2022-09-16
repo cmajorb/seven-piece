@@ -8,6 +8,7 @@ import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './getPNGI
 
 type Props = {
   location: number[],
+  value: number,
   selected: boolean,
   cell_status: number[],
   pieces: Piece[],
@@ -18,7 +19,7 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, cell_status, pieces, constants, map, updateSelected }: Props) {
+export default function Cell({ location, value, selected, cell_status, pieces, constants, map, updateSelected }: Props) {
   
   const is_wall: boolean = cell_status.includes(constants.wall as number);
   const contains_objective: boolean = cell_status.includes(constants.objective as number) && !(cell_status.includes(constants.player as number));
@@ -41,7 +42,8 @@ export default function Cell({ location, selected, cell_status, pieces, constant
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
         backgroundSize: '1000%',
-        '&:hover': { cursor: 'pointer' },
+        opacity: (value & constants.empty) == constants.empty ? '0%' : '100%',
+        '&:hover': { cursor: (value & constants.empty) == constants.empty ? null : 'pointer' },
       }}
       onClick={() => { updateSelected(location, piece, cell_status) }}
       onContextMenu={() => { console.log("RIGHT CLICKED!", location, piece) }}
