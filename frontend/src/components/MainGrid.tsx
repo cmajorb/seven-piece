@@ -1,8 +1,8 @@
-import { Stack, Divider, useTheme, Typography, Card, Paper } from '@mui/material';
+import { Stack, Divider, useTheme, Paper } from '@mui/material';
 import Cell from './Cell';
+import PieceDetails from './PieceDetails';
 import { useState, useEffect } from 'react';
-import { Piece, Map } from '../types';
-import { PieceImg } from './getPNGImages';
+import { Piece, Map, PieceActions } from '../types';
 import calcSelectedTile from '../utils/calcSelectedTile';
 import checkSameLocation from '../utils/checkSameLocation';
 import getCellStatus from '../utils/getCellStatus';
@@ -16,12 +16,12 @@ type Props = {
     map: Map,
     active_turn: boolean,
     objectives: string[],
-    submitPieceMove: any
+    submitPieceAction: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, map, active_turn, objectives, submitPieceMove }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, active_turn, objectives, submitPieceAction }: Props) {
     
     const theme = useTheme();
 
@@ -29,11 +29,10 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
     const row_nums = (Array.from(Array(rows).keys())).sort((a, b) => b - a);
     const [selectedTile, setSelectedTile] = useState<number[]>([]);
     const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
+    const [actionType, setActionType] = useState<PieceActions>('move');
     useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined) }, [active_turn]);
     useEffect(() => {}, [selectedTile]);
-    useEffect(() => {
-        if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) }
-    }, [selectedPiece]);
+    useEffect(() => { if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) } }, [selectedPiece]);
 
     const updateSelected = (location: number[], piece: Piece | undefined) => {
         const same_location = checkSameLocation(location, selectedTile);
@@ -41,11 +40,13 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
             setSelectedTile([]);
             setSelectedPiece(undefined);
         } else {
-            if (selectedPiece) { submitPieceMove(selectedPiece.id, location) };
+            if (selectedPiece) { submitPieceAction(selectedPiece.id, location, actionType) };
             setSelectedTile(location);
             if (piece) { setSelectedPiece(piece) } else { setSelectedPiece(undefined) };
         }
     }
+
+    const handleActionType = (action_type: PieceActions) => { setActionType(action_type) };
 
     return (
         <Stack spacing={2}>
@@ -74,30 +75,7 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
                     </Stack>
                 </Paper>
                 <Divider orientation="vertical" flexItem color={theme.palette.common.black} />
-                <Stack alignContent={'center'} sx={{ pt: 1 }}>
-                    { selectedPiece ?
-                    <Card sx={{ width: 300, height: 570 }}>
-                        <Stack spacing={2} sx={{ p: 1 }} alignItems={'center'}>
-                            <Typography variant='h6'>{selectedPiece.character}</Typography>
-                            <Stack spacing={1}>
-                                <PieceImg piece_name={selectedPiece.character} on_board={false} />
-                                <Divider variant="middle" flexItem color={theme.palette.common.black} />
-                                <Typography variant='h6'>Attack: {selectedPiece.attack}</Typography>
-                                <Typography variant='h6'>Health: {selectedPiece.health}</Typography>
-                                <Typography variant='h6'>Range: {selectedPiece.range}</Typography>
-                                { selectedPiece.description && 
-                                <Stack spacing={1}>
-                                    <Divider variant="middle" flexItem color={theme.palette.common.black} />
-                                    <Stack>
-                                        {((selectedPiece.description).split("n/")).map((line) => (
-                                            <Typography key={line} paragraph variant='body1'>{line}</Typography>
-                                        ))}
-                                    </Stack>
-                                </Stack> }
-                            </Stack>
-                        </Stack>
-                    </Card> : <Card sx={{ width: 300, height: 355, bgcolor: theme.palette.grey[200] }}></Card> }
-                </Stack>
+                <PieceDetails selected_piece={selectedPiece} selected_action={actionType} handleActionType={handleActionType} />
             </Stack>
         </Stack>
     );

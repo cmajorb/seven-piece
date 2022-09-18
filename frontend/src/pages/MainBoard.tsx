@@ -64,13 +64,13 @@ const endTurn = () => {
   })
 }
 
-const submitPieceMove = (piece_id: number, new_location: number[]) => {
+const submitPieceAction = (piece_id: number, new_location: number[], action_type: string) => {
   sendJsonMessage({
     type: "action",
     piece: piece_id,
     location_x: new_location[0],
     location_y: new_location[1],
-    action_type: "move"
+    action_type: action_type
   })
 }
 
@@ -100,46 +100,6 @@ const submitPieceMove = (piece_id: number, new_location: number[]) => {
     >
       Select Pieces
     </button>
-    <button className='bg-gray-300 px-3 py-1' 
-      onClick={() => {
-        sendJsonMessage({
-          type: "action",
-          piece: gameState ? gameState.pieces[2].id : "",
-          location_x: 0,
-          location_y: 0,
-          action_type: "move"
-        })
-        sendJsonMessage({
-          type: "action",
-          piece: gameState ? gameState.pieces[3].id : "",
-          location_x: 0,
-          location_y: 1,
-          action_type: "move"
-        })
-      }}
-    >
-      Place Pieces1
-    </button>
-    <button className='bg-gray-300 px-3 py-1' 
-      onClick={() => {
-        sendJsonMessage({
-          type: "action",
-          piece: gameState ? gameState.pieces[0].id : "",
-          location_x: 10,
-          location_y: 10,
-          action_type: "move"
-        })
-        sendJsonMessage({
-          type: "action",
-          piece: gameState ? gameState.pieces[1].id : "",
-          location_x: 9,
-          location_y: 10,
-          action_type: "move"
-        })
-      }}
-    >
-      Place Pieces2
-    </button>
   <hr />
       { gameState && (thisPlayer !== undefined) &&
       <Stack spacing={2}>
@@ -150,7 +110,7 @@ const submitPieceMove = (piece_id: number, new_location: number[]) => {
           map={gameState.map}
           active_turn={activeTurn}
           objectives={gameState.objectives}
-          submitPieceMove={submitPieceMove}
+          submitPieceAction={submitPieceAction}
         />
         <BottomBar
           round={gameState.state !== ('PLACING' || 'READY') ? (gameState.turn_count + 1) : -1}

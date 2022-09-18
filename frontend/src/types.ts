@@ -4,7 +4,7 @@ export type Piece = {
     health: number;
     description: string;
     location: number[];
-    range: number;
+    speed: number;
     attack: number;
     image: string;
     id: number;
@@ -60,3 +60,5 @@ export type CellStatus = {
     contains_objective: boolean,
     objective_owner: number | undefined,
 };
+
+export type PieceActions = 'move' | 'attack';
