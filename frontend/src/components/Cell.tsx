@@ -1,5 +1,5 @@
 import { Card } from '@mui/material';
-import { Constants, Piece, Map } from '../types';
+import { Constants, Piece, ColorScheme } from '../types';
 import GetBorderColor from '../utils/getBorderColor';
 import getPiece from '../utils/getPiece';
 import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './getPNGImages';
@@ -8,23 +8,22 @@ import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './getPNGI
 
 type Props = {
   location: number[],
-  value: number,
   selected: boolean,
-  cell_status: number[],
+  cell_status: number,
   pieces: Piece[],
-  constants: Constants,
-  map: Map,
   updateSelected: any,
+  color_scheme: ColorScheme
 };
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, value, selected, cell_status, pieces, constants, map, updateSelected }: Props) {
+export default function Cell({ location, selected, cell_status, pieces, updateSelected, color_scheme }: Props) {
   
-  const is_wall: boolean = cell_status.includes(constants.wall as number);
-  const contains_objective: boolean = cell_status.includes(constants.objective as number) && !(cell_status.includes(constants.player as number));
-  const contains_piece: boolean = cell_status.includes(constants.player as number) && !(cell_status.includes(constants.objective as number));
-  const contains_objective_and_piece: boolean = cell_status.includes(constants.objective as number) && cell_status.includes(constants.player as number);
+  const constants: Constants = require('../testing/constants.json');
+  const contains_objective: boolean = (cell_status & constants.objective) == constants.objective;
+  const contains_piece: boolean = (cell_status & constants.player) == constants.player;
+  const contains_wall: boolean = (cell_status & constants.wall) == constants.wall;
+  const is_empty: boolean = (cell_status & constants.empty) == constants.empty ;
   const piece: Piece | undefined = getPiece(location, pieces);
 
   return (
@@ -34,7 +33,7 @@ export default function Cell({ location, value, selected, cell_status, pieces, c
         borderColor: (
           GetBorderColor(
             (contains_objective || contains_piece),
-            map.color_scheme,
+            color_scheme,
             (piece ? piece.player : -1),
             selected
           )
@@ -42,26 +41,26 @@ export default function Cell({ location, value, selected, cell_status, pieces, c
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
         backgroundSize: '1000%',
-        opacity: (value & constants.empty) == constants.empty ? '0%' : '100%',
-        '&:hover': { cursor: (value & constants.empty) == constants.empty ? null : 'pointer' },
+        opacity: is_empty ? '0%' : '100%',
+        '&:hover': { cursor: is_empty ? null : 'pointer' },
       }}
       onClick={() => { updateSelected(location, piece, cell_status) }}
       onContextMenu={() => { console.log("RIGHT CLICKED!", location, piece) }}
     >
-      { is_wall &&
+      { contains_wall &&
         <WallImg/>
       }
-      { contains_objective_and_piece &&
+      { contains_objective && contains_piece &&
         <ObjectiveAndPieceImg
           player_id={piece!.player}
           piece_name={piece!.character}
-          start_tiles={map.color_scheme.start_tiles}
+          start_tiles={color_scheme.start_tiles}
         />
       }
-      { contains_objective &&
+      { contains_objective && !contains_piece &&
         <ObjectiveImg player_id={-1}/>
       }
-      { contains_piece &&
+      { contains_piece && !contains_objective &&
         <PieceImg
           piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.character : ''}
           on_board={true}

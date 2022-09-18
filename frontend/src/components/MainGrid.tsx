@@ -13,7 +13,6 @@ type Props = {
     rows: number,
     columns: number,
     pieces: Piece[],
-    constants: Constants,
     map: Map,
     round: number,
     team_1_score: number,
@@ -23,16 +22,14 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, constants, map, round, team_1_score, team_2_score, endTurn }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, round, team_1_score, team_2_score, endTurn }: Props) {
     
     const theme = useTheme();
-    const constants_vals = getStatusConstants(constants);
 
     const column_nums = Array.from(Array(columns).keys());
     const row_nums = Array.from(Array(rows).keys());
     const [selectedTile, setSelectedTile] = useState<number[]>([]);
     const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
-
     useEffect(() => {}, [selectedTile])
     useEffect(() => {
         if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) }
@@ -72,13 +69,11 @@ export default function MainGrid({ rows, columns, pieces, constants, map, round,
                                 {row_nums.map((row) => (
                                     <Cell key={([row, column]).toString()}
                                         location={[row, column]}
-                                        value={map.data[row][column]}
                                         selected={calcSelectedTile(selectedTile, [row, column])}
-                                        cell_status={getTileStatusVals(map.data, row, column, constants_vals)}
+                                        cell_status={map.data[row][column]}
                                         pieces={pieces}
-                                        constants={constants}
-                                        map={map}
                                         updateSelected={updateSelected}
+                                        color_scheme={map.color_scheme}
                                     />
                                 ))}
                             </Stack>
