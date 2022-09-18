@@ -1,8 +1,7 @@
 import { Stack, Divider, useTheme, Button, Typography, Card, Paper } from '@mui/material';
 import Cell from './Cell';
 import { useState, useEffect } from 'react';
-import { getTileStatusVals, getStatusConstants } from '../utils/getTileStatusVals';
-import { Constants, Piece, Map } from '../types';
+import { Piece, Map } from '../types';
 import { PieceImg } from './getPNGImages';
 import calcSelectedTile from '../utils/calcSelectedTile';
 import checkSameLocation from '../utils/checkSameLocation';
@@ -15,37 +14,40 @@ type Props = {
     pieces: Piece[],
     map: Map,
     round: number,
-    team_1_score: number,
-    team_2_score: number,
-    endTurn: any
+    team_scores: number[]
+    endTurn: any,
+    submitPieceMove: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, map, round, team_1_score, team_2_score, endTurn }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, round, team_scores, endTurn, submitPieceMove }: Props) {
     
     const theme = useTheme();
 
-    const column_nums = Array.from(Array(columns).keys());
-    const row_nums = Array.from(Array(rows).keys());
+    const column_nums = (Array.from(Array(columns).keys()));
+    // console.log("COLUMN NUMS", column_nums);
+    const row_nums = (Array.from(Array(rows).keys())).sort((a, b) => b - a);
+    // console.log("ROW NUMS", row_nums);
     const [selectedTile, setSelectedTile] = useState<number[]>([]);
+    console.log("SElECTED TILE", selectedTile);
     const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
     useEffect(() => {}, [selectedTile])
     useEffect(() => {
         if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) }
     }, [selectedPiece])
 
-    const updateSelected = (location: number[], piece: Piece | undefined, cell_status: number[]) => {
+    const updateSelected = (location: number[], piece: Piece | undefined) => {
         const same_location = checkSameLocation(location, selectedTile);
         if (same_location) {
             setSelectedTile([]);
             setSelectedPiece(undefined);
         } else {
-            // if (selectedPiece) {
-            //     console.log("OLD LOCATION:", selectedPiece.location);
-            //     selectedPiece.location = location;
-            //     console.log("NEW LOCATION:", selectedPiece.location);
-            // }
+            if (selectedPiece) {
+                console.log("OLD LOCATION:", selectedPiece.location);
+                console.log("NEW LOCATION:", location);
+                submitPieceMove(selectedPiece.id, location);
+            }
             setSelectedTile(location);
             if (piece) {
                 setSelectedPiece(piece)
@@ -112,14 +114,14 @@ export default function MainGrid({ rows, columns, pieces, map, round, team_1_sco
                 <Stack direction={'row'} spacing={2}>
                     <Card sx={{ pl: 1, pr: 1 }}>
                         <Stack alignItems={'center'}>
-                            <Typography variant='h5' fontWeight={'bold'}>{team_1_score}</Typography>
+                            <Typography variant='h5' fontWeight={'bold'}>{team_scores[0]}</Typography>
                             <Typography variant='h6'>Team 1</Typography>
                         </Stack>
                     </Card>
                     <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
                     <Card sx={{ pl: 1, pr: 1 }}>
                         <Stack alignItems={'center'}>
-                            <Typography variant='h5' fontWeight={'bold'}>{team_2_score}</Typography>
+                            <Typography variant='h5' fontWeight={'bold'}>{[team_scores[1]]}</Typography>
                             <Typography variant='h6'>Team 2</Typography>
                         </Stack>
                     </Card>

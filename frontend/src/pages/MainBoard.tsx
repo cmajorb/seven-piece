@@ -3,12 +3,15 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
 import { GameState } from '../types';
+import getTeamScores from '../utils/getTeamScores';
+
+// ----------------------------------------------------------------------
 
 export default function MainBoard() {
   
   const [gameState, setGameState] = useState<GameState>()
   const { game_id } = useParams();
-  
+
   const path_str = "game/" + game_id;
   const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
 
@@ -41,6 +44,16 @@ export default function MainBoard() {
 const endTurn = () => {
   sendJsonMessage({
     type: "end_turn",
+  })
+}
+
+const submitPieceMove = (piece_id: number, new_location: number[]) => {
+  sendJsonMessage({
+    type: "action",
+    piece: piece_id,
+    location_x: new_location[0],
+    location_y: new_location[1],
+    action_type: "move"
   })
 }
 
@@ -118,9 +131,9 @@ const endTurn = () => {
         pieces={gameState.pieces}
         map={gameState.map}
         round={gameState.turn_count}
-        team_1_score={gameState.players[0] ? gameState.players[0].score : -1}
-        team_2_score={gameState.players[1] ? gameState.players[1].score : -1}
+        team_scores={getTeamScores(gameState.players)}
         endTurn={endTurn}
+        submitPieceMove={submitPieceMove}
       /> }
     </div>
 

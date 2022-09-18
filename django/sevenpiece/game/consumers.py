@@ -86,8 +86,8 @@ class GameConsumer(JsonWebsocketConsumer):
             if content["action_type"] == "move":
                 try:
                     piece.make_move([content["location_x"], content["location_y"]])
-                except:
-                    error = "Failed to move piece"
+                except Exception as e:
+                    error = f"Failed to move piece: {e}"
             elif content["action_type"] == "attack":
                 try:
                     piece.attack_piece([content["location_x"], content["location_y"]])

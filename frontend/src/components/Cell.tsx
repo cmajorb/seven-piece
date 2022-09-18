@@ -20,10 +20,10 @@ type Props = {
 export default function Cell({ location, selected, cell_status, pieces, updateSelected, color_scheme }: Props) {
   
   const constants: Constants = require('../testing/constants.json');
-  const contains_objective: boolean = (cell_status & constants.objective) == constants.objective;
-  const contains_piece: boolean = (cell_status & constants.player) == constants.player;
-  const contains_wall: boolean = (cell_status & constants.wall) == constants.wall;
-  const is_empty: boolean = (cell_status & constants.empty) == constants.empty ;
+  const contains_objective: boolean = (cell_status & constants.objective) === constants.objective;
+  const contains_piece: boolean = (cell_status & constants.player) === constants.player;
+  const contains_wall: boolean = (cell_status & constants.wall) === constants.wall;
+  const is_empty: boolean = (cell_status & constants.empty) === constants.empty ;
   const piece: Piece | undefined = getPiece(location, pieces);
 
   return (
