@@ -1,10 +1,11 @@
-import { Stack, Divider, useTheme, Button, Typography, Card, Paper } from '@mui/material';
+import { Stack, Divider, useTheme, Typography, Card, Paper } from '@mui/material';
 import Cell from './Cell';
 import { useState, useEffect } from 'react';
 import { Piece, Map } from '../types';
 import { PieceImg } from './getPNGImages';
 import calcSelectedTile from '../utils/calcSelectedTile';
 import checkSameLocation from '../utils/checkSameLocation';
+import getCellStatus from '../utils/getCellStatus';
 
 // ----------------------------------------------------------------------
 
@@ -13,29 +14,25 @@ type Props = {
     columns: number,
     pieces: Piece[],
     map: Map,
-    round: number,
-    team_scores: number[]
-    endTurn: any,
+    active_turn: boolean,
     submitPieceMove: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, map, round, team_scores, endTurn, submitPieceMove }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, active_turn, submitPieceMove }: Props) {
     
     const theme = useTheme();
 
     const column_nums = (Array.from(Array(columns).keys()));
-    // console.log("COLUMN NUMS", column_nums);
     const row_nums = (Array.from(Array(rows).keys())).sort((a, b) => b - a);
-    // console.log("ROW NUMS", row_nums);
     const [selectedTile, setSelectedTile] = useState<number[]>([]);
-    console.log("SElECTED TILE", selectedTile);
     const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
-    useEffect(() => {}, [selectedTile])
+    useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined); console.log("ACTIVE TURN", active_turn) }, [active_turn]);
+    useEffect(() => {}, [selectedTile]);
     useEffect(() => {
         if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) }
-    }, [selectedPiece])
+    }, [selectedPiece]);
 
     const updateSelected = (location: number[], piece: Piece | undefined) => {
         const same_location = checkSameLocation(location, selectedTile);
@@ -43,16 +40,9 @@ export default function MainGrid({ rows, columns, pieces, map, round, team_score
             setSelectedTile([]);
             setSelectedPiece(undefined);
         } else {
-            if (selectedPiece) {
-                console.log("OLD LOCATION:", selectedPiece.location);
-                console.log("NEW LOCATION:", location);
-                submitPieceMove(selectedPiece.id, location);
-            }
+            if (selectedPiece) { submitPieceMove(selectedPiece.id, location) };
             setSelectedTile(location);
-            if (piece) {
-                setSelectedPiece(piece)
-            }
-            else { setSelectedPiece(undefined) };
+            if (piece) { setSelectedPiece(piece) } else { setSelectedPiece(undefined) };
         }
     }
 
@@ -72,7 +62,7 @@ export default function MainGrid({ rows, columns, pieces, map, round, team_score
                                     <Cell key={([row, column]).toString()}
                                         location={[row, column]}
                                         selected={calcSelectedTile(selectedTile, [row, column])}
-                                        cell_status={map.data[row][column]}
+                                        cell_status={getCellStatus(map.data[row][column])}
                                         pieces={pieces}
                                         updateSelected={updateSelected}
                                         color_scheme={map.color_scheme}
@@ -107,28 +97,6 @@ export default function MainGrid({ rows, columns, pieces, map, round, team_score
                         </Stack>
                     </Card> : <Card sx={{ width: 300, height: 355, bgcolor: theme.palette.grey[200] }}></Card> }
                 </Stack>
-            </Stack>
-            <Divider flexItem color={theme.palette.common.black} />
-            <Stack direction={'row'} spacing={2} alignContent={'center'} justifyContent={'space-around'}>
-                <Typography variant='h6'>Round: {round}</Typography>
-                <Stack direction={'row'} spacing={2}>
-                    <Card sx={{ pl: 1, pr: 1 }}>
-                        <Stack alignItems={'center'}>
-                            <Typography variant='h5' fontWeight={'bold'}>{team_scores[0]}</Typography>
-                            <Typography variant='h6'>Team 1</Typography>
-                        </Stack>
-                    </Card>
-                    <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
-                    <Card sx={{ pl: 1, pr: 1 }}>
-                        <Stack alignItems={'center'}>
-                            <Typography variant='h5' fontWeight={'bold'}>{[team_scores[1]]}</Typography>
-                            <Typography variant='h6'>Team 2</Typography>
-                        </Stack>
-                    </Card>
-                </Stack>
-                <Button variant={'contained'} onClick={() => { console.log("ENDING TURN"); endTurn() }}>
-                    End Turn
-                </Button>
             </Stack>
         </Stack>
     );

@@ -14,6 +14,7 @@ export type Piece = {
     number: number;
     session: string;
     score: number;
+    is_turn: boolean;
   };
 
 export type ColorScheme = {
@@ -50,4 +51,11 @@ export type ColorConstants = {
     wall: string;
     objective: string;
     player: string;
+};
+
+export type CellStatus = {
+    is_empty: boolean,
+    contains_wall: boolean,
+    contains_piece: boolean,
+    contains_objective: boolean,
 };

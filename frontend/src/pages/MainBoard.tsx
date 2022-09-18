@@ -4,12 +4,16 @@ import { useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
 import { GameState } from '../types';
 import getTeamScores from '../utils/getTeamScores';
+import BottomBar from '../components/BottomBar';
+import { Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export default function MainBoard() {
-  
-  const [gameState, setGameState] = useState<GameState>()
+
+  const [gameState, setGameState] = useState<GameState>();
+  const [thisPlayer, setThisPlayer] = useState<number>();
+  const [activeTurn, setActiveTurn] = useState<boolean>(false);
   const { game_id } = useParams();
 
   const path_str = "game/" + game_id;
@@ -27,8 +31,15 @@ export default function MainBoard() {
         const message = JSON.parse(message_str);
         switch (message.type) {
             case 'game_state':
-            console.log('Set GameState:', JSON.parse(message.state));
-            setGameState(JSON.parse(message.state));
+            const game_state: GameState = JSON.parse(message.state);
+            const session: string = message.this_player_session;
+            if (thisPlayer === undefined) {
+              if (session === game_state.players[0].session) { setThisPlayer(game_state.players[0].number) }
+              else if (session === game_state.players[1].session) { setThisPlayer(game_state.players[1].number) }
+              else { console.log("DID NOT SET PLAYER") };
+            };
+            console.log('Set GameState:', game_state);
+            setGameState(game_state);
             break;
             case 'error':
             console.log(message.message);
@@ -41,7 +52,13 @@ export default function MainBoard() {
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [lastJsonMessage]);
 
+useEffect(() => {
+  if ((thisPlayer !== undefined) && gameState && gameState.players[thisPlayer].is_turn) { setActiveTurn(true) };
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [gameState]);
+
 const endTurn = () => {
+  setActiveTurn(false);
   sendJsonMessage({
     type: "end_turn",
   })
@@ -124,17 +141,23 @@ const submitPieceMove = (piece_id: number, new_location: number[]) => {
       Place Pieces2
     </button>
   <hr />
-      { gameState &&
-      <MainGrid
-        rows={gameState.map.data.length}
-        columns={gameState.map.data[0].length}
-        pieces={gameState.pieces}
-        map={gameState.map}
-        round={gameState.turn_count}
-        team_scores={getTeamScores(gameState.players)}
-        endTurn={endTurn}
-        submitPieceMove={submitPieceMove}
-      /> }
+      { gameState && (thisPlayer !== undefined) &&
+      <Stack spacing={2}>
+        <MainGrid
+          rows={gameState.map.data.length}
+          columns={gameState.map.data[0].length}
+          pieces={gameState.pieces}
+          map={gameState.map}
+          active_turn={activeTurn}
+          submitPieceMove={submitPieceMove}
+        />
+        <BottomBar
+          round={gameState.state !== ('PLACING' || 'READY') ? (gameState.turn_count + 1) : -1}
+          team_scores={getTeamScores(gameState.players)}
+          this_player_id={thisPlayer}
+          endTurn={endTurn}
+        />
+      </Stack> }
     </div>
 
   );
