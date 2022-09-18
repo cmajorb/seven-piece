@@ -58,4 +58,5 @@ export type CellStatus = {
     contains_wall: boolean,
     contains_piece: boolean,
     contains_objective: boolean,
+    objective_owner: number | undefined,
 };

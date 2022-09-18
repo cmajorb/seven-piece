@@ -2,6 +2,8 @@ import { Box, Stack, Avatar, Badge } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import WallImage from '../images/rock.png';
 import NeutralBanner from '../images/banner_gold.png';
+import Team1Banner from '../images/banner_purple.png';
+import Team2Banner from '../images/banner_green.png';
 import getPieceImg from '../utils/getPieceImg';
 
 // ----------------------------------------------------------------------
@@ -41,8 +43,8 @@ export function WallImg () {
 
 export function ObjectiveImg ({ player_id }: ObjectiveProps) {
     let objective_img = NeutralBanner;
-    if (player_id === 0) { objective_img = NeutralBanner }
-    else if (player_id === 1) { objective_img = NeutralBanner };
+    if (player_id === 0) { objective_img = Team1Banner }
+    else if (player_id === 1) { objective_img = Team2Banner };
 
     return (
         <Stack alignItems="center" justifyContent="center">

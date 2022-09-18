@@ -11,13 +11,13 @@ type Props = {
   selected: boolean,
   cell_status: CellStatus,
   pieces: Piece[],
+  color_scheme: ColorScheme,
   updateSelected: any,
-  color_scheme: ColorScheme
 };
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, cell_status, pieces, updateSelected, color_scheme }: Props) {
+export default function Cell({ location, selected, cell_status, pieces, color_scheme, updateSelected }: Props) {
   
   const piece: Piece | undefined = getPiece(location, pieces);
 
@@ -53,7 +53,7 @@ export default function Cell({ location, selected, cell_status, pieces, updateSe
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
-        <ObjectiveImg player_id={-1}/>
+        <ObjectiveImg player_id={cell_status.objective_owner!}/>
       }
       { cell_status.contains_piece && !cell_status.contains_objective &&
         <PieceImg

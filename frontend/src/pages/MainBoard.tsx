@@ -149,6 +149,7 @@ const submitPieceMove = (piece_id: number, new_location: number[]) => {
           pieces={gameState.pieces}
           map={gameState.map}
           active_turn={activeTurn}
+          objectives={gameState.objectives}
           submitPieceMove={submitPieceMove}
         />
         <BottomBar

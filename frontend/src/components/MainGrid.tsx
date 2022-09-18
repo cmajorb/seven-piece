@@ -15,12 +15,13 @@ type Props = {
     pieces: Piece[],
     map: Map,
     active_turn: boolean,
+    objectives: string[],
     submitPieceMove: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, map, active_turn, submitPieceMove }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, active_turn, objectives, submitPieceMove }: Props) {
     
     const theme = useTheme();
 
@@ -28,7 +29,7 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, subm
     const row_nums = (Array.from(Array(rows).keys())).sort((a, b) => b - a);
     const [selectedTile, setSelectedTile] = useState<number[]>([]);
     const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
-    useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined); console.log("ACTIVE TURN", active_turn) }, [active_turn]);
+    useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined) }, [active_turn]);
     useEffect(() => {}, [selectedTile]);
     useEffect(() => {
         if (selectedPiece) { console.log("Currently Selected Piece:", selectedPiece) }
@@ -62,7 +63,7 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, subm
                                     <Cell key={([row, column]).toString()}
                                         location={[row, column]}
                                         selected={calcSelectedTile(selectedTile, [row, column])}
-                                        cell_status={getCellStatus(map.data[row][column])}
+                                        cell_status={getCellStatus(objectives, map.data, [row, column])}
                                         pieces={pieces}
                                         updateSelected={updateSelected}
                                         color_scheme={map.color_scheme}
