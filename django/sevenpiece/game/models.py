@@ -140,6 +140,7 @@ class Player(models.Model):
         dictionary["number"] = self.number
         dictionary["session"] = self.session
         dictionary["score"] = self.score + current_scores.count(str(self.number))
+        dictionary["is_turn"] = self.is_current_turn()
         return dictionary
 
     def is_current_turn(self):

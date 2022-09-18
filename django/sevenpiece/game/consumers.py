@@ -53,7 +53,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state = game.join_game(self.session_id)
                 self.player = Player.objects.get(session=self.session_id, game=self.current_game_state)
-                logging.info("Joined game")
+                logging.info(f"Joined game: {self.session_id}")
             except:
                 logging.info("Failed to join game")
                 async_to_sync(self.channel_layer.group_send)(
@@ -107,6 +107,7 @@ class GameConsumer(JsonWebsocketConsumer):
                     {
                         "type": "game_state",
                         "state": self.current_game_state.get_game_state(),
+                        "this_player_session": self.session_id,
                     },
                 )
         else:
