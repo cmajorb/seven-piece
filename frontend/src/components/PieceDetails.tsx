@@ -5,14 +5,17 @@ import { PieceImg } from './getPNGImages';
 // ----------------------------------------------------------------------
 
 type Props = {
+
     selected_piece: Piece | undefined,
     selected_action: PieceActions,
+    this_player_id: number,
+    active_turn: boolean,
     handleActionType: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function PieceDetails({ selected_piece, selected_action, handleActionType }: Props) {
+export default function PieceDetails({ selected_piece, selected_action, this_player_id, active_turn, handleActionType }: Props) {
     const theme = useTheme();
     const EDIT_BUTTON = theme.palette?.mode === 'light' ? theme.palette.grey['300'] : theme.palette.grey['800'];
     const EDIT_BUTTON_TEXT = theme.palette?.mode === 'dark' ? theme.palette.grey['300'] : theme.palette.grey['800'];
@@ -42,12 +45,15 @@ export default function PieceDetails({ selected_piece, selected_action, handleAc
                         </Stack>
                     </Stack>
                 </Card>
-                <Button variant={'contained'} onClick={() => { handleActionType('move') }} sx={{ ...(selected_action === 'attack' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
-                    Move
-                </Button>
-                <Button variant={'contained'} onClick={() => { handleActionType('attack') }} sx={{ ...(selected_action === 'move' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
-                    Attack
-                </Button>
+                { active_turn && (this_player_id === selected_piece.player) &&
+                <>
+                    <Button variant={'contained'} onClick={() => { handleActionType('move') }} disabled={selected_piece.speed < 1} sx={{ ...(selected_action === 'attack' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
+                        Move
+                    </Button>
+                    <Button variant={'contained'} onClick={() => { handleActionType('attack') }} disabled={selected_piece.attack < 1} sx={{ ...(selected_action === 'move' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
+                        Attack
+                    </Button>
+                </> }
             </Stack> : <Card sx={{ width: 300, height: 355, bgcolor: theme.palette.grey[200] }}></Card> }
         </Stack>
     );

@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
-import { GameState } from '../types';
+import { GameState, WebSocketStatus } from '../types';
 import getTeamScores from '../utils/getTeamScores';
-import BottomBar from '../components/BottomBar';
-import { Stack } from '@mui/material';
+import { Divider, Stack, useTheme } from '@mui/material';
+import DisplayGameStatus from '../components/DisplayGameStatus';
+import CommandBar from '../components/CommandBar';
 
 // ----------------------------------------------------------------------
 
 export default function MainBoard() {
 
+  const theme = useTheme();
   const [gameState, setGameState] = useState<GameState>();
   const [thisPlayer, setThisPlayer] = useState<number>();
   const [activeTurn, setActiveTurn] = useState<boolean>(false);
@@ -57,6 +59,13 @@ useEffect(() => {
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [gameState]);
 
+const setPieces = (piece_array: string) => {
+  sendJsonMessage({
+    type: "select_pieces",
+    pieces: piece_array
+  })
+}
+
 const endTurn = () => {
   setActiveTurn(false);
   sendJsonMessage({
@@ -83,26 +92,25 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
   }[readyState];
 
   return (
-    <div>
-      <div>
-        <p>The WebSocket is currently: {connectionStatus}</p>
-        <p>Game State: {gameState ? gameState.state : "None"} </p>
-      </div>
-  
-    <button className='bg-gray-300 px-3 py-1' 
-      onClick={() => {
-        let piece_array = JSON.stringify(["Soldier", "Berserker"])
-        sendJsonMessage({
-          type: "select_pieces",
-          pieces: piece_array
-        })
-      }}
-    >
-      Select Pieces
-    </button>
-  <hr />
+    <Stack spacing={1}>
       { gameState && (thisPlayer !== undefined) &&
       <Stack spacing={2}>
+        <Stack direction={'row'} justifyContent={'space-around'}>
+          <DisplayGameStatus
+            connection_status={connectionStatus as WebSocketStatus}
+            current_state={(gameState ? gameState.state : "None")}
+          />
+          <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
+          <CommandBar
+            round={gameState.state !== ('PLACING' || 'READY') ? (gameState.turn_count + 1) : -1}
+            current_state={gameState.state}
+            team_scores={getTeamScores(gameState.players)}
+            this_player_id={thisPlayer}
+            endTurn={endTurn}
+            setPieces={setPieces}
+          />
+        </Stack>
+        <Divider flexItem color={theme.palette.common.black} />
         <MainGrid
           rows={gameState.map.data.length}
           columns={gameState.map.data[0].length}
@@ -110,16 +118,11 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
           map={gameState.map}
           active_turn={activeTurn}
           objectives={gameState.objectives}
+          this_player_id={thisPlayer}
           submitPieceAction={submitPieceAction}
         />
-        <BottomBar
-          round={gameState.state !== ('PLACING' || 'READY') ? (gameState.turn_count + 1) : -1}
-          team_scores={getTeamScores(gameState.players)}
-          this_player_id={thisPlayer}
-          endTurn={endTurn}
-        />
       </Stack> }
-    </div>
+    </Stack>
 
   );
 };

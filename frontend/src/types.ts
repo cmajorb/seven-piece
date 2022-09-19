@@ -62,3 +62,4 @@ export type CellStatus = {
 };
 
 export type PieceActions = 'move' | 'attack';
+export type WebSocketStatus = 'Connecting' | 'Open' | 'Closing' | 'Closed' | 'Uninstantiated';

@@ -15,13 +15,14 @@ type Props = {
     pieces: Piece[],
     map: Map,
     active_turn: boolean,
+    this_player_id: number,
     objectives: string[],
     submitPieceAction: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, map, active_turn, objectives, submitPieceAction }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, active_turn, objectives, this_player_id, submitPieceAction }: Props) {
     
     const theme = useTheme();
 
@@ -36,13 +37,13 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
 
     const updateSelected = (location: number[], piece: Piece | undefined) => {
         const same_location = checkSameLocation(location, selectedTile);
-        if (same_location) {
-            setSelectedTile([]);
-            setSelectedPiece(undefined);
-        } else {
+        if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
+        else {
             if (selectedPiece) { submitPieceAction(selectedPiece.id, location, actionType) };
             setSelectedTile(location);
-            if (piece) { setSelectedPiece(piece) } else { setSelectedPiece(undefined) };
+            if (piece && piece.player === this_player_id) { setSelectedPiece(piece) }
+            else if (piece && piece.player !== this_player_id) { console.log("CLICKED ON ANOTHER PIECE") }
+            else { setSelectedPiece(undefined) };
         }
     }
 
@@ -66,8 +67,8 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
                                         selected={calcSelectedTile(selectedTile, [row, column])}
                                         cell_status={getCellStatus(objectives, map.data, [row, column])}
                                         pieces={pieces}
-                                        updateSelected={updateSelected}
                                         color_scheme={map.color_scheme}
+                                        updateSelected={updateSelected}
                                     />
                                 ))}
                             </Stack>
@@ -75,7 +76,13 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
                     </Stack>
                 </Paper>
                 <Divider orientation="vertical" flexItem color={theme.palette.common.black} />
-                <PieceDetails selected_piece={selectedPiece} selected_action={actionType} handleActionType={handleActionType} />
+                <PieceDetails
+                    selected_piece={selectedPiece}
+                    selected_action={actionType}
+                    this_player_id={this_player_id}
+                    active_turn={active_turn}
+                    handleActionType={handleActionType}
+                />
             </Stack>
         </Stack>
     );
