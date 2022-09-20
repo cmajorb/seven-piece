@@ -251,6 +251,8 @@ class Piece(models.Model):
     
     def take_damage(self, damage):
         self.health -= damage
+        if self.health < 0:
+            self.health = 0
         self.save(update_fields=['health'])
         return self
 
