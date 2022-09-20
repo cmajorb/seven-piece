@@ -165,12 +165,12 @@ class MenuConsumer(JsonWebsocketConsumer):
                         "session_id": str(current_game_state.session),
                     },
                 )
-            except:
+            except Exception as e:
                 async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
                     {
                         "type": "error",
-                        "message": "Could not create game from menu",
+                        "message": f"Could not create game from menu: {e}",
                     },
                 )
         return super().receive_json(content, **kwargs)
