@@ -42,8 +42,8 @@ const OutlinedAvatar = styled(Avatar)`border: 2px solid black; background-color:
 export function WallImg () {
     return (
         <Stack alignItems="center" justifyContent="center">
-            <Box height={50} width={50} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
-                <img alt='testing' src={WallImage} height={40} width={40} />
+            <Box height={70} width={70} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
+                <img alt='testing' src={WallImage} height={60} width={60} />
             </Box>
         </Stack>
     );
