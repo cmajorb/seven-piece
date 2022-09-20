@@ -12,11 +12,12 @@ def initial_setup():
     #Color Schemes
     scheme_data = (open('sevenpiece/game/data/color_schemes.json')).read()
     scheme = ColorScheme.objects.get_or_create(name="Default Scheme", scheme=json.loads(scheme_data), max_player_size=2)
-    
-    #Maps
+
+        #Maps
     maps_data = (open('sevenpiece/game/data/maps.json')).read()
-    map = MapTemplate.objects.get_or_create(name="Default Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme[0], score_to_win=5)
-    
+    for map in json.loads(maps_data)["maps"]:
+        MapTemplate.objects.get_or_create(name=map["name"], data=map["db"], player_size=map["player_size"], num_characters=map["num_characters"], color_scheme=scheme[0], score_to_win=map["score_to_win"])
+
     #Characters
     soldier = Character.objects.get_or_create(name="Soldier", health=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has a lot of health")
     scout = Character.objects.get_or_create(name="Scout", health=2, speed=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Can move quickly")

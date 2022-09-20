@@ -49,7 +49,7 @@ export default function StartGame() {
                     <Typography variant='h6' fontWeight={'bold'}>BUILD ME!!</Typography>
                 </Stack>
                 <Button variant='contained' sx={{ width: 300 }}
-                    onClick={() => { sendJsonMessage({ type: "create_game", map: "1" }) }}
+                    onClick={() => { sendJsonMessage({ type: "create_game", map: "2" }) }}
                 >Create Game</Button>
                 <Button variant='contained' sx={{ width: 300 }} disabled={checkGameID(gameID)}
                     onClick={() => {

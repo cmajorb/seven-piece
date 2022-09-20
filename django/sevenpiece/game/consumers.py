@@ -75,8 +75,9 @@ class GameConsumer(JsonWebsocketConsumer):
             logging.info("selecting pieces")
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
-            except:
+            except Exception as e:
                 error = "Failed to select pieces"
+                logging.error(e)
         elif message_type == "action":
             #Make sure it belongs to the user
             try:
