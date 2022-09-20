@@ -1,6 +1,6 @@
 import { Stack, Divider, useTheme, Typography, Card, Button } from '@mui/material';
 import { Piece, PieceActions } from '../types';
-import { PieceImg } from './getPNGImages';
+import { PieceImg } from './PNGImages';
 import useKeyPress from '../utils/useKeyPress';
 
 // ----------------------------------------------------------------------

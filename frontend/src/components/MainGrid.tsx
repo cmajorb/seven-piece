@@ -68,6 +68,7 @@ export default function MainGrid({ rows, columns, pieces, map, active_turn, obje
                                         cell_status={getCellStatus(objectives, map.data, [row, column])}
                                         pieces={pieces}
                                         color_scheme={map.color_scheme}
+                                        this_player_id={this_player_id}
                                         updateSelected={updateSelected}
                                     />
                                 ))}

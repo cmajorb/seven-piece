@@ -2,7 +2,7 @@ import { Card } from '@mui/material';
 import { Piece, ColorScheme, CellStatus } from '../types';
 import GetBorderColor from '../utils/getBorderColor';
 import getPiece from '../utils/getPiece';
-import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './getPNGImages';
+import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './PNGImages';
 
 // ----------------------------------------------------------------------
 
@@ -12,27 +12,21 @@ type Props = {
   cell_status: CellStatus,
   pieces: Piece[],
   color_scheme: ColorScheme,
+  this_player_id: number,
   updateSelected: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, cell_status, pieces, color_scheme, updateSelected }: Props) {
+export default function Cell({ location, selected, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
   
   const piece: Piece | undefined = getPiece(location, pieces);
 
   return (
     <Card
       style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
-      sx={{ width: 58, height: 58, border: 2,
-        borderColor: (
-          GetBorderColor(
-            (cell_status.contains_objective || cell_status.contains_piece),
-            color_scheme,
-            (piece ? piece.player : -1),
-            selected
-          )
-        ),
+      sx={{ width: 72, height: 72, border: 2,
+        borderColor: (GetBorderColor(color_scheme, (piece ? this_player_id : -1), selected)),
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
         backgroundSize: '1000%',
@@ -49,15 +43,18 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
         <ObjectiveAndPieceImg
           player_id={piece!.player}
           piece_name={piece!.character}
+          health={piece!.health}
           start_tiles={color_scheme.start_tiles}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
-        <ObjectiveImg player_id={cell_status.objective_owner!}/>
+        <ObjectiveImg player_id={cell_status.objective_owner!} width={50} height={50}/>
       }
       { cell_status.contains_piece && !cell_status.contains_objective &&
         <PieceImg
+          player_id={piece!.player}
           piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.character : ''}
+          health={piece!.health}
           on_board={true}
         />
       }
