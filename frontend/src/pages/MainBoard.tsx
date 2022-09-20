@@ -7,6 +7,8 @@ import getTeamScores from '../utils/getTeamScores';
 import { Divider, Stack, useTheme } from '@mui/material';
 import DisplayGameStatus from '../components/DisplayGameStatus';
 import CommandBar from '../components/CommandBar';
+import BannerScore from '../components/BannerScore';
+import getDisplayTurn from '../utils/getDisplayTurn';
 
 // ----------------------------------------------------------------------
 
@@ -64,14 +66,14 @@ const setPieces = (piece_array: string) => {
     type: "select_pieces",
     pieces: piece_array
   })
-}
+};
 
 const endTurn = () => {
   setActiveTurn(false);
   sendJsonMessage({
     type: "end_turn",
   })
-}
+};
 
 const submitPieceAction = (piece_id: number, new_location: number[], action_type: string) => {
   sendJsonMessage({
@@ -81,7 +83,7 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
     location_y: new_location[1],
     action_type: action_type
   })
-}
+};
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -100,12 +102,23 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
             connection_status={connectionStatus as WebSocketStatus}
             current_state={(gameState ? gameState.state : "None")}
           />
+          { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
+          <>
+            <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
+            <BannerScore
+              team_scores={getTeamScores(gameState.players)}
+              total_objectives={(gameState.objectives).length}
+              score_to_win={gameState.score_to_win}
+              is_turn={activeTurn}
+            />
+          </>
+          }
           <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
           <CommandBar
-            round={gameState.state !== ('PLACING' || 'READY') ? (gameState.turn_count + 1) : -1}
+            round={gameState.turn_count}
             current_state={gameState.state}
-            team_scores={getTeamScores(gameState.players)}
             this_player_id={thisPlayer}
+            display_turn={getDisplayTurn(gameState.state, gameState.turn_count)}
             endTurn={endTurn}
             setPieces={setPieces}
           />
