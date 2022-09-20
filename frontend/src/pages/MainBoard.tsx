@@ -19,7 +19,7 @@ export default function MainBoard() {
   const { game_id } = useParams();
 
   const path_str = "game/" + game_id;
-  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
+  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str)
 
   useEffect(() => {
     console.log("Joining:");

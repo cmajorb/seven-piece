@@ -3,7 +3,7 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 // ----------------------------------------------------------------------
 
 export function ConnectWebSocket (path_str: string) {
-    const { readyState } = useWebSocket('ws://127.0.0.1/' + path_str, {
+    const { readyState } = useWebSocket('ws://127.0.0.1:8080/' + path_str, {
         onOpen: () => {
           console.log("Connected!")
         },
