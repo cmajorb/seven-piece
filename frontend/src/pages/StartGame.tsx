@@ -5,6 +5,7 @@ import { PATH_DASHBOARD } from './routes/paths';
 // @mui
 import { Stack, Button, Container, Typography, TextField } from '@mui/material';
 import getValidUUID from '../utils/getValidUUID';
+import useKeyPress from '../utils/useKeyPress';
 
 export default function StartGame() {
     const navigate = useNavigate();
@@ -20,6 +21,12 @@ export default function StartGame() {
     const checkGameID = (gameID: string | undefined) => {
         if (getValidUUID(gameID)) { return false } else { return true };
     };
+
+    const onKeyPress = (event: any) => {
+        const disabled: boolean = checkGameID(gameID);
+        if (!disabled && event.key === 'Enter') { navigate(PATH_DASHBOARD.general.board + gameID) };
+    };
+    useKeyPress(['Enter'], onKeyPress);
 
     useEffect(() => {
         if (lastJsonMessage !== null) {
