@@ -3,7 +3,7 @@ services:
   web:
     build: ./django
     ports:
-        - "80:80"
+        - "8080:80"
   db:
     image: mariadb:latest
     environment:

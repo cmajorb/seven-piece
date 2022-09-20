@@ -10,7 +10,7 @@ export default function StartGame() {
     const navigate = useNavigate();
 
     const path_str = "menu";
-    const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1/' + path_str)
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str)
 
     const [gameID, setGameID] = useState<string>('');
     const handleChangeGameID = (event: any) => {
