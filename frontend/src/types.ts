@@ -10,10 +10,16 @@ export type Piece = {
     id: number;
   };
 
+  export type Score = {
+    objectives: number;
+    kills: number;
+    total: number;
+  };
+  
   export type Player = {
     number: number;
     session: string;
-    score: number;
+    score: Score;
     is_turn: boolean;
   };
 
@@ -35,6 +41,8 @@ export type GameState = {
     objectives: string[];
     pieces: Piece[];
     players: Player[];
+    score_to_win: number;
+    winner: number;
 };
 
 export type Constants = {

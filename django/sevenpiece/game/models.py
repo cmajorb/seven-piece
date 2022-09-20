@@ -4,6 +4,8 @@ import json
 from game.data.constants import MAP_DEFINITION
 from game.exceptions import IllegalMoveError, JoinGameError, IllegalPieceSelection
 import logging
+from django.db.models import Sum
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -57,6 +59,7 @@ class GameState(models.Model):
     state = models.CharField(max_length=50, default='WAITING', choices=[('WAITING', 'Waiting for players'), ('READY', 'Ready to play'), ('PLACING', 'Placing pieces'), ('PLAYING', 'Game in progress'), ('FINISHED', 'Game Over')])
     turn_count = models.IntegerField(default=0)
     objectives = models.CharField(max_length=50, default="")
+    winner  = models.IntegerField(default=-1)
 
     def __str__(self):
         return str(self.session)
@@ -92,8 +95,11 @@ class GameState(models.Model):
         return self
 
     def end_game(self, winner):
-        print("The winner is player {}".format(winner.number))
+
+        logging.info("The winner is player {}".format(winner.number))
         self.state = "FINISHED"
+        self.winner = winner.number
+        self.save(update_fields=['state','winner'])
         #Delete the game_state?
         
     def get_game_state(state):
@@ -108,6 +114,8 @@ class GameState(models.Model):
         dictionary["objectives"] = state.objectives.split(",")
         dictionary["pieces"] = []
         dictionary["players"] = []
+        dictionary["score_to_win"] = state.map.score_to_win
+        dictionary["winner"] = state.winner
         for piece in state.piece_set.all():
             dictionary["pieces"].append(piece.get_info())
         for player in state.player_set.all():
@@ -139,7 +147,10 @@ class Player(models.Model):
         current_scores = self.game.objectives.split(",")
         dictionary["number"] = self.number
         dictionary["session"] = self.session
-        dictionary["score"] = self.score + current_scores.count(str(self.number))
+        dictionary["score"] = {}
+        dictionary["score"]["objectives"] = current_scores.count(str(self.number))
+        dictionary["score"]["kills"] = self.score
+        dictionary["score"]["total"] = self.score + current_scores.count(str(self.number))
         dictionary["is_turn"] = self.is_current_turn()
         return dictionary
 
@@ -246,25 +257,28 @@ class Piece(models.Model):
     def attack_piece(self, location):
         #check to make sure it isn't on their team
         if self.game.state != "PLAYING":
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be in the PLAYING game state")
         print("Attack: {}/{}".format(self.attack, self.character.attack))
         if not self.player.is_current_turn():
             print("Not your turn")
-            raise IllegalMoveError
+            raise IllegalMoveError("It is not the player's turn")
         if self.attack == 0:
             print("No available attack")
-            raise IllegalMoveError
+            raise IllegalMoveError("The piece has no available attack")
         if not self.is_range_valid(location, self.character.attack_range_min, self.character.attack_range_max):
             print("Out of range")
-            raise IllegalMoveError
+            raise IllegalMoveError("The target is outside of range")
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
             target_piece = target_piece.take_damage(self.attack)
             self.attack = 0
             self.save(update_fields=['attack'])
+            logging.info(target_piece.player.piece_set.all().aggregate(Sum('health'))['health__sum'])
+            if target_piece.player.piece_set.all().aggregate(Sum('health'))['health__sum'] == 0:
+                self.game.end_game(self.player)
         else:
             print("No piece there")
-            raise IllegalMoveError
+            raise IllegalMoveError("No piece could be found at that location")
         if target_piece.health <= 0:
             points = target_piece.remove_piece()
             self.player.score += points
