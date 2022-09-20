@@ -24,7 +24,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
 
   return (
     <Card
-      style={{ justifyContent: "center", alignItems: "center", display: "flex" }}
+      style={{ justifyContent: "center", alignItems: "flex-start", display: "flex" }}
       sx={{ width: 72, height: 72, border: 2,
         borderColor: (GetBorderColor(color_scheme, (piece ? this_player_id : -1), selected)),
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
@@ -44,11 +44,10 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
           player_id={piece!.player}
           piece_name={piece!.character}
           health={piece!.health}
-          start_tiles={color_scheme.start_tiles}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
-        <ObjectiveImg player_id={cell_status.objective_owner!} width={50} height={50}/>
+        <ObjectiveImg player_id={cell_status.objective_owner!} width={50} height={50} sx={{ pt: 1.25 }}/>
       }
       { cell_status.contains_piece && !cell_status.contains_objective &&
         <PieceImg

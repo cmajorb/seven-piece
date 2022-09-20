@@ -1,4 +1,4 @@
-import { Box, Stack, Avatar, Badge, Typography, useTheme } from '@mui/material';
+import { Box, Stack, Avatar, Badge, Typography, useTheme, SxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import WallImage from '../images/rock.png';
 import SkullImage from '../images/skull.png';
@@ -19,6 +19,7 @@ type ObjectiveProps = {
     img_width?: number,
     img_height?: number,
     req_score?: number,
+    sx?: SxProps,
 };
 
 type PieceProps = {
@@ -32,7 +33,6 @@ type ObjectiveAndPieceProps = {
     player_id: number,
     piece_name: string,
     health: number,
-    start_tiles: string[],
 };
 
 // ----------------------------------------------------------------------
@@ -49,7 +49,7 @@ export function WallImg () {
     );
 }
 
-export function ObjectiveImg ({ player_id, width, height, img_width, img_height, req_score }: ObjectiveProps) {
+export function ObjectiveImg ({ player_id, width, height, img_width, img_height, req_score, sx }: ObjectiveProps) {
     const theme = useTheme();
     let objective_img = NeutralBanner;
     if (player_id === 0) { objective_img = Team1Banner }
@@ -57,7 +57,7 @@ export function ObjectiveImg ({ player_id, width, height, img_width, img_height,
     else if (req_score) { objective_img = NeutralKillBanner };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.25 }}>
+        <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.25, ...(sx && { ...sx }) }}>
             <Box height={height} width={width} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
                 <img alt='testing' src={objective_img} height={img_height ? img_height : 35} width={img_width ? img_width : 30} />
             </Box>
@@ -96,17 +96,17 @@ export function PieceImg ({ player_id, piece_name, health, on_board }: PieceProp
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center">
+        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.6 }) }}>
             { on_board ?
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                 <Box height={70} width={70} sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
                     <img alt='testing' src={PieceBackground} height={70} width={70} style={{ filter: `${filter_string}` }} />
                 </Box>
                 <OutlinedAvatar src={piece_img}/>
-                <Stack direction={'row'} spacing={1} sx={{ position: "absolute", pt: 7.75 }}>
+                <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
                     { heart_nums.map((health) => (
-                        <Box key={health} height={12} width={12} sx={{ display: "flex" }}>
-                            <img alt='testing' src={PieceHealth} height={12} width={12} />
+                        <Box key={health} height={14} width={14} sx={{ display: "flex" }}>
+                            <img alt='testing' src={PieceHealth} height={14} width={14} />
                         </Box>
                     )) }
                 </Stack>                
@@ -117,34 +117,37 @@ export function PieceImg ({ player_id, piece_name, health, on_board }: PieceProp
     );
 }
 
-export function ObjectiveAndPieceImg ({ player_id, piece_name, health, start_tiles }: ObjectiveAndPieceProps) {
+export function ObjectiveAndPieceImg ({ player_id, piece_name, health }: ObjectiveAndPieceProps) {
     const piece_img = getPieceImg(piece_name);
     const heart_nums = (Array.from(Array(health).keys()));
+    let objective_img = NeutralBanner;
+    if (player_id === 0) { objective_img = Team1Banner }
+    else if (player_id === 1) { objective_img = Team2Banner };
     const ObjectiveAvatar = styled(Avatar)(() => ({
         backgroundColor: 'transparent',
-        width: 16.5,
-        height: 18,
+        width: 20,
+        height: 22,
         imgProps: { sx: { width: 1, height: 1 } }
     }));
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center">
+        <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.6 }}>
             <Badge
                 overlap="circular"
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                badgeContent={<ObjectiveAvatar variant={'square'} src={NeutralBanner}/>}
+                badgeContent={<ObjectiveAvatar variant={'square'} src={objective_img}/>}
             >
                 <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                     <Box height={70} width={70} sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
                         <img alt='testing' src={PieceBackground} height={70} width={70} style={{ filter: `${filter_string}` }} />
                     </Box>
                     <OutlinedAvatar src={piece_img}/>
-                    <Stack direction={'row'} spacing={1} sx={{ position: "absolute", pt: 7.75 }}>
+                    <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
                         { heart_nums.map((health) => (
-                            <Box key={health} height={12} width={12} sx={{ display: "flex" }}>
-                                <img alt='testing' src={PieceHealth} height={12} width={12} />
+                            <Box key={health} height={14} width={14} sx={{ display: "flex" }}>
+                                <img alt='testing' src={PieceHealth} height={14} width={14} />
                             </Box>
                         )) }
                     </Stack>                    
