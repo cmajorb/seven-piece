@@ -63,4 +63,4 @@ const StartGame = Loadable(lazy(() => import('../StartGame')));
 // const NotFound = Loadable(lazy(() => import('../Page404')));
 // const Login = Loadable(lazy(() => import('../Login')));
 // const Register = Loadable(lazy(() => import('../Register')));
-const MainAppBar = Loadable(lazy(() => import('../MainAppBar')));
+const MainAppBar = Loadable(lazy(() => import('../../components/MainAppBar')));

@@ -8,7 +8,7 @@ import {
 import { Stack } from '@mui/system';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { PATH_DASHBOARD } from './routes/paths';
+import { PATH_DASHBOARD } from '../pages/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ export default function MainAppBar() {
   return (
     <>
       <Box sx={{ flexGrow: 1, pb: 1 }}>
-        <AppBar position="static">
+        <AppBar position="static" sx={{ top: 'auto', bottom: 0 }}>
           <Toolbar sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
             <Stack direction={'row'} alignItems={'center'}>
               { currentSession &&
