@@ -1,4 +1,4 @@
-import { AppBar, Box, Toolbar, Grid, useTheme, Stack, Card, Typography, IconButton } from '@mui/material';
+import { AppBar, Box, Toolbar, Grid, useTheme, Stack, Card, Typography } from '@mui/material';
 import { ColorScheme, Piece, PieceActions, Stats } from '../types';
 import GetBorderColor from '../utils/getBorderColor';
 import checkSameLocation from '../utils/checkSameLocation';

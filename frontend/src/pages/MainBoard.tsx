@@ -17,6 +17,7 @@ export default function MainBoard() {
   const theme = useTheme();
   const [gameState, setGameState] = useState<GameState>();
   const [thisPlayer, setThisPlayer] = useState<number>();
+  const [activePlayer, setActivePlayer] = useState<number>();
   const [activeTurn, setActiveTurn] = useState<boolean>(false);
   const { game_id } = useParams();
 
@@ -35,28 +36,31 @@ export default function MainBoard() {
         const message = JSON.parse(message_str);
         switch (message.type) {
             case 'game_state':
-            const game_state: GameState = JSON.parse(message.state);
-            const session: string = message.this_player_session;
-            if (thisPlayer === undefined) {
-              if (session === game_state.players[0].session) { setThisPlayer(game_state.players[0].number) }
-              else if (session === game_state.players[1].session) { setThisPlayer(game_state.players[1].number) }
-              else { console.log("DID NOT SET PLAYER") };
-            };
-            console.log('Set GameState:', game_state);
-            setGameState(game_state);
-            break;
+              const game_state: GameState = JSON.parse(message.state);
+              const session: string = message.this_player_session;
+              if (thisPlayer === undefined) {
+                if (session === game_state.players[0].session) { setThisPlayer(game_state.players[0].number) }
+                else if (session === game_state.players[1].session) { setThisPlayer(game_state.players[1].number) }
+                else { console.log("DID NOT SET PLAYER") };
+              };
+              console.log('Set GameState:', game_state);
+              setGameState(game_state);
+              break;
             case 'error':
-            console.log(message.message);
-            break;
+              console.log(message.message);
+              break;
             default:
-            console.error('Unknown message type!');
-            break;
+              console.error('Unknown message type!');
+              break;
         }
     }
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [lastJsonMessage]);
 
 useEffect(() => {
+  if ((thisPlayer !== undefined) && gameState && gameState.players[0].is_turn) {
+    setActivePlayer(0);
+  } else { setActivePlayer(1) };
   if ((thisPlayer !== undefined) && gameState && gameState.players[thisPlayer].is_turn) { setActiveTurn(true) };
 // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [gameState]);
@@ -94,48 +98,49 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
   }[readyState];
 
   return (
-    <Stack spacing={1}>
-      { gameState && (thisPlayer !== undefined) &&
-      <Stack spacing={2}>
-        <Stack direction={'row'} justifyContent={'space-around'}>
-          <DisplayGameStatus
-            connection_status={connectionStatus as WebSocketStatus}
-            current_state={(gameState ? gameState.state : "None")}
-          />
-          { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
-          <>
-            <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
-            <BannerScore
-              team_scores={getTeamScores(gameState.players)}
-              total_objectives={(gameState.objectives).length}
-              score_to_win={gameState.score_to_win}
-              is_turn={activeTurn}
+    <>
+      <Stack spacing={1}>
+        { gameState && (thisPlayer !== undefined) &&
+        <Stack spacing={2}>
+          <Stack direction={'row'} justifyContent={'space-around'}>
+            <DisplayGameStatus
+              connection_status={connectionStatus as WebSocketStatus}
+              current_state={(gameState ? gameState.state : "None")}
             />
-          </>
-          }
-          <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
-          <CommandBar
-            round={gameState.turn_count}
-            current_state={gameState.state}
+            { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
+            <>
+              <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
+              <BannerScore
+                team_scores={getTeamScores(gameState.players)}
+                total_objectives={(gameState.objectives).length}
+                score_to_win={gameState.score_to_win}
+                is_turn={activeTurn}
+              />
+            </>
+            }
+            <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
+            <CommandBar
+              round={gameState.turn_count}
+              current_state={gameState.state}
+              this_player_id={thisPlayer}
+              display_turn={getDisplayTurn(gameState.state, gameState.turn_count)}
+              endTurn={endTurn}
+              setPieces={setPieces}
+            />
+          </Stack>
+          <Divider flexItem color={theme.palette.common.black} />
+          <MainGrid
+            rows={gameState.map.data.length}
+            columns={gameState.map.data[0].length}
+            pieces={gameState.pieces}
+            map={gameState.map}
+            active_player_id={activePlayer}
+            objectives={gameState.objectives}
             this_player_id={thisPlayer}
-            display_turn={getDisplayTurn(gameState.state, gameState.turn_count)}
-            endTurn={endTurn}
-            setPieces={setPieces}
+            submitPieceAction={submitPieceAction}
           />
-        </Stack>
-        <Divider flexItem color={theme.palette.common.black} />
-        <MainGrid
-          rows={gameState.map.data.length}
-          columns={gameState.map.data[0].length}
-          pieces={gameState.pieces}
-          map={gameState.map}
-          active_turn={activeTurn}
-          objectives={gameState.objectives}
-          this_player_id={thisPlayer}
-          submitPieceAction={submitPieceAction}
-        />
-      </Stack> }
-    </Stack>
-
+        </Stack> }
+      </Stack>
+    </>
   );
 };

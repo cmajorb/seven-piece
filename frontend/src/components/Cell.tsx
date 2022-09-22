@@ -33,7 +33,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
         opacity: cell_status.is_empty ? '0%' : '100%',
         '&:hover': { cursor: cell_status.is_empty ? null : 'pointer' },
       }}
-      onClick={() => { updateSelected(location, piece, cell_status) }}
+      onClick={() => { updateSelected(location, piece, false) }}
       onContextMenu={() => { console.log("RIGHT CLICKED!", location, piece) }}
     >
       { cell_status.contains_wall &&
