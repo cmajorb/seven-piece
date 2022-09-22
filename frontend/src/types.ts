@@ -1,13 +1,13 @@
 export type Piece = {
     character: string;
     player: number;
-    health: number;
     description: string;
     location: number[];
-    speed: number;
-    attack: number;
     image: string;
     id: number;
+    current_stats: Stats;
+    start_stats: Stats;
+    default_stats: Stats;
   };
 
   export type Score = {
@@ -31,6 +31,12 @@ export type Map = {
     start_tiles: [[number[]]],
     data: [number[]],
     color_scheme: ColorScheme
+};
+
+export type Stats = {
+    health: number,
+    speed: number,
+    attack: number
 };
 
 export type GameState = {

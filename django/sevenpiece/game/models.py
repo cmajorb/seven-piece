@@ -72,7 +72,10 @@ class GameState(models.Model):
         for piece in self.piece_set.all():
             piece.reset_stats()
             piece.health = piece.character.health
-            piece.save(update_fields=['health'])
+            piece.health_start = piece.character.health #plus buffer
+            piece.speed_start = piece.character.speed #plus buffer
+            piece.attack_start = piece.character.attack #plus buffer
+            piece.save(update_fields=['health','health_start','speed_start','attack_start'])
         self.save(update_fields=['state'])
 
     def start_game(self):
@@ -211,9 +214,12 @@ class Piece(models.Model):
     location_x = models.IntegerField(null=True)
     location_y = models.IntegerField(null=True)
     health = models.IntegerField(default=0)
-    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     speed = models.IntegerField(default=0)
     attack = models.IntegerField(default=0)
+    health_start = models.IntegerField(default=0)
+    speed_start = models.IntegerField(default=0)
+    attack_start = models.IntegerField(default=0)
+    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
     special = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
     point_value = models.IntegerField(default=1)
@@ -238,15 +244,27 @@ class Piece(models.Model):
         if piece == None:
             return None
         dictionary = {}
+        dictionary["current_stats"] = {}
+        dictionary["default_stats"] = {}
+        dictionary["start_stats"] = {}
         dictionary["character"] = piece.character.name
         dictionary["player"] = piece.player.number
-        dictionary["health"] = piece.health
         dictionary["description"] = piece.character.description
         dictionary["location"] = [piece.location_x, piece.location_y]
-        dictionary["speed"] = piece.speed
-        dictionary["attack"] = piece.attack
         dictionary["image"] = piece.character.image
         dictionary["id"] = piece.id
+
+        dictionary["current_stats"]["health"] = piece.health
+        dictionary["current_stats"]["speed"] = piece.speed
+        dictionary["current_stats"]["attack"] = piece.attack
+
+        dictionary["start_stats"]["health"] = piece.health_start
+        dictionary["start_stats"]["speed"] = piece.speed_start
+        dictionary["start_stats"]["attack"] = piece.attack_start
+
+        dictionary["default_stats"]["health"] = piece.character.health
+        dictionary["default_stats"]["speed"] = piece.character.speed
+        dictionary["default_stats"]["attack"] = piece.character.attack
         return dictionary
     
     def take_damage(self, damage):

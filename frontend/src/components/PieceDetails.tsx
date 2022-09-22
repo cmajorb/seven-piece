@@ -38,9 +38,9 @@ export default function PieceDetails({ selected_piece, selected_action, this_pla
                         <Stack spacing={1}>
                             <PieceImg piece_name={selected_piece.character} on_board={false} />
                             <Divider variant="middle" flexItem color={theme.palette.common.black} />
-                            <Typography variant='h6'>Attack: {selected_piece.attack}</Typography>
-                            <Typography variant='h6'>Health: {selected_piece.health}</Typography>
-                            <Typography variant='h6'>Range: {selected_piece.speed}</Typography>
+                            <Typography variant='h6'>Attack: {selected_piece.current_stats.attack}</Typography>
+                            <Typography variant='h6'>Health: {selected_piece.current_stats.health}</Typography>
+                            <Typography variant='h6'>Range: {selected_piece.current_stats.speed}</Typography>
                             { selected_piece.description && 
                             <Stack spacing={1}>
                                 <Divider variant="middle" flexItem color={theme.palette.common.black} />
@@ -57,13 +57,13 @@ export default function PieceDetails({ selected_piece, selected_action, this_pla
                 <>
                     <Stack direction={'row'} spacing={2} alignItems={'center'} justifyContent={'center'}>
                         <Typography>1</Typography>
-                        <Button variant={'contained'} fullWidth onClick={() => { handleActionType('move') }} disabled={selected_piece.speed < 1} sx={{ ...(selected_action === 'attack' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
+                        <Button variant={'contained'} fullWidth onClick={() => { handleActionType('move') }} disabled={selected_piece.current_stats.speed < 1} sx={{ ...(selected_action === 'attack' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
                             Move
                         </Button>
                     </Stack>
                     <Stack direction={'row'} spacing={2} alignItems={'center'} justifyContent={'center'}>
                         <Typography>2</Typography>
-                        <Button variant={'contained'} fullWidth onClick={() => { handleActionType('attack') }} disabled={selected_piece.attack < 1} sx={{ ...(selected_action === 'move' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
+                        <Button variant={'contained'} fullWidth onClick={() => { handleActionType('attack') }} disabled={selected_piece.current_stats.attack < 1} sx={{ ...(selected_action === 'move' && { backgroundColor: EDIT_BUTTON, color: EDIT_BUTTON_TEXT }) }}>
                             Attack
                         </Button>
                     </Stack>                    
