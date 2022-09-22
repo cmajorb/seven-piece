@@ -54,8 +54,8 @@ class GameConsumer(JsonWebsocketConsumer):
                 self.current_game_state = game.join_game(self.session_id)
                 self.player = Player.objects.get(session=self.session_id, game=self.current_game_state)
                 logging.info(f"Joined game: {self.session_id}")
-            except:
-                logging.info("Failed to join game")
+            except Exception as e:
+                logging.info("Failed to join game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
                 {
@@ -166,6 +166,7 @@ class MenuConsumer(JsonWebsocketConsumer):
                     },
                 )
             except Exception as e:
+                logging.error("Failed to create game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
                     {
