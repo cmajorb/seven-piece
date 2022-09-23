@@ -40,6 +40,9 @@ export default function StartGame() {
                 case 'error':
                 console.log(message.message);
                 break;
+                case 'get_maps':
+                console.log(message.maps);
+                break;
                 default:
                 console.error('Unknown message type!');
                 break;

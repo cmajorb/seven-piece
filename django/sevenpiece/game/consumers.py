@@ -1,7 +1,8 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
-from game.models import GameState, Player, Piece
+from game.models import GameState, Player, Piece, MapTemplate
 from game.game_logic import create_game
+from game.serializers import MapSerializer
 import json
 import logging
 
@@ -149,6 +150,9 @@ class MenuConsumer(JsonWebsocketConsumer):
     def start_game(self, event):
         self.send_json(event)
 
+    def get_maps(self, event):
+        self.send_json(event)
+
     def error(self, event):
         self.send_json(event)
         
@@ -174,4 +178,14 @@ class MenuConsumer(JsonWebsocketConsumer):
                         "message": f"Could not create game from menu: {e}",
                     },
                 )
+        elif message_type == "get_maps":            
+            maps = MapTemplate.objects.all()
+            serializer = MapSerializer(maps, many=True)
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "get_maps",
+                    "maps": serializer.data,
+                },
+            )
         return super().receive_json(content, **kwargs)
