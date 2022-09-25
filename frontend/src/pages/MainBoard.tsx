@@ -5,14 +5,20 @@ import MainGrid from '../components/MainGrid';
 import { GameState, WebSocketStatus } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Divider, Stack, useTheme } from '@mui/material';
-import DisplayGameStatus from '../components/DisplayGameStatus';
 import CommandBar from '../components/CommandBar';
 import BannerScore from '../components/BannerScore';
 import getDisplayTurn from '../utils/getDisplayTurn';
 
 // ----------------------------------------------------------------------
 
-export default function MainBoard() {
+type Props = {
+  setConnectionStatus: any,
+  setCurrentState: any,
+};
+
+// ----------------------------------------------------------------------
+
+export default function MainBoard ({ setConnectionStatus, setCurrentState }: Props) {
 
   const theme = useTheme();
   const [gameState, setGameState] = useState<GameState>();
@@ -54,40 +60,41 @@ export default function MainBoard() {
               break;
         }
     }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [lastJsonMessage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastJsonMessage]);
 
-useEffect(() => {
-  if ((thisPlayer !== undefined) && gameState && gameState.players[0].is_turn) {
-    setActivePlayer(0);
-  } else { setActivePlayer(1) };
-  if ((thisPlayer !== undefined) && gameState && gameState.players[thisPlayer].is_turn) { setActiveTurn(true) };
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [gameState]);
+  useEffect(() => {
+    setCurrentState((gameState ? gameState.state : "None"));
+    if ((thisPlayer !== undefined) && gameState && gameState.players[0].is_turn) {
+      setActivePlayer(0);
+    } else { setActivePlayer(1) };
+    if ((thisPlayer !== undefined) && gameState && gameState.players[thisPlayer].is_turn) { setActiveTurn(true) };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState]);
 
-const setPieces = (piece_array: string) => {
-  sendJsonMessage({
-    type: "select_pieces",
-    pieces: piece_array
-  })
-};
+  const setPieces = (piece_array: string) => {
+    sendJsonMessage({
+      type: "select_pieces",
+      pieces: piece_array
+    })
+  };
 
-const endTurn = () => {
-  setActiveTurn(false);
-  sendJsonMessage({
-    type: "end_turn",
-  })
-};
+  const endTurn = () => {
+    setActiveTurn(false);
+    sendJsonMessage({
+      type: "end_turn",
+    })
+  };
 
-const submitPieceAction = (piece_id: number, new_location: number[], action_type: string) => {
-  sendJsonMessage({
-    type: "action",
-    piece: piece_id,
-    location_x: new_location[0],
-    location_y: new_location[1],
-    action_type: action_type
-  })
-};
+  const submitPieceAction = (piece_id: number, new_location: number[], action_type: string) => {
+    sendJsonMessage({
+      type: "action",
+      piece: piece_id,
+      location_x: new_location[0],
+      location_y: new_location[1],
+      action_type: action_type
+    })
+  };
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -97,16 +104,15 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setConnectionStatus(connectionStatus) }, [connectionStatus]);
+
   return (
     <>
       <Stack spacing={1}>
         { gameState && (thisPlayer !== undefined) &&
         <Stack spacing={2}>
           <Stack direction={'row'} justifyContent={'space-around'}>
-            <DisplayGameStatus
-              connection_status={connectionStatus as WebSocketStatus}
-              current_state={(gameState ? gameState.state : "None")}
-            />
             { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
             <>
               <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
@@ -137,6 +143,7 @@ const submitPieceAction = (piece_id: number, new_location: number[], action_type
             active_player_id={activePlayer}
             objectives={gameState.objectives}
             this_player_id={thisPlayer}
+            game_state={gameState.state}
             submitPieceAction={submitPieceAction}
           />
         </Stack> }

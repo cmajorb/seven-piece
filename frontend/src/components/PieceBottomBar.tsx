@@ -1,4 +1,4 @@
-import { AppBar, Box, Toolbar, Grid, useTheme, Stack, Card, Typography } from '@mui/material';
+import { AppBar, Box, Toolbar, Grid, useTheme, Stack, Card } from '@mui/material';
 import { ColorScheme, Piece, PieceActions, Stats } from '../types';
 import GetBorderColor from '../utils/getBorderColor';
 import checkSameLocation from '../utils/checkSameLocation';
@@ -28,7 +28,6 @@ type FunctionProps = { piece: Piece };
 export default function PieceBottomBar({ pieces, selected_tile, selected_action, this_player_id, color_scheme, active_player_id, updateSelected, handleActionType }: (BaseProps & MainProps)) {
 
   const theme = useTheme();
-  console.log("ACTIVE", active_player_id === 0, "THIS", this_player_id);
 
   return (
     <>
@@ -48,6 +47,7 @@ export default function PieceBottomBar({ pieces, selected_tile, selected_action,
                 />
               ) ))}
             </Stack>
+
             { (active_player_id !== undefined && active_player_id === 1) && <Box sx={{ p: 10 }}/> }
             { active_player_id !== undefined &&
               <Iconify

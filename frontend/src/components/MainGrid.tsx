@@ -18,15 +18,18 @@ type Props = {
     active_player_id: number | undefined,
     this_player_id: number,
     objectives: string[],
+    game_state: string,
     submitPieceAction: any
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ rows, columns, pieces, map, active_player_id, objectives, this_player_id, submitPieceAction }: Props) {
+export default function MainGrid({ rows, columns, pieces, map, active_player_id, objectives, this_player_id, game_state, submitPieceAction }: Props) {
     
     const theme = useTheme();
     const active_turn: boolean = (active_player_id && active_player_id === this_player_id) ? true : false;
+
+    const display_show_bar: boolean = ((game_state === ('PLACING') || game_state === ('READY') || game_state === ('WAITING')) ? false : true);
 
     const column_nums = (Array.from(Array(columns).keys()));
     const row_nums = (Array.from(Array(rows).keys())).sort((a, b) => b - a);
@@ -89,7 +92,7 @@ export default function MainGrid({ rows, columns, pieces, map, active_player_id,
                     />
                 </Stack>
             </Stack>
-            { pieces && (this_player_id !== undefined) &&
+            { pieces && (this_player_id !== undefined) && display_show_bar &&
                 <PieceBottomBar
                     pieces={pieces}
                     selected_tile={selectedTile}
