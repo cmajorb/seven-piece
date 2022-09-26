@@ -62,13 +62,15 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
               { currentSession &&
               <Stack direction={'row'} alignItems={'center'}>
                 <Typography variant="button">Session:</Typography>
-                <Button size='large' color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
+                <Button sx={{ pl: 1, pr: 1 }} size='large' color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
                 <Stack justifyContent={'center'} alignItems={'center'} sx={{ animation: `${ripple} 0.85s infinite alternate ease-in-out` }}>
                   <div style={{ backgroundColor: getConnectionColor(connection_status, theme), borderRadius: '50%', width: '10px', height: '10px', justifyContent: 'center', alignItems: 'center' }}/>
                 </Stack>
               </Stack> }
             </Stack>
-            { current_state !== 'None' && <Typography variant='body2'>Game State: {current_state}</Typography> }
+            { current_state && current_state !== 'None' &&
+              <Typography variant='body2'>Game State: {current_state}</Typography>
+            }
             <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
           </Toolbar>
         </AppBar>
