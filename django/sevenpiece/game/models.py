@@ -389,7 +389,7 @@ class Piece(models.Model):
 
     def place_piece(self, location):
         valid_tiles = self.game.map.data["start_tiles"][self.player.number]
-        if location in valid_tiles:
+        if location in valid_tiles and self.game.map.data["data"][location[0]][location[1]] == MAP_DEFINITION['normal']:
             self.move_placed_piece(location)
         else:
             print("Not a valid start tile")
