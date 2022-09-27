@@ -146,7 +146,7 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width, si
     let piece_img = '';
     if (type === 'attack') { piece_img = PieceAttack }
     else if (type === 'speed') { piece_img = PieceSpeed }
-    else if (type === 'health') { piece_img = PieceAttack };
+    else if (type === 'health') { piece_img = PieceHealth };
 
     return (
         <Stack direction={'row'} spacing={0.05}>
