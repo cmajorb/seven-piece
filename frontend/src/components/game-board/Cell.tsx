@@ -39,21 +39,21 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
       { cell_status.contains_wall &&
         <WallImg/>
       }
-      { cell_status.contains_objective && cell_status.contains_piece &&
+      { piece && cell_status.contains_objective && cell_status.contains_piece &&
         <ObjectiveAndPieceImg
-          player_id={piece!.player}
-          piece_name={piece!.character}
-          health={piece!.current_stats.health}
+          player_id={piece.player}
+          piece_name={piece.character}
+          health={piece.current_stats.health}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
         <ObjectiveImg player_id={cell_status.objective_owner!} width={50} height={50} sx={{ pt: 1.25 }}/>
       }
-      { cell_status.contains_piece && !cell_status.contains_objective &&
+      { piece && cell_status.contains_piece && !cell_status.contains_objective &&
         <PieceImg
-          player_id={piece!.player}
+          player_id={piece.player}
           piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.character : ''}
-          health={piece!.current_stats.health}
+          health={piece.current_stats.health}
           on_board={true}
         />
       }

@@ -73,7 +73,7 @@ export default function PieceStatStack({ piece, selected_tile, selected_action, 
                                 max_stat={piece.start_stats[getStatType(index) as keyof Stats]}
                                 height={20}
                                 width={20}
-                            />            
+                            />
                             ))}
                         </Stack>
                     </Stack>
