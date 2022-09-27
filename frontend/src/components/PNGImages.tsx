@@ -31,6 +31,7 @@ type PieceProps = {
     on_board: boolean,
     height?: number,
     width?: number,
+    sx?: SxProps,
 };
 
 type BottomProps = {
@@ -39,6 +40,7 @@ type BottomProps = {
     type: string,
     height: number,
     width: number,
+    side?: string,
 };
 
 type ObjectiveAndPieceProps = {
@@ -101,7 +103,7 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
     );
 }
 
-export function PieceImg ({ player_id, piece_name, health, on_board, height, width }: PieceProps) {
+export function PieceImg ({ player_id, piece_name, health, on_board, height, width, sx }: PieceProps) {
     const piece_img = getPieceImg(piece_name);
     const heart_nums = (Array.from(Array(health).keys()));
     const default_piece_container_size = 70;
@@ -111,7 +113,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.6 }) }}>
+        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.6 }), ...(sx && { sx }) }}>
             { on_board ?
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                 <Box height={height ? height : default_piece_container_size} width={width ? width : default_piece_container_size} sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
@@ -138,25 +140,30 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
     );
 }
 
-export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: BottomProps) {
+export function BottomBarImgs ({ current_stat, max_stat, type, height, width, side }: BottomProps) {
     const current_stat_nums = (Array.from(Array(current_stat).keys()));
     const max_stat_nums = (Array.from(Array(max_stat - current_stat).keys()));
-    let piece_img = PieceHealth;
+    let piece_img = '';
     if (type === 'attack') { piece_img = PieceAttack }
-    else if (type === 'speed') { piece_img = PieceSpeed };
+    else if (type === 'speed') { piece_img = PieceSpeed }
+    else if (type === 'health') { piece_img = PieceAttack };
 
     return (
         <Stack direction={'row'} spacing={0.05}>
-            { current_stat_nums.map((stat) => (
-                <Box key={stat} height={height} width={width} sx={{ display: "flex" }}>
-                    <img alt='testing' src={piece_img} height={height} width={width} />
-                </Box>
-            )) }
-            { max_stat_nums.map((stat) => (
-                <Box key={stat} height={height} width={width} sx={{ display: "flex" }}>
-                    <img alt='testing' src={piece_img} height={height} width={width} style={{ filter: 'grayscale(100%)' }} />
-                </Box>
-            )) }            
+            { piece_img.length > 0 ?
+            <>
+                { current_stat_nums.map((stat) => (
+                    <Box key={stat} height={height} width={width} sx={{ display: "flex" }}>
+                        <img alt='testing' src={piece_img} height={height} width={width} />
+                    </Box>
+                )) }
+                { max_stat_nums.map((stat) => (
+                    <Box key={stat} height={height} width={width} sx={{ display: "flex" }}>
+                        <img alt='testing' src={piece_img} height={height} width={width} style={{ filter: 'grayscale(100%)' }} />
+                    </Box>
+                )) }
+            </> :
+            <Box height={height} width={width} sx={{ display: "flex", backgroundColor: 'gray', opacity: '0.2' }}/> }
         </Stack>
     );
 }

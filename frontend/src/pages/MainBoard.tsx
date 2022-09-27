@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
-import { GameState, WebSocketStatus } from '../types';
+import { GameState, Piece, PieceActions } from '../types';
 import getTeamScores from '../utils/getTeamScores';
-import { Divider, Stack, useTheme } from '@mui/material';
-import CommandBar from '../components/CommandBar';
+import { Paper, Stack } from '@mui/material';
 import BannerScore from '../components/BannerScore';
 import getDisplayTurn from '../utils/getDisplayTurn';
+import MainBBar from '../components/MainB-Bar';
+import checkSameLocation from '../utils/checkSameLocation';
 
 // ----------------------------------------------------------------------
 
@@ -20,11 +21,14 @@ type Props = {
 
 export default function MainBoard ({ setConnectionStatus, setCurrentState }: Props) {
 
-  const theme = useTheme();
   const [gameState, setGameState] = useState<GameState>();
   const [thisPlayer, setThisPlayer] = useState<number>();
   const [activePlayer, setActivePlayer] = useState<number>();
   const [activeTurn, setActiveTurn] = useState<boolean>(false);
+  const [selectedTile, setSelectedTile] = useState<number[]>([]);
+  const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
+  const [actionType, setActionType] = useState<PieceActions>('move');
+
   const { game_id } = useParams();
 
   const path_str = "game/" + game_id;
@@ -106,48 +110,72 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setConnectionStatus(connectionStatus) }, [connectionStatus]);
+  useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined) }, [activeTurn]);
+  useEffect(() => {}, [selectedTile]);
+  useEffect(() => { setActionType('move') }, [selectedPiece]);
+
+  const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean) => {
+    const same_location = checkSameLocation(location, selectedTile);
+    if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
+    else {
+        if (selectedPiece && !checking) { submitPieceAction(selectedPiece.id, location, actionType) };
+        setSelectedTile(location);
+        if (piece && piece.player === thisPlayer) { setSelectedPiece(piece) }
+        else if (piece && piece.player !== thisPlayer) { console.log("CLICKED ON ANOTHER PIECE") }
+        else { setSelectedPiece(undefined) };
+    }
+  }
 
   return (
-    <>
-      <Stack spacing={1}>
+    <Paper square elevation={0} onContextMenu={(e)=> e.preventDefault()} onMouseDown={(e)=> e.preventDefault()}
+      sx={{
+        p: 1,
+        backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        height: '120vh',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
         { gameState && (thisPlayer !== undefined) &&
-        <Stack spacing={2}>
-          <Stack direction={'row'} justifyContent={'space-around'}>
+        <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
+          <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
             { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
-            <>
-              <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
               <BannerScore
                 team_scores={getTeamScores(gameState.players)}
                 total_objectives={(gameState.objectives).length}
                 score_to_win={gameState.score_to_win}
                 is_turn={activeTurn}
               />
-            </>
             }
-            <Divider orientation="vertical" variant="middle" flexItem color={theme.palette.common.black} />
-            <CommandBar
-              round={gameState.turn_count}
-              current_state={gameState.state}
+            <MainGrid
+              pieces={gameState.pieces}
+              map={gameState.map}
+              objectives={gameState.objectives}
               this_player_id={thisPlayer}
-              display_turn={getDisplayTurn(gameState.state, gameState.turn_count)}
+              selected_tile={selectedTile}
+              updateSelected={updateSelected}
+            />
+          </Stack>
+          { gameState && (thisPlayer !== undefined) &&
+            <MainBBar
+              pieces={gameState.pieces}
+              selected_tile={selectedTile}
+              selected_action={actionType}
+              this_player_id={thisPlayer}
+              active_player_id={activePlayer}
+              color_scheme={gameState.map.color_scheme}
+              current_state={gameState.state}
+              setActionType={setActionType}
+              updateSelected={updateSelected}
               endTurn={endTurn}
               setPieces={setPieces}
             />
-          </Stack>
-          <Divider flexItem color={theme.palette.common.black} />
-          <MainGrid
-            rows={gameState.map.data.length}
-            columns={gameState.map.data[0].length}
-            pieces={gameState.pieces}
-            map={gameState.map}
-            active_player_id={activePlayer}
-            objectives={gameState.objectives}
-            this_player_id={thisPlayer}
-            game_state={gameState.state}
-            submitPieceAction={submitPieceAction}
-          />
-        </Stack> }
-      </Stack>
-    </>
+          }
+        </Stack>
+        }
+    </Paper>
   );
 };

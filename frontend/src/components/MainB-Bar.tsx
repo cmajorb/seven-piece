@@ -1,8 +1,8 @@
 import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material';
 import { ColorScheme, Piece, PieceActions } from '../types';
-import GetBorderColor from '../utils/getBorderColor';
-import Iconify from './Iconify';
+import BBarActionArea from './B-BarActionArea';
 import PieceStatStack from './PieceStatStack';
+import calcHexToRGB from '../utils/calcHexToRGB';
 
 // ----------------------------------------------------------------------
 
@@ -13,24 +13,38 @@ type Props = {
   selected_action: PieceActions,
   this_player_id: number,
   color_scheme: ColorScheme,
+  current_state: string,
   updateSelected: any,
-  handleActionType: any,
+  setActionType: any,
+  endTurn: any,
+  setPieces: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function PieceBottomBar(
-  { pieces, selected_tile, selected_action, this_player_id, color_scheme, 
-    active_player_id, updateSelected, handleActionType
+export default function MainBBar(
+  { pieces, selected_tile, selected_action, this_player_id, color_scheme,
+    active_player_id, current_state, updateSelected, setActionType, endTurn, setPieces
   }: Props) {
 
   const theme = useTheme();
 
   return (
     <>
-      <Box sx={{ flexGrow: 1, pt: 1 }}>
-        <AppBar position="fixed" sx={{ top: 'auto', bottom: 0, backgroundColor: theme.palette.grey[900], height: 110, justifyContent: 'center' }}>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar
+          position="fixed"
+          sx={{
+            top: 'auto',
+            bottom: 0,
+            backgroundColor: calcHexToRGB(theme.palette.grey[900], 0.75),
+            height: 110,
+            justifyContent: 'center'
+          }}
+        >
           <Toolbar sx={{ alignItems: 'center', justifyContent: 'space-around' }}>
+
+            { pieces &&
             <Stack direction={'row'} spacing={6} justifyContent={'space-between'} alignItems={'center'}>
               {pieces.map((piece: Piece) => ( piece.player === 0 && (
                 <PieceStatStack
@@ -40,21 +54,21 @@ export default function PieceBottomBar(
                   this_player_id={this_player_id}
                   color_scheme={color_scheme}
                   updateSelected={updateSelected}
-                  handleActionType={handleActionType}
+                  setActionType={setActionType}
                 />
               ) ))}
-            </Stack>
+            </Stack> }
 
-            { (active_player_id !== undefined && active_player_id === 1) && <Box sx={{ p: 10 }}/> }
-            { active_player_id !== undefined &&
-              <Iconify
-                icon={active_player_id === 0 ? 'eva:arrowhead-left-outline' : 'eva:arrowhead-right-outline'}
-                width={70}
-                height={70}
-                color={GetBorderColor(color_scheme, active_player_id, true)}
-              /> }
-            { (active_player_id !== undefined && active_player_id === 0) && <Box sx={{ p: 10 }}/> }
+            <BBarActionArea
+              active_player_id={active_player_id}
+              this_player_id={this_player_id}
+              color_scheme={color_scheme}
+              current_state={current_state}
+              endTurn={endTurn}
+              setPieces={setPieces}
+            />
 
+            { pieces &&
             <Stack direction={'row'} spacing={6} justifyContent={'space-between'} alignItems={'center'}>
               {pieces.map((piece: Piece) => ( piece.player === 1 && (
                 <PieceStatStack
@@ -64,10 +78,11 @@ export default function PieceBottomBar(
                   this_player_id={this_player_id}
                   color_scheme={color_scheme}
                   updateSelected={updateSelected}
-                  handleActionType={handleActionType}
+                  setActionType={setActionType}
                 />
               ) ))}
-            </Stack>
+            </Stack> }
+
           </Toolbar>
         </AppBar>
       </Box>
