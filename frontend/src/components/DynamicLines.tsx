@@ -45,7 +45,7 @@ export function TurnLine({ is_turn, bg_color }: TurnLineProps) {
             <Divider
                 variant="middle"
                 sx={{ margin: '0 20px', borderRadius: '10px', height: 8, animation: `${line_fade} 2s forwards ease-in-out`, backgroundImage: background_img }}
-            /> }          
+            /> }
         </Stack>
     );
 }

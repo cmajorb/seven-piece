@@ -17,7 +17,7 @@ type Props = {
 export default function CommandBar({ team_scores, total_objectives, score_to_win, is_turn }: Props) {
 
     const theme = useTheme();
-    const bg_color: string = theme.palette.grey[100];
+    const background: string = `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`;
     const neutral_banners_num: number = total_objectives - (team_scores[0].objectives + team_scores[1].objectives);
     const minimum_kills: number = score_to_win - total_objectives;
     const neutral_banners: number[] = neutral_banners_num > 0 ? (Array.from(Array(neutral_banners_num).keys())) : [];
@@ -32,7 +32,7 @@ export default function CommandBar({ team_scores, total_objectives, score_to_win
 
     return (
         <Stack direction={'row'} spacing={1}>
-            <Card sx={{ pr: 1, pl: 1, backgroundColor: bg_color }}>
+            <Card sx={{ pr: 1, pl: 1, border: 2, backgroundImage: background }}>
                 <Stack sx={{ pt: 1 }}>
                     <TurnLine is_turn={is_turn} bg_color={theme.palette.primary.light}/>
                     <Stack direction={'row'} spacing={0.5}>
@@ -60,7 +60,7 @@ export default function CommandBar({ team_scores, total_objectives, score_to_win
                     </Stack>
                 </Stack>
             </Card>
-            <Card sx={{ pr: 1, pl: 1, backgroundColor: bg_color }}>
+            <Card sx={{ pr: 1, pl: 1, border: 2, backgroundImage: background }}>
                 <Stack justifyContent={'center'} alignItems={'center'} sx={{ pt: 2 }}>
                     <ObjectiveImg player_id={-1} width={40} height={36} img_width={40} img_height={50} req_score={score_to_win}/>
                 </Stack>

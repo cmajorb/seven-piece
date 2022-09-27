@@ -55,7 +55,7 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
 
   return (
     <>
-      <Box sx={{ flexGrow: 1, pb: 1 }}>
+      <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static" sx={{ top: 'auto', bottom: 0 }}>
           <Toolbar sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
             <Stack direction={'row'} alignItems={'center'}>
