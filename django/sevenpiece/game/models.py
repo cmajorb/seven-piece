@@ -90,12 +90,14 @@ class GameState(models.Model):
     def join_game(self, session):
         num_of_players = len(self.player_set.all())
         if num_of_players >= self.map.player_size:
-            raise JoinGameError
-        Player.objects.create(session=session, game=self, number=num_of_players)
+            logging.info("New spectator")
+            return [self, None]
+            # raise JoinGameError
+        player = Player.objects.create(session=session, game=self, number=num_of_players)
         if num_of_players + 1 == self.map.player_size:
             self.state = "PLACING"
             self.save(update_fields=['state'])
-        return self
+        return [self, player]
 
     def end_game(self, winner):
 

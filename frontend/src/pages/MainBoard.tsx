@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainGrid from '../components/MainGrid';
-import { GameState, WebSocketStatus } from '../types';
+import { GameState, WebSocketStatus, Player } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Divider, Stack, useTheme } from '@mui/material';
 import CommandBar from '../components/CommandBar';
@@ -22,9 +22,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   const theme = useTheme();
   const [gameState, setGameState] = useState<GameState>();
-  const [thisPlayer, setThisPlayer] = useState<number>();
-  const [activePlayer, setActivePlayer] = useState<number>();
-  const [activeTurn, setActiveTurn] = useState<boolean>(false);
+  const [thisPlayer, setThisPlayer] = useState<Player>();
   const { game_id } = useParams();
 
   const path_str = "game/" + game_id;
@@ -43,20 +41,18 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
         switch (message.type) {
             case 'game_state':
               const game_state: GameState = JSON.parse(message.state);
-              const session: string = message.this_player_session;
-              if (thisPlayer === undefined) {
-                if (session === game_state.players[0].session) { setThisPlayer(game_state.players[0].number) }
-                else if (session === game_state.players[1].session) { setThisPlayer(game_state.players[1].number) }
-                else { console.log("DID NOT SET PLAYER") };
-              };
               console.log('Set GameState:', game_state);
               setGameState(game_state);
               break;
             case 'error':
               console.log(message.message);
               break;
+            case 'connect':
+              setThisPlayer(message.player);
+              break;
             default:
               console.error('Unknown message type!');
+              console.log(message);
               break;
         }
     }
@@ -65,10 +61,6 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
-    if ((thisPlayer !== undefined) && gameState && gameState.players[0].is_turn) {
-      setActivePlayer(0);
-    } else { setActivePlayer(1) };
-    if ((thisPlayer !== undefined) && gameState && gameState.players[thisPlayer].is_turn) { setActiveTurn(true) };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState]);
 
@@ -80,7 +72,6 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
   };
 
   const endTurn = () => {
-    setActiveTurn(false);
     sendJsonMessage({
       type: "end_turn",
     })
@@ -120,7 +111,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 team_scores={getTeamScores(gameState.players)}
                 total_objectives={(gameState.objectives).length}
                 score_to_win={gameState.score_to_win}
-                is_turn={activeTurn}
+                is_turn={thisPlayer.is_turn}
               />
             </>
             }
@@ -128,7 +119,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
             <CommandBar
               round={gameState.turn_count}
               current_state={gameState.state}
-              this_player_id={thisPlayer}
+              this_player_id={thisPlayer.number}
               display_turn={getDisplayTurn(gameState.state, gameState.turn_count)}
               endTurn={endTurn}
               setPieces={setPieces}
@@ -140,9 +131,9 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
             columns={gameState.map.data[0].length}
             pieces={gameState.pieces}
             map={gameState.map}
-            active_player_id={activePlayer}
+            active_player_id={gameState.turn_count % gameState.players.length}
             objectives={gameState.objectives}
-            this_player_id={thisPlayer}
+            this_player_id={thisPlayer.number}
             game_state={gameState.state}
             submitPieceAction={submitPieceAction}
           />
