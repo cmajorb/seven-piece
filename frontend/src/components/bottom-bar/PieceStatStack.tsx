@@ -1,8 +1,8 @@
 import { useTheme, Stack, Card, CardActionArea, CardActions } from '@mui/material';
-import { ColorScheme, Piece, PieceActions, Stats } from '../types';
-import GetBorderColor from '../utils/getBorderColor';
-import checkSameLocation from '../utils/checkSameLocation';
-import { BottomBarImgs, PieceImg } from './PNGImages';
+import { ColorScheme, Piece, PieceActions, Stats } from '../../types';
+import GetBorderColor from '../../utils/getBorderColor';
+import checkSameLocation from '../../utils/checkSameLocation';
+import { BottomBarImgs, PieceImg } from '../misc/PNGImages';
 import MiniActionSelect from './MiniActionSelect';
 
 // ----------------------------------------------------------------------

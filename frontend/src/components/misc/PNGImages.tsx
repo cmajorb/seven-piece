@@ -1,16 +1,16 @@
 import { Box, Stack, Avatar, Badge, Typography, useTheme, SxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import WallImage from '../images/rock.png';
-import SkullImage from '../images/skull.png';
-import PieceHealth from '../images/health_icon.png';
-import PieceAttack from '../images/attack_icon.png';
-import PieceSpeed from '../images/speed_icon.png';
-import NeutralBanner from '../images/banner_gold.png';
-import NeutralKillBanner from '../images/banner_black.png';
-import Team1Banner from '../images/banner_purple.png';
-import Team2Banner from '../images/banner_green.png';
-import getPieceImg from '../utils/getPieceImg';
-import PieceBackground from '../images/avatar-frame_silver.png';
+import WallImage from '../../images/rock.png';
+import SkullImage from '../../images/skull.png';
+import PieceHealth from '../../images/health_icon.png';
+import PieceAttack from '../../images/attack_icon.png';
+import PieceSpeed from '../../images/speed_icon.png';
+import NeutralBanner from '../../images/banner_gold.png';
+import NeutralKillBanner from '../../images/banner_black.png';
+import Team1Banner from '../../images/banner_purple.png';
+import Team2Banner from '../../images/banner_green.png';
+import getPieceImg from '../../utils/getPieceImg';
+import PieceBackground from '../../images/avatar-frame_silver.png';
 
 // ----------------------------------------------------------------------
 

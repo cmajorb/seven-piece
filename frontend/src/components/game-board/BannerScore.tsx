@@ -1,7 +1,7 @@
 import { Card, Stack, useTheme } from '@mui/material';
-import { Score } from '../types';
-import { KillObjectiveImg, ObjectiveImg } from './PNGImages';
-import { TurnLine } from './DynamicLines';
+import { Score } from '../../types';
+import { KillObjectiveImg, ObjectiveImg } from '../misc/PNGImages';
+import { TurnLine } from '../misc/DynamicLines';
 
 // ----------------------------------------------------------------------
 

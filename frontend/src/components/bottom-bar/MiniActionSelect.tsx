@@ -1,9 +1,9 @@
 import { useTheme, Stack, Box } from '@mui/material';
-import { ColorScheme, Piece, PieceActions, Stats } from '../types';
-import GetBorderColor from '../utils/getBorderColor';
-import checkSameLocation from '../utils/checkSameLocation';
-import { BottomBarImgs } from './PNGImages';
-import useKeyPress from '../utils/useKeyPress';
+import { ColorScheme, Piece, PieceActions, Stats } from '../../types';
+import GetBorderColor from '../../utils/getBorderColor';
+import checkSameLocation from '../../utils/checkSameLocation';
+import { BottomBarImgs } from '../misc/PNGImages';
+import useKeyPress from '../../utils/useKeyPress';
 
 // ----------------------------------------------------------------------
 

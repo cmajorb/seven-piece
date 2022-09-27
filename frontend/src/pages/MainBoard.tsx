@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
-import MainGrid from '../components/MainGrid';
+import MainGrid from '../components/game-board/MainGrid';
 import { GameState, Piece, PieceActions } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
-import BannerScore from '../components/BannerScore';
+import BannerScore from '../components/game-board/BannerScore';
 import getDisplayTurn from '../utils/getDisplayTurn';
-import MainBBar from '../components/MainB-Bar';
+import MainBBar from '../components/bottom-bar/MainB-Bar';
 import checkSameLocation from '../utils/checkSameLocation';
 
 // ----------------------------------------------------------------------

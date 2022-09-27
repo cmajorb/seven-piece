@@ -1,8 +1,8 @@
 import { Stack } from '@mui/material';
 import Cell from './Cell';
-import { Piece, Map } from '../types';
-import calcSelectedTile from '../utils/calcSelectedTile';
-import getCellStatus from '../utils/getCellStatus';
+import { Piece, Map } from '../../types';
+import calcSelectedTile from '../../utils/calcSelectedTile';
+import getCellStatus from '../../utils/getCellStatus';
 
 // ----------------------------------------------------------------------
 

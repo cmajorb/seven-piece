@@ -1,8 +1,8 @@
 import { Card } from '@mui/material';
-import { Piece, ColorScheme, CellStatus } from '../types';
-import GetBorderColor from '../utils/getBorderColor';
-import getPiece from '../utils/getPiece';
-import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from './PNGImages';
+import { Piece, ColorScheme, CellStatus } from '../../types';
+import GetBorderColor from '../../utils/getBorderColor';
+import getPiece from '../../utils/getPiece';
+import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/PNGImages';
 
 // ----------------------------------------------------------------------
 

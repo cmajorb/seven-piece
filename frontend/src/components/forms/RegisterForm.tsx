@@ -10,7 +10,7 @@ import useIsMountedRef from '../../utils/useIsMountedRef';
 // components
 import FormProvider from './FormProvider&Fields';
 import { RHFTextField } from './FormProvider&Fields';
-import Iconify from '../Iconify';
+import Iconify from '../misc/Iconify';
 
 // ----------------------------------------------------------------------
 
