@@ -20,10 +20,10 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
 
   return (
     <>
-        { (active_player_id !== undefined && active_player_id === 1) ?
+        { (active_player_id !== undefined && active_player_id === 1 && current_state === 'PLAYING') ?
             <Box sx={{ width: 70, height: 70 }}/> :
             <>
-            { active_player_id !== undefined &&
+            { active_player_id !== undefined && current_state === 'PLAYING' &&
             <Box sx={{ width: 70, height: 70 }}>
                 <Iconify
                 icon={'eva:arrowhead-left-outline'}
@@ -45,10 +45,10 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
             </Button>
         </Stack>
 
-        { (active_player_id !== undefined && active_player_id === 0) ?
+        { (active_player_id !== undefined && active_player_id === 0 && current_state === 'PLAYING') ?
             <Box sx={{ width: 70, height: 70 }}/> :
             <>
-            { active_player_id !== undefined &&
+            { active_player_id !== undefined && current_state === 'PLAYING' &&
             <Box sx={{ width: 70, height: 70 }}>
                 <Iconify
                 icon={'eva:arrowhead-right-outline'}
