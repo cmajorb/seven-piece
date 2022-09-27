@@ -2,10 +2,9 @@ from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync, sync_to_async
 from game.models import GameState, Player, Piece, MapTemplate, Character
 from game.game_logic import create_game
-from game.serializers import MapSerializer
+from game.serializers import MapSerializer, CharacterSerializer
 import json
 import logging
-from game.simulate import simulate
 
 logging.basicConfig(level=logging.INFO)
 
@@ -42,6 +41,9 @@ class GameConsumer(JsonWebsocketConsumer):
     def game_state(self, event):
         self.send_json(event)
 
+    def get_characters(self, event):
+        self.send_json(event)
+
     def error(self, event):
         self.send_json(event)
         
@@ -50,6 +52,18 @@ class GameConsumer(JsonWebsocketConsumer):
             self.player.refresh_from_db()
         message_type = content["type"]
         error = ""
+        if message_type == "get_characters":
+            logging.info("Getting characters")
+            characters = Character.objects.all()
+            serializer = CharacterSerializer(characters, many=True)
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "get_characters",
+                    "characters": serializer.data,
+                },
+            )
+
         if message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
@@ -189,6 +203,6 @@ class MenuConsumer(JsonWebsocketConsumer):
                     "maps": serializer.data,
                 },
             )
-        elif message_type == "simulate":           
-            sync_to_async(simulate)()
+        elif message_type == "simulate":
+            logging.info("Running simulation")
         return super().receive_json(content, **kwargs)
