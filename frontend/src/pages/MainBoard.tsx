@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainGrid from '../components/game-board/MainGrid';
-import { GameState, Piece, PieceActions } from '../types';
+import { GameState, Piece, PieceActions, Player } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
 import BannerScore from '../components/game-board/BannerScore';
@@ -22,9 +22,7 @@ type Props = {
 export default function MainBoard ({ setConnectionStatus, setCurrentState }: Props) {
 
   const [gameState, setGameState] = useState<GameState>();
-  const [thisPlayer, setThisPlayer] = useState<number>();
-  const [activePlayer, setActivePlayer] = useState<number>();
-  const [activeTurn, setActiveTurn] = useState<boolean>(false);
+  const [thisPlayer, setThisPlayer] = useState<Player>();
   const [selectedTile, setSelectedTile] = useState<number[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
   const [actionType, setActionType] = useState<PieceActions>('move');
@@ -47,20 +45,18 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
         switch (message.type) {
             case 'game_state':
               const game_state: GameState = JSON.parse(message.state);
-              const session: string = message.this_player_session;
-              if (thisPlayer === undefined) {
-                if (session === game_state.players[0].session) { setThisPlayer(game_state.players[0].number) }
-                else if (session === game_state.players[1].session) { setThisPlayer(game_state.players[1].number) }
-                else { console.log("DID NOT SET PLAYER") };
-              };
               console.log('Set GameState:', game_state);
               setGameState(game_state);
               break;
             case 'error':
               console.log(message.message);
               break;
+            case 'connect':
+              setThisPlayer(message.player);
+              break;
             default:
               console.error('Unknown message type!');
+              console.log(message);
               break;
         }
     }
@@ -69,10 +65,6 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
-    if ((thisPlayer !== undefined) && gameState && gameState.players[0].is_turn) {
-      setActivePlayer(0);
-    } else { setActivePlayer(1) };
-    if ((thisPlayer !== undefined) && gameState && gameState.players[thisPlayer].is_turn) { setActiveTurn(true) };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState]);
 
@@ -84,7 +76,6 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
   };
 
   const endTurn = () => {
-    setActiveTurn(false);
     sendJsonMessage({
       type: "end_turn",
     })
@@ -110,7 +101,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setConnectionStatus(connectionStatus) }, [connectionStatus]);
-  useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined) }, [activeTurn]);
+  useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined) }, [thisPlayer?.is_turn]);
   useEffect(() => {}, [selectedTile]);
   useEffect(() => { setActionType('move') }, [selectedPiece]);
 
@@ -120,8 +111,8 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
     else {
         if (selectedPiece && !checking) { submitPieceAction(selectedPiece.id, location, actionType) };
         setSelectedTile(location);
-        if (piece && piece.player === thisPlayer) { setSelectedPiece(piece) }
-        else if (piece && piece.player !== thisPlayer) { console.log("CLICKED ON ANOTHER PIECE") }
+        if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
+        else if (piece && piece.player !== thisPlayer?.number) { console.log("CLICKED ON ANOTHER PIECE") }
         else { setSelectedPiece(undefined) };
     }
   }
@@ -147,14 +138,14 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 team_scores={getTeamScores(gameState.players)}
                 total_objectives={(gameState.objectives).length}
                 score_to_win={gameState.score_to_win}
-                is_turn={activeTurn}
+                is_turn={thisPlayer.is_turn}
               />
             }
             <MainGrid
               pieces={gameState.pieces}
               map={gameState.map}
               objectives={gameState.objectives}
-              this_player_id={thisPlayer}
+              this_player_id={thisPlayer.number}
               selected_tile={selectedTile}
               updateSelected={updateSelected}
             />
@@ -164,8 +155,8 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
               pieces={gameState.pieces}
               selected_tile={selectedTile}
               selected_action={actionType}
-              this_player_id={thisPlayer}
-              active_player_id={activePlayer}
+              this_player_id={thisPlayer.number}
+              active_player_id={gameState.turn_count % gameState.players.length}
               color_scheme={gameState.map.color_scheme}
               current_state={gameState.state}
               setActionType={setActionType}
