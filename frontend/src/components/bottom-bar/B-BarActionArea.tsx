@@ -1,7 +1,7 @@
 import { Box, Stack, Button } from '@mui/material';
-import { ColorScheme } from '../types';
-import GetBorderColor from '../utils/getBorderColor';
-import Iconify from './Iconify';
+import { ColorScheme } from '../../types';
+import GetBorderColor from '../../utils/getBorderColor';
+import Iconify from '../misc/Iconify';
 
 // ----------------------------------------------------------------------
 

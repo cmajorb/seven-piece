@@ -1,6 +1,5 @@
 import { Stack, Divider } from '@mui/material';
 import { keyframes } from '@mui/system';
-import LineBackground from '../images/platinum_texture.jpeg';
 
 // ----------------------------------------------------------------------
 

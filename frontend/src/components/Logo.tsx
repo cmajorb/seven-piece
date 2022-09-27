@@ -12,7 +12,7 @@ export default function Logo({ disabledLink = false, sx }: Props) {
 
   const logo = (
     <Box sx={{ width: 80, height: 40, ...sx }}>
-      <img src="/logo/logoBLU.png" alt="NFTy Arcade" width="100%" height="140%"/>
+      <img src="/images/crossed_swords.svg" alt="NFTy Arcade" width="100%" height="140%"/>
     </Box>
   );
 

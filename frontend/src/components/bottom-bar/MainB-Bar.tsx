@@ -1,8 +1,8 @@
 import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material';
-import { ColorScheme, Piece, PieceActions } from '../types';
+import { ColorScheme, Piece, PieceActions } from '../../types';
 import BBarActionArea from './B-BarActionArea';
 import PieceStatStack from './PieceStatStack';
-import calcHexToRGB from '../utils/calcHexToRGB';
+import calcHexToRGB from '../../utils/calcHexToRGB';
 
 // ----------------------------------------------------------------------
 
