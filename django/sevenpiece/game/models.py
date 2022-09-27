@@ -91,7 +91,8 @@ class GameState(models.Model):
         num_of_players = len(self.player_set.all())
         if num_of_players >= self.map.player_size:
             logging.info("New spectator")
-            return [self, None]
+            spectator = Player.objects.create(session=session, game=None, number=-1)
+            return [self, spectator]
             # raise JoinGameError
         player = Player.objects.create(session=session, game=self, number=num_of_players)
         if num_of_players + 1 == self.map.player_size:
@@ -143,20 +144,24 @@ class GameState(models.Model):
 
 class Player(models.Model):
     session = models.CharField(max_length=50, null=False, default="")
-    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
+    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     score = models.IntegerField(default=0)
     number = models.IntegerField()
 
     def get_info(self):
         dictionary = {}
-        current_scores = self.game.objectives.split(",")
+        if self.game is not None: 
+            current_scores = self.game.objectives.split(",")
+            dictionary["score"] = {}
+            dictionary["score"]["objectives"] = current_scores.count(str(self.number))
+            dictionary["score"]["kills"] = self.score
+            dictionary["score"]["total"] = self.score + current_scores.count(str(self.number))
+            dictionary["is_turn"] = self.is_current_turn()
+        else:
+            dictionary["is_turn"] = False
+
         dictionary["number"] = self.number
         dictionary["session"] = self.session
-        dictionary["score"] = {}
-        dictionary["score"]["objectives"] = current_scores.count(str(self.number))
-        dictionary["score"]["kills"] = self.score
-        dictionary["score"]["total"] = self.score + current_scores.count(str(self.number))
-        dictionary["is_turn"] = self.is_current_turn()
         return dictionary
 
     def is_current_turn(self):
