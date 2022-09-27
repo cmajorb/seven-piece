@@ -62,7 +62,7 @@ export default function Router() {
   ]);
 }
 
-const MainBoard = Loadable(lazy(() => import('../MainBoard')));
+const MainBoard = Loadable(lazy(() => import('../MainGamePage')));
 const StartGame = Loadable(lazy(() => import('../StartGame')));
 // const NotFound = Loadable(lazy(() => import('../Page404')));
 // const Login = Loadable(lazy(() => import('../Login')));

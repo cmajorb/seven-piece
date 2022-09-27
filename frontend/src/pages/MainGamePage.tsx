@@ -49,10 +49,11 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
               setGameState(game_state);
               break;
             case 'error':
-              console.log(message.message);
+              console.log('error', message.message);
               break;
             case 'connect':
               setThisPlayer(message.player);
+              console.log('Setting This Player', message.player);
               break;
             default:
               console.error('Unknown message type!');
@@ -101,7 +102,18 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setConnectionStatus(connectionStatus) }, [connectionStatus]);
-  useEffect(() => { setSelectedTile([]); setSelectedPiece(undefined) }, [thisPlayer?.is_turn]);
+  useEffect(() => {
+    setSelectedTile([]);
+    setSelectedPiece(undefined);
+    if (gameState && thisPlayer) {
+      const player: Player = thisPlayer;
+      if ((gameState.turn_count % gameState.players.length) === player.number) { player.is_turn = true }
+      else if ((gameState.turn_count % gameState.players.length) !== player.number) { player.is_turn = false };
+      setThisPlayer(player);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState]);
+
   useEffect(() => {}, [selectedTile]);
   useEffect(() => { setActionType('move') }, [selectedPiece]);
 
