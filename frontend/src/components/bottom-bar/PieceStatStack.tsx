@@ -67,7 +67,7 @@ export default function PieceStatStack({ piece, selected_tile, selected_action, 
                         <Stack spacing={0.5}>
                             {stat_types.map((stat, index) => (
                             <BottomBarImgs
-                                key={piece.id + piece.character + stat + piece.player}
+                                key={piece.id + piece.character + stat + piece.player + index}
                                 type={stat}
                                 current_stat={piece.current_stats[getStatType(index) as keyof Stats]}
                                 max_stat={piece.start_stats[getStatType(index) as keyof Stats]}

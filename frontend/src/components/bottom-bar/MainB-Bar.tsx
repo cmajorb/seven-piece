@@ -48,6 +48,7 @@ export default function MainBBar(
             <Stack direction={'row'} spacing={6} justifyContent={'space-between'} alignItems={'center'}>
               {pieces.map((piece: Piece) => ( piece.player === 0 && (
                 <PieceStatStack
+                  key={piece.player + piece.id + piece.character}
                   piece={piece}
                   selected_tile={selected_tile}
                   selected_action={selected_action}
@@ -72,6 +73,7 @@ export default function MainBBar(
             <Stack direction={'row'} spacing={6} justifyContent={'space-between'} alignItems={'center'}>
               {pieces.map((piece: Piece) => ( piece.player === 1 && (
                 <PieceStatStack
+                  key={piece.player + piece.id + piece.character}
                   piece={piece}
                   selected_tile={selected_tile}
                   selected_action={selected_action}
