@@ -10,6 +10,7 @@ import getDisplayTurn from '../utils/getDisplayTurn';
 import MainBBar from '../components/bottom-bar/MainB-Bar';
 import checkSameLocation from '../utils/checkSameLocation';
 import ActionSelect from '../components/ActionSelect';
+import { TurnLine } from '../components/misc/DynamicLines';
 
 // ----------------------------------------------------------------------
 
@@ -151,7 +152,6 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 team_scores={getTeamScores(gameState.players)}
                 total_objectives={(gameState.objectives).length}
                 score_to_win={gameState.score_to_win}
-                is_turn={thisPlayer.is_turn}
               />
             }
             <Stack direction='row-reverse'>
@@ -172,11 +172,19 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 selected_tile={selectedTile}
                 updateSelected={updateSelected}
               />
+              <TurnLine
+                is_turn={thisPlayer.is_turn}
+                bg_color={'FAF7EB'}
+                middle_color={'F0DA81'}
+                edge_color={'A08519'}
+                turn_seconds={100}
+              />              
             </Stack>
           </Stack>
           { gameState && (thisPlayer !== undefined) &&
             <MainBBar
               pieces={gameState.pieces}
+              selected_piece={selectedPiece}
               selected_tile={selectedTile}
               this_player_id={thisPlayer.number}
               active_player_id={gameState.turn_count % gameState.players.length}

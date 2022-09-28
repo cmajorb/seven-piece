@@ -1,7 +1,6 @@
-import { Card, Stack, useTheme } from '@mui/material';
+import { Card, Stack } from '@mui/material';
 import { Score } from '../../types';
 import { KillObjectiveImg, ObjectiveImg } from '../misc/PNGImages';
-import { TurnLine } from '../misc/DynamicLines';
 
 // ----------------------------------------------------------------------
 
@@ -9,14 +8,12 @@ type Props = {
     team_scores: Score[],
     total_objectives: number,
     score_to_win: number,
-    is_turn: boolean,
 };
 
 // ----------------------------------------------------------------------
 
-export default function CommandBar({ team_scores, total_objectives, score_to_win, is_turn }: Props) {
+export default function CommandBar({ team_scores, total_objectives, score_to_win }: Props) {
 
-    const theme = useTheme();
     const background: string = `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`;
     const neutral_banners_num: number = total_objectives - (team_scores[0].objectives + team_scores[1].objectives);
     const minimum_kills: number = score_to_win - total_objectives;
@@ -33,31 +30,28 @@ export default function CommandBar({ team_scores, total_objectives, score_to_win
     return (
         <Stack direction={'row'} spacing={1}>
             <Card sx={{ pr: 1, pl: 1, border: 2, backgroundImage: background }}>
-                <Stack sx={{ pt: 1 }}>
-                    <TurnLine is_turn={is_turn} bg_color={theme.palette.primary.light}/>
-                    <Stack direction={'row'} spacing={0.5}>
-                        {team_1_to_kill_banners && team_1_to_kill_banners.map((banner) => (
-                            <KillObjectiveImg key={banner} player_id={-1} width={40} height={50}/>
-                        ))}
-                        {team_1_killed_banners && team_1_killed_banners.map((banner) => (
-                            <KillObjectiveImg key={banner} player_id={0} width={40} height={50}/>
-                        ))}                
-                        {team_1_obj_banners && team_1_obj_banners.map((banner) => (
-                            <ObjectiveImg key={banner} player_id={0} width={40} height={50}/>              
-                        ))}
-                        {neutral_banners && neutral_banners.map((banner) => (
-                            <ObjectiveImg key={banner} player_id={-1} width={40} height={50}/>
-                        ))}
-                        {team_2_obj_banners && team_2_obj_banners.map((banner) => (
-                            <ObjectiveImg key={banner} player_id={1} width={40} height={50}/>
-                        ))}
-                        {team_2_killed_banners && team_2_killed_banners.map((banner) => (
-                            <KillObjectiveImg key={banner} player_id={1} width={40} height={50}/>
-                        ))}                
-                        {team_2_to_kill_banners && team_2_to_kill_banners.map((banner) => (
-                            <KillObjectiveImg key={banner} player_id={-1} width={40} height={50}/>
-                        ))}
-                    </Stack>
+                <Stack direction={'row'} spacing={0.5}>
+                    {team_1_to_kill_banners && team_1_to_kill_banners.map((banner) => (
+                        <KillObjectiveImg key={banner} player_id={-1} width={40} height={50}/>
+                    ))}
+                    {team_1_killed_banners && team_1_killed_banners.map((banner) => (
+                        <KillObjectiveImg key={banner} player_id={0} width={40} height={50}/>
+                    ))}                
+                    {team_1_obj_banners && team_1_obj_banners.map((banner) => (
+                        <ObjectiveImg key={banner} player_id={0} width={40} height={50}/>              
+                    ))}
+                    {neutral_banners && neutral_banners.map((banner) => (
+                        <ObjectiveImg key={banner} player_id={-1} width={40} height={50}/>
+                    ))}
+                    {team_2_obj_banners && team_2_obj_banners.map((banner) => (
+                        <ObjectiveImg key={banner} player_id={1} width={40} height={50}/>
+                    ))}
+                    {team_2_killed_banners && team_2_killed_banners.map((banner) => (
+                        <KillObjectiveImg key={banner} player_id={1} width={40} height={50}/>
+                    ))}                
+                    {team_2_to_kill_banners && team_2_to_kill_banners.map((banner) => (
+                        <KillObjectiveImg key={banner} player_id={-1} width={40} height={50}/>
+                    ))}
                 </Stack>
             </Card>
             <Card sx={{ pr: 1, pl: 1, border: 2, backgroundImage: background }}>

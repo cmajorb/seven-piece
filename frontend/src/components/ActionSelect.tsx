@@ -34,7 +34,7 @@ export default function ActionSelect({ piece, selected_tile, selected_action, th
     useKeyPress(['1', '2'], onKeyPress);
 
     return (
-        <Stack spacing={0.2} sx={{ position: 'fixed', top: '35%', right: 10 }}>
+        <Stack spacing={0.3} sx={{ position: 'fixed', top: '35%', right: 10 }}>
             { piece ?
             <>
                 <Box

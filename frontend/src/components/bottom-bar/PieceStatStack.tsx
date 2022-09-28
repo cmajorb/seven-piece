@@ -3,12 +3,12 @@ import { ColorScheme, Piece, Stats } from '../../types';
 import GetBorderColor from '../../utils/getBorderColor';
 import checkSameLocation from '../../utils/checkSameLocation';
 import { BottomBarImgs, PieceImg } from '../misc/PNGImages';
-import calcHexToRGB from '../../utils/calcHexToRGB';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-    piece: Piece,
+    this_piece: Piece,
+    selected_piece: Piece | undefined,
     selected_tile: number[],
     this_player_id: number,
     color_scheme: ColorScheme,
@@ -17,7 +17,7 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function PieceStatStack({ piece, selected_tile, this_player_id, color_scheme, updateSelected }: Props) {
+export default function PieceStatStack({ this_piece, selected_piece, selected_tile, this_player_id, color_scheme, updateSelected }: Props) {
 
     const theme = useTheme();
     const stat_types: string[] = ['health', 'attack', 'speed'];
@@ -35,23 +35,26 @@ export default function PieceStatStack({ piece, selected_tile, this_player_id, c
             backgroundSize: '100%',
             border: 2,
             borderColor: default_border_color,
-            // transition: '3s border; borderColor;',
+            // transition: '1s',
             '&:hover': { cursor: 'pointer' },
-            ...((checkSameLocation(piece.location, selected_tile)) && {
-              borderColor: (GetBorderColor(color_scheme, this_player_id, true)),
-              // boxShadow: `0px 0px 70px 10px ${(GetBorderColor(color_scheme, this_player_id, true))}`
+            ...((checkSameLocation(this_piece.location, selected_tile)) && {
+              borderColor: (GetBorderColor(color_scheme, this_player_id, true))
             }),
-            ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
+            // ...((this_piece === selected_piece) && {
+            //   boxShadow: `0px 0px 70px 10px ${(GetBorderColor(color_scheme, this_player_id, true))}`,
+            //   borderColor: default_border_color
+            // }),
+            ...(this_piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
           }}
-          onClick={() => { updateSelected(piece.location, piece, true) }}
+          onClick={() => { updateSelected(this_piece.location, this_piece, true) }}
         >
             <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
                 <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
                     <Stack sx={{ pl: 1, pb: 1.5, pr: 0.5 }}>
                         <PieceImg
-                            key={piece.id + piece.character + piece.player}
-                            player_id={piece.player}
-                            piece_name={piece.character}
+                            key={this_piece.id + this_piece.character + this_piece.player}
+                            player_id={this_piece.player}
+                            piece_name={this_piece.character}
                             health={0}
                             on_board={true}
                             height={100}
@@ -61,10 +64,10 @@ export default function PieceStatStack({ piece, selected_tile, this_player_id, c
                     <Stack spacing={0.5}>
                         {stat_types.map((stat, index) => (
                         <BottomBarImgs
-                            key={piece.id + piece.character + stat + piece.player + index}
+                            key={this_piece.id + this_piece.character + stat + this_piece.player + index}
                             type={stat}
-                            current_stat={piece.current_stats[getStatType(index) as keyof Stats]}
-                            max_stat={piece.start_stats[getStatType(index) as keyof Stats]}
+                            current_stat={this_piece.current_stats[getStatType(index) as keyof Stats]}
+                            max_stat={this_piece.start_stats[getStatType(index) as keyof Stats]}
                             height={20}
                             width={20}
                         />

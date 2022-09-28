@@ -35,10 +35,10 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
                 { active_player_id !== undefined && current_state === 'PLAYING' &&
                 <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '10px', borderColor: theme.palette.grey[700] }}>
                     <Iconify
-                    icon={'eva:arrowhead-left-outline'}
-                    width={60}
-                    height={60}
-                    color={GetBorderColor(color_scheme, active_player_id, true)}
+                        icon={'eva:arrowhead-left-outline'}
+                        width={60}
+                        height={60}
+                        color={GetBorderColor(color_scheme, active_player_id, true)}
                     />
                 </Box> }
                 </> 
@@ -60,10 +60,10 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
                 { active_player_id !== undefined && current_state === 'PLAYING' &&
                 <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '10px', borderColor: theme.palette.grey[700] }}>
                     <Iconify
-                    icon={'eva:arrowhead-right-outline'}
-                    width={60}
-                    height={60}
-                    color={GetBorderColor(color_scheme, active_player_id, true)}
+                        icon={'eva:arrowhead-right-outline'}
+                        width={60}
+                        height={60}
+                        color={GetBorderColor(color_scheme, active_player_id, true)}
                     />
                 </Box> }
                 </> 
