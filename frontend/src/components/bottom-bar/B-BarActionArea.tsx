@@ -2,6 +2,7 @@ import { Box, Stack, Button, useTheme } from '@mui/material';
 import { ColorScheme } from '../../types';
 import GetBorderColor from '../../utils/getBorderColor';
 import Iconify from '../misc/Iconify';
+import useKeyPress from '../../utils/useKeyPress';
 
 // ----------------------------------------------------------------------
 
@@ -20,13 +21,19 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
 
     const theme = useTheme();
 
+    const onKeyPress = (event: any) => {
+        const key: string = ((event.key).toString());
+        if (key === 'e') { endTurn() };
+    };
+    useKeyPress(['e'], onKeyPress);
+
     return (
         <>
             { (active_player_id !== undefined && active_player_id === 1 && current_state === 'PLAYING') ?
                 <Box sx={{ width: 60, height: 60 }}/> :
                 <>
                 { active_player_id !== undefined && current_state === 'PLAYING' &&
-                <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '16px', borderColor: theme.palette.grey[700] }}>
+                <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '10px', borderColor: theme.palette.grey[700] }}>
                     <Iconify
                     icon={'eva:arrowhead-left-outline'}
                     width={60}
@@ -51,7 +58,7 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
                 <Box sx={{ width: 60, height: 60 }}/> :
                 <>
                 { active_player_id !== undefined && current_state === 'PLAYING' &&
-                <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '16px', borderColor: theme.palette.grey[700] }}>
+                <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '10px', borderColor: theme.palette.grey[700] }}>
                     <Iconify
                     icon={'eva:arrowhead-right-outline'}
                     width={60}

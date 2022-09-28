@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
-import MainGrid from '../components/game-board/MainGrid';
+import MainGrid from '../components/game-board/MainBoard';
 import { GameState, Piece, PieceActions, Player } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
@@ -9,6 +9,7 @@ import BannerScore from '../components/game-board/BannerScore';
 import getDisplayTurn from '../utils/getDisplayTurn';
 import MainBBar from '../components/bottom-bar/MainB-Bar';
 import checkSameLocation from '../utils/checkSameLocation';
+import ActionSelect from '../components/ActionSelect';
 
 // ----------------------------------------------------------------------
 
@@ -153,25 +154,34 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 is_turn={thisPlayer.is_turn}
               />
             }
-            <MainGrid
-              pieces={gameState.pieces}
-              map={gameState.map}
-              objectives={gameState.objectives}
-              this_player_id={thisPlayer.number}
-              selected_tile={selectedTile}
-              updateSelected={updateSelected}
-            />
+            <Stack direction='row-reverse'>
+              <ActionSelect
+                piece={selectedPiece}
+                selected_tile={selectedTile}
+                selected_action={actionType}
+                this_player_id={thisPlayer.number}
+                color_scheme={gameState.map.color_scheme}
+                updateSelected={updateSelected}
+                setActionType={setActionType}
+              />
+              <MainGrid
+                pieces={gameState.pieces}
+                map={gameState.map}
+                objectives={gameState.objectives}
+                this_player_id={thisPlayer.number}
+                selected_tile={selectedTile}
+                updateSelected={updateSelected}
+              />
+            </Stack>
           </Stack>
           { gameState && (thisPlayer !== undefined) &&
             <MainBBar
               pieces={gameState.pieces}
               selected_tile={selectedTile}
-              selected_action={actionType}
               this_player_id={thisPlayer.number}
               active_player_id={gameState.turn_count % gameState.players.length}
               color_scheme={gameState.map.color_scheme}
               current_state={gameState.state}
-              setActionType={setActionType}
               updateSelected={updateSelected}
               endTurn={endTurn}
               setPieces={setPieces}

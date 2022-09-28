@@ -1,5 +1,5 @@
 import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material';
-import { ColorScheme, Piece, PieceActions } from '../../types';
+import { ColorScheme, Piece } from '../../types';
 import BBarActionArea from './B-BarActionArea';
 import PieceStatStack from './PieceStatStack';
 import calcHexToRGB from '../../utils/calcHexToRGB';
@@ -10,12 +10,10 @@ type Props = {
   pieces: Piece[],
   active_player_id: number | undefined,
   selected_tile: number[],
-  selected_action: PieceActions,
   this_player_id: number,
   color_scheme: ColorScheme,
   current_state: string,
   updateSelected: any,
-  setActionType: any,
   endTurn: any,
   setPieces: any,
 };
@@ -23,8 +21,8 @@ type Props = {
 // ----------------------------------------------------------------------
 
 export default function MainBBar(
-  { pieces, selected_tile, selected_action, this_player_id, color_scheme,
-    active_player_id, current_state, updateSelected, setActionType, endTurn, setPieces
+  { pieces, selected_tile, this_player_id, color_scheme,
+    active_player_id, current_state, updateSelected, endTurn, setPieces
   }: Props) {
 
   const theme = useTheme();
@@ -51,11 +49,9 @@ export default function MainBBar(
                   key={piece.player + piece.id + piece.character}
                   piece={piece}
                   selected_tile={selected_tile}
-                  selected_action={selected_action}
                   this_player_id={this_player_id}
                   color_scheme={color_scheme}
                   updateSelected={updateSelected}
-                  setActionType={setActionType}
                 />
               ) ))}
             </Stack> }
@@ -76,11 +72,9 @@ export default function MainBBar(
                   key={piece.player + piece.id + piece.character}
                   piece={piece}
                   selected_tile={selected_tile}
-                  selected_action={selected_action}
                   this_player_id={this_player_id}
                   color_scheme={color_scheme}
                   updateSelected={updateSelected}
-                  setActionType={setActionType}
                 />
               ) ))}
             </Stack> }
