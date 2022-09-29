@@ -47,7 +47,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
-        <ObjectiveImg player_id={cell_status.objective_owner!} width={50} height={50} sx={{ pt: 1.25 }}/>
+        <ObjectiveImg player_id={cell_status.objective_owner!} width={43} height={54} sx={{ pt: 1.25 }}/>
       }
       { piece && cell_status.contains_piece && !cell_status.contains_objective &&
         <PieceImg

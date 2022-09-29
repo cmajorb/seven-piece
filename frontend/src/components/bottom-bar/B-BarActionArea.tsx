@@ -1,8 +1,9 @@
-import { Box, Stack, Button, useTheme } from '@mui/material';
+import { Box, Stack, Button } from '@mui/material';
 import { ColorScheme } from '../../types';
-import GetBorderColor from '../../utils/getBorderColor';
-import Iconify from '../misc/Iconify';
 import useKeyPress from '../../utils/useKeyPress';
+import { ObjectiveImg } from '../misc/PNGImages';
+import LeftArrow from '../../images/backward-arrow.svg';
+import RightArrow from '../../images/forward-arrow.svg';
 
 // ----------------------------------------------------------------------
 
@@ -11,15 +12,14 @@ type Props = {
   this_player_id: number,
   color_scheme: ColorScheme,
   current_state: string,
+  score_to_win: number,
   endTurn: any,
   setPieces: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function BBarActionArea({ this_player_id, color_scheme, active_player_id, current_state, endTurn, setPieces }: Props) {
-
-    const theme = useTheme();
+export default function BBarActionArea({ this_player_id, active_player_id, current_state, score_to_win, endTurn, setPieces }: Props) {
 
     const onKeyPress = (event: any) => {
         const key: string = ((event.key).toString());
@@ -27,20 +27,23 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
     };
     useKeyPress(['e'], onKeyPress);
 
+    const banner_height = 90;
+    const banner_width = banner_height * 0.8;
+
     return (
         <>
             { (active_player_id !== undefined && active_player_id === 1 && current_state === 'PLAYING') ?
-                <Box sx={{ width: 60, height: 60 }}/> :
+                <Box sx={{ width: banner_width, height: banner_height }}>
+                    <ObjectiveImg player_id={-1} width={banner_width} height={banner_height} req_score={score_to_win}/>
+                </Box> :
                 <>
-                { active_player_id !== undefined && current_state === 'PLAYING' &&
-                <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '10px', borderColor: theme.palette.grey[700] }}>
-                    <Iconify
-                        icon={'eva:arrowhead-left-outline'}
-                        width={60}
-                        height={60}
-                        color={GetBorderColor(color_scheme, active_player_id, true)}
-                    />
-                </Box> }
+                    { active_player_id !== undefined && current_state === 'PLAYING' && 
+                    <img
+                        alt={'left'}
+                        src={LeftArrow}
+                        width={70}
+                        height={70}
+                    /> }
                 </> 
             }
 
@@ -55,17 +58,17 @@ export default function BBarActionArea({ this_player_id, color_scheme, active_pl
             </Stack>
 
             { (active_player_id !== undefined && active_player_id === 0 && current_state === 'PLAYING') ?
-                <Box sx={{ width: 60, height: 60 }}/> :
+                <Box sx={{ width: banner_width, height: banner_height }}>
+                    <ObjectiveImg player_id={-1} width={banner_width} height={banner_height} req_score={score_to_win}/>
+                </Box> :
                 <>
-                { active_player_id !== undefined && current_state === 'PLAYING' &&
-                <Box sx={{ width: 60, height: 60, backgroundColor: 'black', border: 2, borderRadius: '10px', borderColor: theme.palette.grey[700] }}>
-                    <Iconify
-                        icon={'eva:arrowhead-right-outline'}
-                        width={60}
-                        height={60}
-                        color={GetBorderColor(color_scheme, active_player_id, true)}
-                    />
-                </Box> }
+                    { active_player_id !== undefined && current_state === 'PLAYING' && 
+                    <img
+                        alt={'right'}
+                        src={RightArrow}
+                        width={70}
+                        height={70}
+                    /> }
                 </> 
             }
         </>

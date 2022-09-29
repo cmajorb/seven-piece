@@ -190,6 +190,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
               active_player_id={gameState.turn_count % gameState.players.length}
               color_scheme={gameState.map.color_scheme}
               current_state={gameState.state}
+              score_to_win={gameState.score_to_win}
               updateSelected={updateSelected}
               endTurn={endTurn}
               setPieces={setPieces}

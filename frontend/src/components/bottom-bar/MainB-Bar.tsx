@@ -14,6 +14,7 @@ type Props = {
   this_player_id: number,
   color_scheme: ColorScheme,
   current_state: string,
+  score_to_win: number,
   updateSelected: any,
   endTurn: any,
   setPieces: any,
@@ -22,7 +23,7 @@ type Props = {
 // ----------------------------------------------------------------------
 
 export default function MainBBar(
-  { pieces, selected_piece, selected_tile, this_player_id, color_scheme,
+  { pieces, selected_piece, selected_tile, this_player_id, color_scheme, score_to_win,
     active_player_id, current_state, updateSelected, endTurn, setPieces
   }: Props) {
 
@@ -63,6 +64,7 @@ export default function MainBBar(
               this_player_id={this_player_id}
               color_scheme={color_scheme}
               current_state={current_state}
+              score_to_win={score_to_win}
               endTurn={endTurn}
               setPieces={setPieces}
             />

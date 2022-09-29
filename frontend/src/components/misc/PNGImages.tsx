@@ -63,7 +63,7 @@ export function WallImg () {
     );
 }
 
-export function ObjectiveImg ({ player_id, width, height, img_width, img_height, req_score, sx }: ObjectiveProps) {
+export function ObjectiveImg ({ player_id, width, height, req_score, sx }: ObjectiveProps) {
     const theme = useTheme();
     let objective_img = NeutralBanner;
     if (player_id === 0) { objective_img = Team1Banner }
@@ -73,11 +73,11 @@ export function ObjectiveImg ({ player_id, width, height, img_width, img_height,
     return (
         <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.25, ...(sx && { ...sx }) }}>
             <Box height={height} width={width} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
-                <img alt='testing' src={objective_img} height={img_height ? img_height : 35} width={img_width ? img_width : 30} />
+                <img alt='testing' src={objective_img} height={height * 0.7} width={width * 0.75} />
             </Box>
             { req_score &&
-            <Box height={30} width={30} sx={{ pb: 1, justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
-                <Typography variant='h5' fontWeight={'bold'} sx={{ color: theme.palette.grey[300] }}>
+            <Box height={height * 0.6} width={width * 0.6} sx={{ pb: 1, justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
+                <Typography variant='h4' fontWeight={'bold'} sx={{ color: theme.palette.grey[300] }}>
                     {req_score}
                 </Typography>
             </Box> }    
@@ -94,10 +94,10 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
     return (
         <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.25, position: "relative" }}>
             <Box height={height} width={width} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
-                <img alt='testing' src={objective_img} height={35} width={30} />
+                <img alt='testing' src={objective_img} height={height * 0.7} width={width * 0.75} />
             </Box>
-            <Box height={30} width={30} sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
-                <img alt='testing' src={skull_img} height={25} width={20} />
+            <Box height={height * 0.6} width={width * 0.6} sx={{ justifyContent: "center", alignItems: "center", display: "flex", position: "absolute" }}>
+                <img alt='testing' src={skull_img} height={height * 0.5} width={width * 20} />
             </Box>
         </Stack>
     );
