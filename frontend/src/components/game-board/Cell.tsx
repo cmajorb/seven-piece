@@ -1,4 +1,4 @@
-import { Card } from '@mui/material';
+import { Card, useTheme } from '@mui/material';
 import { Piece, ColorScheme, CellStatus } from '../../types';
 import GetBorderColor from '../../utils/getBorderColor';
 import getPiece from '../../utils/getPiece';
@@ -20,13 +20,15 @@ type Props = {
 
 export default function Cell({ location, selected, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
   
+  const theme = useTheme();
   const piece: Piece | undefined = getPiece(location, pieces);
 
   return (
     <Card
       style={{ justifyContent: "center", alignItems: "flex-start", display: "flex" }}
       sx={{ width: 72, height: 72, border: 2,
-        borderColor: (GetBorderColor(color_scheme, (piece ? this_player_id : -1), selected)),
+        borderColor: theme.palette.common.black,
+        ...( piece && { borderColor: (GetBorderColor(color_scheme, (piece ? this_player_id : -1), selected)) }),
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
         backgroundSize: '1000%',

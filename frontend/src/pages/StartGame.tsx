@@ -3,13 +3,15 @@ import useWebSocket from 'react-use-websocket';
 import { useNavigate } from 'react-router-dom';
 import { PATH_DASHBOARD } from './routes/paths';
 // @mui
-import { Stack, Button, Container, Typography, TextField } from '@mui/material';
+import { Stack, Button, Paper, Typography, TextField, useTheme } from '@mui/material';
 import getValidUUID from '../utils/getValidUUID';
 import useKeyPress from '../utils/useKeyPress';
+import BackgroundImage from '../images/login_background.jpeg';
 
 export default function StartGame() {
     const navigate = useNavigate();
 
+    const theme = useTheme();
     const path_str = "menu";
     const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str)
 
@@ -52,29 +54,58 @@ export default function StartGame() {
     }, [lastJsonMessage]);
 
     return (
-        <Container>
+        <Paper
+            square={true}
+            sx={{
+                backgroundImage: `url(${BackgroundImage})`,
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                height: '100vh',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}
+        >
             <Stack spacing={2} alignItems={'center'}>
-                <Stack alignItems={'center'}>
-                    <Typography variant='h6'>Keep up the good work, guys!</Typography>
-                    <Typography variant='h6' fontWeight={'bold'}>BUILD ME!!</Typography>
+                <Stack direction={'row'} spacing={1} justifyContent={'center'} alignItems={'center'}>
+                    <Typography variant='h2' fontWeight={'bold'}>Glory</Typography>
+                    <Typography variant='h5' fontWeight={'bold'}>of the</Typography>
+                    <Typography variant='h2' fontWeight={'bold'}>Gods</Typography>
                 </Stack>
-                <Button variant='contained' sx={{ width: 300 }}
+                <Button
+                    variant='contained'
+                    sx={{ width: 300 }}
                     onClick={() => { sendJsonMessage({ type: "create_game", map: "2" }) }}
-                >Create Game</Button>
-                <Button variant='contained' sx={{ width: 300 }} disabled={checkGameID(gameID)}
-                    onClick={() => {
-                        navigate(PATH_DASHBOARD.general.board + gameID)
+                >
+                    Create Game
+                </Button>
+                <Button
+                    variant='contained'
+                    sx={{
+                        width: 300,
+                        "&:disabled": {
+                            backgroundColor: theme.palette.grey[800],
+                            opacity: 0.85
+                        }
                     }}
-                >Join Game</Button>
+                    disabled={checkGameID(gameID)}
+                    onClick={() => { navigate(PATH_DASHBOARD.general.board + gameID) }}
+                >
+                    Join Game
+                </Button>
                 <TextField
-                    id="game-id"
                     label="Game ID"
-                    fullWidth
+                    sx={{
+                        width: 600,
+                        backgroundColor: theme.palette.grey[800],
+                        opacity: 0.5
+                    }}
+                    InputLabelProps={{ style: { textAlign: 'center', justifyContent: 'center', alignItems: 'center' } }}
                     inputProps={{ style: { textAlign: 'center' } }}
                     value={gameID}
                     onChange={handleChangeGameID}
                 />
             </Stack>
-        </Container>
+        </Paper>
     );
 };
