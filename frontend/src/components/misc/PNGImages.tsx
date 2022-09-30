@@ -114,10 +114,18 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
 
     return (
         <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.6 }), ...(sx && { sx }) }}>
-            { on_board ?
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
-                <Box height={height ? height : default_piece_container_size} width={width ? width : default_piece_container_size} sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
-                    <img alt='testing' src={PieceBackground} height={height ? height : default_piece_container_size} width={width ? width : default_piece_container_size} style={{ filter: `${filter_string}` }} />
+                <Box
+                    height={height ? height : default_piece_container_size}
+                    width={width ? width : default_piece_container_size}
+                    sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}
+                >
+                    <img
+                        alt='piece'
+                        src={PieceBackground} height={height ? height : default_piece_container_size}
+                        width={width ? width : default_piece_container_size}
+                        style={{ filter: `${on_board ? filter_string : 'brightness(70%)'}` }}
+                    />
                 </Box>
                 <OutlinedAvatar
                     src={piece_img}
@@ -128,14 +136,17 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
                 />
                 <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
                     { heart_nums.map((health) => (
-                        <Box key={health} height={height ? (height / 5) : default_health_size} width={width ? (width / 5) : default_health_size} sx={{ display: "flex" }}>
+                        <Box
+                            key={health}
+                            height={height ? (height / 5) : default_health_size}
+                            width={width ? (width / 5) : default_health_size}
+                            sx={{ display: "flex" }}
+                        >
                             <img alt='testing' src={PieceHealth} height={height ? (height / 5) : default_health_size} width={width ? (width / 5) : default_health_size} />
                         </Box>
                     )) }
                 </Stack>
-            </Stack> :
-            <Avatar src={piece_img} variant='square' sx={{ height: 200, width: 200 }}/>
-            }
+            </Stack>
         </Stack>
     );
 }

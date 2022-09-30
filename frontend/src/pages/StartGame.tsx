@@ -66,11 +66,33 @@ export default function StartGame() {
                 justifyContent: 'center'
             }}
         >
-            <Stack spacing={2} alignItems={'center'}>
+            <Stack spacing={2} alignItems={'center'} sx={{ pt: 4 }}>
                 <Stack direction={'row'} spacing={1} justifyContent={'center'} alignItems={'center'}>
-                    <Typography variant='h2' fontWeight={'bold'}>Glory</Typography>
-                    <Typography variant='h5' fontWeight={'bold'}>of the</Typography>
-                    <Typography variant='h2' fontWeight={'bold'}>Gods</Typography>
+                    <Typography
+                        variant='h2'
+                        fontWeight={'bold'}
+                        fontFamily={'fantasy'}
+                        color={theme.palette.grey[400]}
+                    >
+                        Glory
+                    </Typography>
+                    <Typography
+                        variant='h5'
+                        fontWeight={'bold'}
+                        fontFamily={'fantasy'}
+                        color={theme.palette.grey[400]}
+                        sx={{ pl: 1 }}
+                    >
+                        be
+                    </Typography>
+                    <Typography
+                        variant='h2'
+                        fontWeight={'bold'}
+                        fontFamily={'fantasy'}
+                        color={theme.palette.grey[400]}
+                    >
+                        Thine
+                    </Typography>
                 </Stack>
                 <Button
                     variant='contained'

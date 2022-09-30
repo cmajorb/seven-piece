@@ -10,7 +10,9 @@ import getDisplayTurn from '../utils/getDisplayTurn';
 import MainBBar from '../components/bottom-bar/MainB-Bar';
 import checkSameLocation from '../utils/checkSameLocation';
 import ActionSelect from '../components/ActionSelect';
+import PieceDetails from '../components/PieceDetails';
 import { TurnLine } from '../components/misc/DynamicLines';
+import getPiece from '../utils/getPiece';
 
 // ----------------------------------------------------------------------
 
@@ -140,6 +142,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         height: '120vh',
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}
@@ -155,6 +158,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
               />
             }
             <Stack direction='row-reverse'>
+              <PieceDetails observed_piece={getPiece(selectedTile, gameState.pieces)} />
               <ActionSelect
                 piece={selectedPiece}
                 selected_tile={selectedTile}
@@ -178,7 +182,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 middle_color={'F0DA81'}
                 edge_color={'A08519'}
                 turn_seconds={100}
-              />              
+              />
             </Stack>
           </Stack>
           { gameState && (thisPlayer !== undefined) &&
