@@ -1,0 +1,41 @@
+import { Piece } from '../types';
+
+// ----------------------------------------------------------------------
+
+export default function createAllPieces (all_pieces_info: any[]) {
+    let all_pieces: Piece[] = [];
+    for (let index in all_pieces_info) {
+        const piece_info = all_pieces_info[index];
+        const parsed_piece: Piece = {
+            id: piece_info.id,
+            name: piece_info.name,
+            player: -1,
+            description: piece_info.description,
+            location: [-1, -1],
+            image: piece_info.image,
+            current_stats: {
+                health: piece_info.health,
+                attack: piece_info.attack,
+                speed: piece_info.speed,
+                special_range: piece_info.special_range,
+                special: piece_info.special
+            },
+            start_stats: {
+                health: piece_info.health,
+                attack: piece_info.attack,
+                speed: piece_info.speed,
+                special_range: piece_info.special_range,
+                special: piece_info.special
+            },
+            default_stats: {
+                health: piece_info.health,
+                attack: piece_info.attack,
+                speed: piece_info.speed,
+                special_range: piece_info.special_range,
+                special: piece_info.special
+            },
+        }
+        all_pieces.push(parsed_piece);
+    }
+    return all_pieces;
+}
