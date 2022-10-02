@@ -119,6 +119,7 @@ class GameState(models.Model):
         dictionary["turn_count"] = state.turn_count
         dictionary["objectives"] = state.objectives.split(",")
         dictionary["pieces"] = []
+        dictionary["allowed_pieces"] = state.map.num_characters
         dictionary["players"] = []
         dictionary["score_to_win"] = state.map.score_to_win
         dictionary["winner"] = state.winner
@@ -254,7 +255,7 @@ class Piece(models.Model):
         dictionary["current_stats"] = {}
         dictionary["default_stats"] = {}
         dictionary["start_stats"] = {}
-        dictionary["character"] = piece.character.name
+        dictionary["name"] = piece.character.name
         dictionary["player"] = piece.player.number
         dictionary["description"] = piece.character.description
         dictionary["location"] = [piece.location_x, piece.location_y]
