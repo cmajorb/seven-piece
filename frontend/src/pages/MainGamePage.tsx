@@ -13,6 +13,9 @@ import ActionSelect from '../components/ActionSelect';
 import PieceDetails from '../components/PieceDetails';
 import { TurnLine } from '../components/misc/DynamicLines';
 import getPiece from '../utils/getPiece';
+import createAllPieces from '../utils/createAllPieces';
+import SelectPieces from '../components/SelectPieces';
+import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +32,7 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
   const [thisPlayer, setThisPlayer] = useState<Player>();
   const [selectedTile, setSelectedTile] = useState<number[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
+  const [allPieces, setAllPieces] = useState<Piece[]>();
   const [actionType, setActionType] = useState<PieceActions>('move');
 
   const { game_id } = useParams();
@@ -59,6 +63,11 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
               setThisPlayer(message.player);
               console.log('Setting This Player', message.player);
               break;
+            case 'get_characters':
+
+              setAllPieces(createAllPieces(message.characters));
+              console.log('Setting All Characters', message.characters);
+              break;
             default:
               console.error('Unknown message type!');
               console.log(message);
@@ -70,6 +79,10 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
 
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
+    if (gameState && (gameState.state === 'WAITING' || gameState.state === 'PLACING') && !allPieces) {
+      console.log("CALLING SET PIECES");
+      sendJsonMessage({ type: "get_characters" });
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState]);
 
@@ -147,61 +160,81 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
         justifyContent: 'center'
       }}
     >
+      {
+        (connectionStatus === 'Open' &&
+        gameState &&
+        thisPlayer &&
+        (gameState.state === 'WAITING' || gameState.state === 'PLACING')) ?
+      <>
+        { allPieces &&
+        <SelectPieces
+          all_pieces={allPieces}
+          all_selected_pieces={gameState.pieces}
+          num_allowed_pieces={2}
+          game_state={gameState.state}
+          map={gameState.map}
+          this_player_id={thisPlayer.number}
+          setPieces={setPieces}
+          endTurn={endTurn}
+        /> }
+      </> :
+      <>
         { gameState && (thisPlayer !== undefined) &&
-        <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
-          <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
-            { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
-              <BannerScore
-                team_scores={getTeamScores(gameState.players)}
-                total_objectives={(gameState.objectives).length}
+          <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
+            <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
+              { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
+                <BannerScore
+                  team_scores={getTeamScores(gameState.players)}
+                  total_objectives={(gameState.objectives).length}
+                  score_to_win={gameState.score_to_win}
+                />
+              }
+              <Stack direction='row-reverse'>
+                <PieceDetails observed_piece={getPiece(selectedTile, gameState.pieces)} />
+                <ActionSelect
+                  piece={selectedPiece}
+                  selected_tile={selectedTile}
+                  selected_action={actionType}
+                  this_player_id={thisPlayer.number}
+                  color_scheme={gameState.map.color_scheme}
+                  updateSelected={updateSelected}
+                  setActionType={setActionType}
+                />
+                <MainGrid
+                  pieces={gameState.pieces}
+                  map={gameState.map}
+                  objectives={gameState.objectives}
+                  this_player_id={thisPlayer.number}
+                  selected_tile={selectedTile}
+                  updateSelected={updateSelected}
+                />
+                <TurnLine
+                  is_turn={thisPlayer.is_turn}
+                  bg_color={BG_COLOR}
+                  middle_color={MIDDLE_COLOR}
+                  edge_color={EDGE_COLOR}
+                  turn_seconds={100}
+                />
+              </Stack>
+            </Stack>
+            { gameState && (thisPlayer !== undefined) &&
+              <MainBBar
+                pieces={gameState.pieces}
+                selected_piece={selectedPiece}
+                selected_tile={selectedTile}
+                this_player_id={thisPlayer.number}
+                active_player_id={gameState.turn_count % gameState.players.length}
+                color_scheme={gameState.map.color_scheme}
+                current_state={gameState.state}
                 score_to_win={gameState.score_to_win}
+                updateSelected={updateSelected}
+                endTurn={endTurn}
+                setPieces={setPieces}
               />
             }
-            <Stack direction='row-reverse'>
-              <PieceDetails observed_piece={getPiece(selectedTile, gameState.pieces)} />
-              <ActionSelect
-                piece={selectedPiece}
-                selected_tile={selectedTile}
-                selected_action={actionType}
-                this_player_id={thisPlayer.number}
-                color_scheme={gameState.map.color_scheme}
-                updateSelected={updateSelected}
-                setActionType={setActionType}
-              />
-              <MainGrid
-                pieces={gameState.pieces}
-                map={gameState.map}
-                objectives={gameState.objectives}
-                this_player_id={thisPlayer.number}
-                selected_tile={selectedTile}
-                updateSelected={updateSelected}
-              />
-              <TurnLine
-                is_turn={thisPlayer.is_turn}
-                bg_color={'FAF7EB'}
-                middle_color={'F0DA81'}
-                edge_color={'A08519'}
-                turn_seconds={100}
-              />
-            </Stack>
           </Stack>
-          { gameState && (thisPlayer !== undefined) &&
-            <MainBBar
-              pieces={gameState.pieces}
-              selected_piece={selectedPiece}
-              selected_tile={selectedTile}
-              this_player_id={thisPlayer.number}
-              active_player_id={gameState.turn_count % gameState.players.length}
-              color_scheme={gameState.map.color_scheme}
-              current_state={gameState.state}
-              score_to_win={gameState.score_to_win}
-              updateSelected={updateSelected}
-              endTurn={endTurn}
-              setPieces={setPieces}
-            />
-          }
-        </Stack>
         }
+      </> }
     </Paper>
   );
 };
