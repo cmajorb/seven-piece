@@ -74,16 +74,16 @@ export default function StartGame() {
                         fontFamily={'fantasy'}
                         color={theme.palette.grey[400]}
                     >
-                        Glory
+                        Blood
                     </Typography>
                     <Typography
                         variant='h5'
                         fontWeight={'bold'}
                         fontFamily={'fantasy'}
                         color={theme.palette.grey[400]}
-                        sx={{ pl: 1 }}
+                        sx={{ pl: 0.5 }}
                     >
-                        be
+                        for
                     </Typography>
                     <Typography
                         variant='h2'
@@ -91,7 +91,7 @@ export default function StartGame() {
                         fontFamily={'fantasy'}
                         color={theme.palette.grey[400]}
                     >
-                        Thine
+                        Glory
                     </Typography>
                 </Stack>
                 <Button
