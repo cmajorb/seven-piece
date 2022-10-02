@@ -1,5 +1,5 @@
 export type Piece = {
-    character: string;
+    name: string;
     player: number;
     description: string;
     location: number[];
@@ -8,7 +8,7 @@ export type Piece = {
     current_stats: Stats;
     start_stats: Stats;
     default_stats: Stats;
-  };
+  };  
 
   export type Score = {
     objectives: number;
@@ -24,19 +24,21 @@ export type Piece = {
   };
 
 export type ColorScheme = {
-    tile_colors: ColorConstants,
-    start_tiles: string[]
+    tile_colors: ColorConstants;
+    start_tiles: string[];
 }
 export type Map = {
-    start_tiles: [[number[]]],
-    data: [number[]],
-    color_scheme: ColorScheme
+    start_tiles: [[number[]]];
+    data: [number[]];
+    color_scheme: ColorScheme;
 };
 
 export type Stats = {
-    health: number,
-    speed: number,
-    attack: number
+    health: number;
+    speed: number;
+    attack: number;
+    special: string;
+    special_range: number;
 };
 
 export type GameState = {
@@ -68,11 +70,11 @@ export type ColorConstants = {
 };
 
 export type CellStatus = {
-    is_empty: boolean,
-    contains_wall: boolean,
-    contains_piece: boolean,
-    contains_objective: boolean,
-    objective_owner: number | undefined,
+    is_empty: boolean;
+    contains_wall: boolean;
+    contains_piece: boolean;
+    contains_objective: boolean;
+    objective_owner: number | undefined;
 };
 
 export type PieceActions = 'move' | 'attack';
