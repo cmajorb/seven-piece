@@ -35,15 +35,10 @@ export default function PieceStatStack({ this_piece, selected_piece, selected_ti
             backgroundSize: '100%',
             border: 2,
             borderColor: default_border_color,
-            // transition: '1s',
             '&:hover': { cursor: 'pointer' },
             ...((checkSameLocation(this_piece.location, selected_tile)) && {
               borderColor: (GetBorderColor(color_scheme, this_player_id, true))
             }),
-            // ...((this_piece === selected_piece) && {
-            //   boxShadow: `0px 0px 70px 10px ${(GetBorderColor(color_scheme, this_player_id, true))}`,
-            //   borderColor: default_border_color
-            // }),
             ...(this_piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
           }}
           onClick={() => { updateSelected(this_piece.location, this_piece, true) }}
