@@ -44,7 +44,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
       { piece && cell_status.contains_objective && cell_status.contains_piece &&
         <ObjectiveAndPieceImg
           player_id={piece.player}
-          piece_name={piece.character}
+          piece_name={piece.name}
           health={piece.current_stats.health}
         />
       }
@@ -54,7 +54,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
       { piece && cell_status.contains_piece && !cell_status.contains_objective &&
         <PieceImg
           player_id={piece.player}
-          piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.character : ''}
+          piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.name : ''}
           health={piece.current_stats.health}
           on_board={true}
         />

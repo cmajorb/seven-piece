@@ -52,9 +52,9 @@ export default function PieceStatStack({ this_piece, selected_piece, selected_ti
             <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
               <Stack sx={{ pl: 1, pb: 1.5, pr: 0.5 }}>
                 <PieceImg
-                  key={this_piece.id + this_piece.character + this_piece.player}
+                  key={this_piece.id + this_piece.name + this_piece.player}
                   player_id={this_piece.player}
-                  piece_name={this_piece.character}
+                  piece_name={this_piece.name}
                   health={0}
                   on_board={true}
                   height={100}
@@ -64,10 +64,10 @@ export default function PieceStatStack({ this_piece, selected_piece, selected_ti
               <Stack spacing={0.5}>
                 {stat_types.map((stat, index) => (
                 <BottomBarImgs
-                  key={this_piece.id + this_piece.character + stat + this_piece.player + index}
+                  key={this_piece.id + this_piece.name + stat + this_piece.player + index}
                   type={stat}
-                  current_stat={this_piece.current_stats[getStatType(index) as keyof Stats]}
-                  max_stat={this_piece.start_stats[getStatType(index) as keyof Stats]}
+                  current_stat={this_piece.current_stats[getStatType(index) as keyof Stats] as number}
+                  max_stat={this_piece.start_stats[getStatType(index) as keyof Stats] as number}
                   height={20}
                   width={20}
                 />
