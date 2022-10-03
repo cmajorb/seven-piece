@@ -52,30 +52,35 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
             onClick={() => { team_pick_option && observed_piece && transferTeam(observed_piece) }}
         >
             { observed_piece &&
-            <Stack spacing={2} justifyContent={'center'} alignItems={'flex-start'}>
-                <Stack direction={'row'} spacing={4} justifyContent={'center'} alignItems={'center'} sx={{ pl: 3 }}>
-                    <PieceImg
-                        piece_name={observed_piece.name}
-                        health={0}
-                        on_board={false}
-                        height={120}
-                        width={120}
-                    />
-                    <Stack spacing={0.25}>
-                        {stat_types.map((stat, index) => (
-                        <BottomBarImgs
-                            key={stat + index}
-                            type={stat}
-                            current_stat={observed_piece.default_stats[getStatType(index) as keyof Stats] as number}
-                            max_stat={observed_piece.default_stats[getStatType(index) as keyof Stats] as number}
-                            height={30}
-                            width={30}
-                        />
-                        ))}
+                <Stack spacing={2} alignItems={'flex-start'} justifyContent={'center'}>
+                    <Stack alignItems={'flex-start'} justifyContent={'center'} width={'100%'}>
+                        <Stack alignItems={'center'} justifyContent={'center'} width={'100%'} display={'flex'}>
+                            <Typography sx={{ marginBottom: 0 }} fontFamily={'fantasy'} fontWeight={'bold'} color={theme.palette.grey[400]} paragraph variant='h5'>{observed_piece.name}</Typography>
+                        </Stack>
+                        <Stack direction={'row'} spacing={4} justifyContent={'center'} alignItems={'center'} sx={{ pl: 2.5 }}>
+                            <PieceImg
+                                piece_name={observed_piece.name}
+                                health={0}
+                                on_board={false}
+                                height={120}
+                                width={120}
+                            />
+                            <Stack spacing={0.25}>
+                                {stat_types.map((stat, index) => (
+                                <BottomBarImgs
+                                    key={stat + index}
+                                    type={stat}
+                                    current_stat={observed_piece.default_stats[getStatType(index) as keyof Stats] as number}
+                                    max_stat={observed_piece.default_stats[getStatType(index) as keyof Stats] as number}
+                                    height={30}
+                                    width={30}
+                                />
+                                ))}
+                            </Stack>
+                        </Stack>
                     </Stack>
-                </Stack>
-                <Typography fontFamily={'fantasy'} fontWeight={'bold'} color={theme.palette.grey[400]} paragraph variant='body2'>{observed_piece.description}</Typography>
-            </Stack> }
+                    <Typography fontFamily={'fantasy'} fontWeight={'bold'} color={theme.palette.grey[400]} paragraph variant='body2'>{observed_piece.description}</Typography>
+                </Stack> }
         </Card>
     );
 };

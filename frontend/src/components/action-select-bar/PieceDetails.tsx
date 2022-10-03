@@ -26,7 +26,7 @@ export default function PieceDetails ({ observed_piece, width, height }: Props) 
   return (
         <>
             <Stack onClick={handleToggle} justifyContent={'center'} alignItems={'center'}>
-                <Iconify icon={open ? 'eva:arrowhead-right-outline' : 'eva:arrowhead-left-outline'} width={width} height={height} />
+                <Iconify icon={open ? 'eva:arrowhead-right-outline' : 'eva:arrowhead-left-outline'} width={width} height={height} sx={{ color: theme.palette.grey[500] }} />
             </Stack>
 
             <AnimatePresence>
@@ -39,7 +39,7 @@ export default function PieceDetails ({ observed_piece, width, height }: Props) 
                         durationOut: 1,
                         }).inLeft}
                     style={{
-                        top: '10%',
+                        top: '13%',
                         right: 80,
                         position: 'fixed',
                         zIndex: theme.zIndex.drawer + 3,

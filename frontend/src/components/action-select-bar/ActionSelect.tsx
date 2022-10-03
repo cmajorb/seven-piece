@@ -42,7 +42,6 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
 
     return (
         <Stack spacing={3} sx={{ position: 'fixed', top: '35%', right: 10 }}>
-            <div>{observed_piece ? observed_piece.name : "None"}</div>
             { observed_piece ?
             <Box
                 sx={{
