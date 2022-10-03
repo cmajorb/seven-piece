@@ -9,10 +9,8 @@ import BannerScore from '../components/game-board/BannerScore';
 import getDisplayTurn from '../utils/getDisplayTurn';
 import MainBBar from '../components/bottom-bar/MainB-Bar';
 import checkSameLocation from '../utils/checkSameLocation';
-import ActionSelect from '../components/ActionSelect';
-import PieceDetails from '../components/PieceDetails';
+import ActionSelect from '../components/action-select-bar/ActionSelect';
 import { TurnLine } from '../components/misc/DynamicLines';
-import getPiece from '../utils/getPiece';
 import createAllPieces from '../utils/createAllPieces';
 import SelectPieces from '../components/SelectPieces';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
@@ -80,7 +78,6 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
     if (gameState && (gameState.state === 'WAITING' || gameState.state === 'PLACING') && !allPieces) {
-      console.log("CALLING SET PIECES");
       sendJsonMessage({ type: "get_characters" });
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,9 +187,9 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                 />
               }
               <Stack direction='row-reverse'>
-                <PieceDetails observed_piece={getPiece(selectedTile, gameState.pieces)} />
                 <ActionSelect
                   piece={selectedPiece}
+                  all_pieces={gameState.pieces}
                   selected_tile={selectedTile}
                   selected_action={actionType}
                   this_player_id={thisPlayer.number}

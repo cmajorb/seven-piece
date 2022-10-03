@@ -1,42 +1,43 @@
-import { Piece } from '../types';
+import { Piece } from '../../types';
 import { AnimatePresence, m } from 'framer-motion';
 import { useState } from 'react';
-import { Stack, ToggleButton, useTheme } from '@mui/material';
-import { varFade } from '../components/animate';
-import Iconify from './misc/Iconify';
-import PieceInfoCard from './PieceInfoCard';
+import { Stack, useTheme } from '@mui/material';
+import { varFade } from '../animate';
+import Iconify from '../misc/Iconify';
+import PieceInfoCard from '../PieceInfoCard';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  observed_piece?: Piece,
+  observed_piece: Piece,
+  width: number,
+  height: number,
 };
 
 // ----------------------------------------------------------------------
 
-export default function PieceDetails ({ observed_piece }: Props) {
+export default function PieceDetails ({ observed_piece, width, height }: Props) {
 
   const theme = useTheme();
 
-  const [open, setOpen] = useState(false);
-
+  const [open, setOpen] = useState<boolean>(false);
   const handleToggle = () => { setOpen((prev) => !prev) };
 
   return (
-        <Stack spacing={2} sx={{ position: 'fixed', top: '25%', right: 10 }}>
-            <ToggleButton value="check" selected={open} onChange={handleToggle}>
-                <Iconify icon={open ? 'eva:arrowhead-right-outline' : 'eva:arrowhead-left-outline'} width={30} height={30} />
-            </ToggleButton>
+        <>
+            <Stack onClick={handleToggle} justifyContent={'center'} alignItems={'center'}>
+                <Iconify icon={open ? 'eva:arrowhead-right-outline' : 'eva:arrowhead-left-outline'} width={width} height={height} />
+            </Stack>
 
             <AnimatePresence>
-                { open && (
+                { open && observed_piece && (
                     <m.div
                     key={'animation'}
                     variants={varFade({
                         distance: 1000,
                         durationIn: 1,
                         durationOut: 1,
-                        }).inLeft}                  
+                        }).inLeft}
                     style={{
                         top: '10%',
                         right: 80,
@@ -47,6 +48,6 @@ export default function PieceDetails ({ observed_piece }: Props) {
                     </m.div>
                 )}
             </AnimatePresence>
-        </Stack>
+        </>
     );
 };

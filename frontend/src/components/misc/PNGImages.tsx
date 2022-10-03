@@ -40,7 +40,6 @@ type BottomProps = {
     type: string,
     height: number,
     width: number,
-    side?: string,
 };
 
 type ObjectiveAndPieceProps = {
@@ -113,7 +112,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.6 }), ...(sx && { sx }) }}>
+        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.8 }), ...(sx && { sx }) }}>
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                 <Box
                     height={height ? height : default_piece_container_size}
@@ -134,7 +133,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
                         height: (height ? (height * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size)
                     }}
                 />
-                <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
+                {/* <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
                     { heart_nums.map((health) => (
                         <Box
                             key={health}
@@ -145,13 +144,13 @@ export function PieceImg ({ player_id, piece_name, health, on_board, height, wid
                             <img alt='testing' src={PieceHealth} height={height ? (height / 5) : default_health_size} width={width ? (width / 5) : default_health_size} />
                         </Box>
                     )) }
-                </Stack>
+                </Stack> */}
             </Stack>
         </Stack>
     );
 }
 
-export function BottomBarImgs ({ current_stat, max_stat, type, height, width, side }: BottomProps) {
+export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: BottomProps) {
     const current_stat_nums = (Array.from(Array(current_stat).keys()));
     const max_stat_nums = (Array.from(Array(max_stat - current_stat).keys()));
     let piece_img = '';

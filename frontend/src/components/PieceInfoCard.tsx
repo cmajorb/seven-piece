@@ -49,7 +49,7 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
                     }
                 })
             }}
-            onClick={() => { team_pick_option && transferTeam(observed_piece) }}
+            onClick={() => { team_pick_option && observed_piece && transferTeam(observed_piece) }}
         >
             { observed_piece &&
             <Stack spacing={2} justifyContent={'center'} alignItems={'flex-start'}>
