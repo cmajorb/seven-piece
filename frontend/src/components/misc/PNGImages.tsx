@@ -104,10 +104,10 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
 
 export function PieceImg ({ player_id, piece_name, health, on_board, height, width, sx }: PieceProps) {
     const piece_img = getPieceImg(piece_name);
-    const heart_nums = (Array.from(Array(health).keys()));
+    // const heart_nums = (Array.from(Array(health).keys()));
     const default_piece_container_size = 70;
     const default_piece_image_size = 48;
-    const default_health_size = 14;
+    // const default_health_size = 14;
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
@@ -174,6 +174,9 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: 
                 )) }
             </> :
             <Box height={height} width={width} sx={{ display: "flex", backgroundColor: 'gray', opacity: '0.2' }}/> }
+            { current_stat_nums.length === 0 && max_stat_nums.length === 0 &&
+                <Box height={height} width={width} sx={{ display: "flex", backgroundColor: 'gray', opacity: '0' }}/>
+            }
         </Stack>
     );
 }
