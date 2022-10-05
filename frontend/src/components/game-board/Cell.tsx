@@ -1,5 +1,6 @@
 import { Card, useTheme } from '@mui/material';
 import { Piece, ColorScheme, CellStatus } from '../../types';
+import checkSameLocation from '../../utils/checkSameLocation';
 import GetBorderColor from '../../utils/getBorderColor';
 import getPiece from '../../utils/getPiece';
 import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/PNGImages';
@@ -9,6 +10,7 @@ import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/P
 type Props = {
   location: number[],
   selected: boolean,
+  selected_piece_moves: number[][],
   cell_status: CellStatus,
   pieces: Piece[],
   color_scheme: ColorScheme,
@@ -18,17 +20,28 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
+export default function Cell({ location, selected, selected_piece_moves, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
   
   const theme = useTheme();
   const piece: Piece | undefined = getPiece(location, pieces);
+
+  function isValidPieceMove () {
+    let is_valid = false;
+    if (selected_piece_moves.length > 0) {
+      for (let index in selected_piece_moves) {
+        if (checkSameLocation(location, selected_piece_moves[index])) { is_valid = true; break };
+      }
+    }
+    return is_valid;
+  }
+
 
   return (
     <Card
       style={{ justifyContent: "center", alignItems: "flex-start", display: "flex" }}
       sx={{ width: 72, height: 72, border: 2,
         borderColor: theme.palette.common.black,
-        ...( piece && { borderColor: (GetBorderColor(color_scheme, (piece ? this_player_id : -1), selected)) }),
+        ...( isValidPieceMove() && { borderColor: (GetBorderColor(color_scheme, this_player_id, true)) }),
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
         backgroundSize: '1000%',
@@ -46,6 +59,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
           player_id={piece.player}
           piece_name={piece.name}
           health={piece.current_stats.health}
+          selected={selected}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
@@ -57,6 +71,7 @@ export default function Cell({ location, selected, cell_status, pieces, color_sc
           piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.name : ''}
           health={piece.current_stats.health}
           on_board={true}
+          selected={selected}
         />
       }
     </Card>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
-import MainGrid from '../components/game-board/MainBoard';
+import MainBoard from '../components/game-board/MainBoard';
 import { GameState, Piece, PieceActions, Player } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
@@ -14,6 +14,8 @@ import { TurnLine } from '../components/misc/DynamicLines';
 import createAllPieces from '../utils/createAllPieces';
 import SelectPieces from '../components/SelectPieces';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
+import calcValidPieceMoves from '../utils/calcValidPieceMoves';
+import getPiece from '../utils/getPiece';
 
 // ----------------------------------------------------------------------
 
@@ -24,12 +26,13 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function MainBoard ({ setConnectionStatus, setCurrentState }: Props) {
+export default function MainGamePage ({ setConnectionStatus, setCurrentState }: Props) {
 
   const [gameState, setGameState] = useState<GameState>();
   const [thisPlayer, setThisPlayer] = useState<Player>();
   const [selectedTile, setSelectedTile] = useState<number[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
+  const [selectedPieceMoves, setSelectedPieceMoves] = useState<number[][]>([]);
   const [allPieces, setAllPieces] = useState<Piece[]>();
   const [actionType, setActionType] = useState<PieceActions>('move');
 
@@ -128,20 +131,38 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState]);
 
-  useEffect(() => {}, [selectedTile]);
+  useEffect(() => {
+    if (gameState) {
+      const current_piece: Piece | undefined = getPiece(selectedTile, gameState.pieces);
+      if (current_piece) {
+          if (actionType ==='move') {
+            setSelectedPieceMoves([]);
+            const valid_piece_range: number[][] = calcValidPieceMoves(current_piece, gameState.map, selectedTile, gameState.objectives);
+            setSelectedPieceMoves(valid_piece_range);
+        } else if (actionType ==='attack') {
+            setSelectedPieceMoves([]);
+            console.log("Calculating valid attack moves");
+        } else {
+            setSelectedPieceMoves([]);
+        };
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTile, actionType, gameState]);
+  
   useEffect(() => { setActionType('move') }, [selectedPiece]);
 
   const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean) => {
     const same_location = checkSameLocation(location, selectedTile);
     if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
     else {
-        if (selectedPiece && !checking) { submitPieceAction(selectedPiece.id, location, actionType) };
-        setSelectedTile(location);
-        if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
-        else if (piece && piece.player !== thisPlayer?.number) { console.log("CLICKED ON ANOTHER PIECE") }
-        else { setSelectedPiece(undefined) };
+      if (selectedPiece && !checking) { submitPieceAction(selectedPiece.id, location, actionType) };
+      setSelectedTile(location);
+      if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
+      else if (piece && piece.player !== thisPlayer?.number) { console.log("CLICKED ON ANOTHER PIECE") }
+      else { setSelectedPiece(undefined) };
     }
-  }
+  };
 
   return (
     <Paper square elevation={0} onContextMenu={(e)=> e.preventDefault()} onMouseDown={(e)=> e.preventDefault()}
@@ -197,12 +218,13 @@ export default function MainBoard ({ setConnectionStatus, setCurrentState }: Pro
                   updateSelected={updateSelected}
                   setActionType={setActionType}
                 />
-                <MainGrid
+                <MainBoard
                   pieces={gameState.pieces}
                   map={gameState.map}
                   objectives={gameState.objectives}
                   this_player_id={thisPlayer.number}
                   selected_tile={selectedTile}
+                  selected_piece_moves={selectedPieceMoves}
                   updateSelected={updateSelected}
                 />
                 <TurnLine

@@ -4,3 +4,5 @@ export const EDGE_COLOR = 'A08519';
 export const BLACK_COLOR = '000000';
 export const HOVER_RATIO = '1.04';
 export const TAP_RATIO = '0.98';
+export const GREEN_COLOR = '008000';
+export const PURPLE_COLOR = '800080';
