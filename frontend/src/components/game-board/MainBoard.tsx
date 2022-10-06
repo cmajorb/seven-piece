@@ -12,13 +12,13 @@ type Props = {
     selected_tile: number[],
     this_player_id: number,
     objectives: string[],
-    selected_piece_moves: number[][],
+    selected_piece_actions: number[][] | undefined,
     updateSelected: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ pieces, map, objectives, selected_tile, this_player_id, selected_piece_moves, updateSelected }: Props) {
+export default function MainGrid({ pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, updateSelected }: Props) {
     
     const row_length: number = map.data.length;
     const row_nums: number[] = (Array.from(Array(row_length).keys())).sort((a, b) => b - a);
@@ -37,7 +37,7 @@ export default function MainGrid({ pieces, map, objectives, selected_tile, this_
                                 <Cell key={([row, column]).toString()}
                                     location={[row, column]}
                                     selected={calcSelectedTile(selected_tile, [row, column])}
-                                    selected_piece_moves={selected_piece_moves}
+                                    selected_piece_actions={selected_piece_actions}
                                     cell_status={getCellStatus(objectives, map.data, [row, column])}
                                     pieces={pieces}
                                     color_scheme={map.color_scheme}

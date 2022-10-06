@@ -10,7 +10,7 @@ import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/P
 type Props = {
   location: number[],
   selected: boolean,
-  selected_piece_moves: number[][],
+  selected_piece_actions: number[][] | undefined,
   cell_status: CellStatus,
   pieces: Piece[],
   color_scheme: ColorScheme,
@@ -20,16 +20,16 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, selected_piece_moves, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
+export default function Cell({ location, selected, selected_piece_actions, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
   
   const theme = useTheme();
   const piece: Piece | undefined = getPiece(location, pieces);
 
   function isValidPieceMove () {
     let is_valid = false;
-    if (selected_piece_moves.length > 0) {
-      for (let index in selected_piece_moves) {
-        if (checkSameLocation(location, selected_piece_moves[index])) { is_valid = true; break };
+    if (selected_piece_actions && selected_piece_actions.length > 0) {
+      for (let index in selected_piece_actions) {
+        if (checkSameLocation(location, selected_piece_actions[index])) { is_valid = true; break };
       }
     }
     return is_valid;
