@@ -44,6 +44,9 @@ class GameConsumer(JsonWebsocketConsumer):
     def get_characters(self, event):
         self.send_json(event)
 
+    def get_specials(self, event):
+        self.send_json(event)
+
     def error(self, event):
         self.send_json(event)
         
@@ -63,8 +66,17 @@ class GameConsumer(JsonWebsocketConsumer):
                     "characters": serializer.data,
                 },
             )
-
-        if message_type == "join_game":
+        elif message_type == "get_specials":
+            logging.info("Getting specials")
+            specials = json.loads((open('sevenpiece/game/data/specials.json')).read())
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "get_specials",
+                    "specials": specials["specials"],
+                },
+            )
+        elif message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state, self.player = game.join_game(self.session_id)
@@ -113,7 +125,7 @@ class GameConsumer(JsonWebsocketConsumer):
                     error = f"Failed to attack piece: {e}"
             elif content["action_type"] == "freeze":
                 try:
-                    piece.freeze([content["location_x"], content["location_y"]])
+                    piece.freeze_special([content["location_x"], content["location_y"]])
                 except Exception as e:
                     error = f"Failed to attack piece: {e}"
         else:

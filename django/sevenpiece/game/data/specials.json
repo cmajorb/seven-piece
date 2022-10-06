@@ -1,0 +1,22 @@
+{
+    "specials" :
+    [
+        {
+            "name" : "freeze",
+            "description" : "Freezing a piece prevents them from moving",
+            "icon" : "freeze.png",
+            "characters" : [
+                "Ice Wizard"
+            ]
+        },
+        {
+            "name" : "place_item",
+            "description" : "Pick up or set down an item in a piece's inventory",
+            "icon" : "place.png",
+            "characters" : [
+                "Builder",
+                "Teleporter"
+            ]
+        }
+    ]
+}
