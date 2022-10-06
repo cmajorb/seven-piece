@@ -273,6 +273,9 @@ class Piece(models.Model):
         dictionary["default_stats"]["health"] = piece.character.health
         dictionary["default_stats"]["speed"] = piece.character.speed
         dictionary["default_stats"]["attack"] = piece.character.attack
+        dictionary["default_stats"]["attack_range_min"] = piece.character.attack_range_min
+        dictionary["default_stats"]["attack_range_max"] = piece.character.attack_range_max
+        
         return dictionary
     
     def take_damage(self, damage):
