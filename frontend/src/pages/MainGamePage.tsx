@@ -187,7 +187,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         <SelectPieces
           all_pieces={allPieces}
           all_selected_pieces={gameState.pieces}
-          num_allowed_pieces={2}
+          num_allowed_pieces={gameState.allowed_pieces}
           game_state={gameState.state}
           map={gameState.map}
           this_player_id={thisPlayer.number}

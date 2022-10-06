@@ -53,6 +53,7 @@ export type GameState = {
     players: Player[];
     score_to_win: number;
     winner: number;
+    allowed_pieces: number;
 };
 
 export type Constants = {
