@@ -76,9 +76,9 @@ class PieceTestCase(TestCase):
         print(game_state.get_game_summary())
         game_state = pieces1[1].make_move([1,0])
         print(game_state.get_game_summary()) 
-        game_state = pieces2[0].make_move([3,3])
-        print(game_state.get_game_summary())
         game_state = pieces2[1].make_move([4,3])
+        print(game_state.get_game_summary())
+        game_state = pieces2[0].make_move([3,3])
         print(game_state.get_game_summary())
 
         game_state = player1.end_turn()
@@ -100,15 +100,3 @@ class PieceTestCase(TestCase):
         pieces1[1].freeze_special([2,3])
         print(game_state.get_game_summary())
         print(game_state.get_game_state())
-
-    def test_too_many_players_join(self):
-        session0 = "123"
-        session1 = "456"
-        session2 = "789"
-        game_state = create_game(self.map.id)
-        # user2 = User.objects.create_user(username='test_user2', password='12345')
-        # user3 = User.objects.create_user(username='test_user3', password='12345')
-        game_state.join_game(session0)
-        game_state.join_game(session1)
-        with self.assertRaises(JoinGameError):
-            game_state.join_game(session2)
