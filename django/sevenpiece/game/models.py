@@ -236,6 +236,8 @@ class Piece(models.Model):
     def cast_piece(self):
         if self.character.name == "Ice Wizard":
             return IceWizard.objects.get(id=self.id)
+        elif self.character.name == "Scout":
+            return Scout.objects.get(id=self.id)
         return self
 
     def reset_stats(self):
@@ -361,16 +363,10 @@ class Piece(models.Model):
         print("Player {} moved {} to ({}, {})".format(self.player.number, self.character.name, location[0], location[1]))
         previous_x = self.location_x
         previous_y = self.location_y
-
-        #For Scout
-        if max(abs(self.location_x - location[0]), abs(self.location_y - location[1])) == 3:
-            self.attack = 0
-            self.save(update_fields=['attack'])
         self.location_x = location[0]
         self.location_y = location[1]
         self.speed = 0
         self.save(update_fields=['location_x','location_y','speed'])
-
         board = self.game.map.data["data"]
         if board[location[0]][location[1]] == MAP_DEFINITION['objective']:
             self.capture_objective(location)
@@ -432,6 +428,23 @@ class Piece(models.Model):
         self.save(update_fields=['location_x','location_y','point_value','health'])
         return point_value
     
+class Scout(Piece):
+    class Meta:
+        proxy = True
+    def move_piece(self, location):
+        print("Scout move")
+        if max(abs(self.location_x - location[0]), abs(self.location_y - location[1])) == 3:
+            self.attack = 0
+            self.save(update_fields=['attack'])
+        Piece.move_piece(self, location)
+
+    def attack_piece(self, location):
+        game_state = Piece.attack_piece(self, location)
+        self.speed = min(self.speed,2)
+        self.save(update_fields=['speed'])
+        return game_state
+
+
 class IceWizard(Piece):
     class Meta:
         proxy = True
@@ -458,8 +471,3 @@ class IceWizard(Piece):
             raise IllegalMoveError
         self.game.refresh_from_db()
         return self.game
-        
-    def make_move(self, location):
-        print("TEST")
-        return Piece.make_move(self, location)
-        
