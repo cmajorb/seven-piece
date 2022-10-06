@@ -14,7 +14,7 @@ import { TurnLine } from '../components/misc/DynamicLines';
 import createAllPieces from '../utils/createAllPieces';
 import SelectPieces from '../components/SelectPieces';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
-import calcValidPieceMoves from '../utils/calcValidPieceMoves';
+import { calcValidPieceMoves, calcValidPieceAttacks } from '../utils/calcValidPieceActions';
 import getPiece from '../utils/getPiece';
 
 // ----------------------------------------------------------------------
@@ -30,10 +30,12 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
 
   const [gameState, setGameState] = useState<GameState>();
   const [thisPlayer, setThisPlayer] = useState<Player>();
+  const [allPieces, setAllPieces] = useState<Piece[]>();
+
   const [selectedTile, setSelectedTile] = useState<number[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
   const [selectedPieceMoves, setSelectedPieceMoves] = useState<number[][]>([]);
-  const [allPieces, setAllPieces] = useState<Piece[]>();
+  const [selectedPieceAttacks, setSelectedPieceAttacks] = useState<number[][]>([]);
   const [actionType, setActionType] = useState<PieceActions>('move');
 
   const { game_id } = useParams();
@@ -133,17 +135,17 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   useEffect(() => {
     if (gameState) {
       const current_piece: Piece | undefined = getPiece(selectedTile, gameState.pieces);
+      setSelectedPieceMoves([]);
+      setSelectedPieceAttacks([]);
       if (current_piece) {
-          if (actionType ==='move') {
-            setSelectedPieceMoves([]);
-            const valid_piece_range: number[][] = calcValidPieceMoves(current_piece, gameState.map, selectedTile, gameState.objectives);
-            setSelectedPieceMoves(valid_piece_range);
+        if (actionType ==='move') {
+          const valid_piece_range: number[][] = calcValidPieceMoves(current_piece, gameState.map, selectedTile, gameState.objectives);
+          setSelectedPieceMoves(valid_piece_range);
         } else if (actionType ==='attack') {
-            setSelectedPieceMoves([]);
-            console.log("Calculating valid attack moves");
-        } else {
-            setSelectedPieceMoves([]);
-        };
+          const valid_piece_range: number[][] = calcValidPieceAttacks(current_piece, gameState.pieces, gameState.map, selectedTile, gameState.objectives);
+          setSelectedPieceAttacks(valid_piece_range);
+          console.log(valid_piece_range);
+        }
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -223,7 +225,10 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                   objectives={gameState.objectives}
                   this_player_id={thisPlayer.number}
                   selected_tile={selectedTile}
-                  selected_piece_moves={selectedPieceMoves}
+                  selected_piece_actions={
+                    actionType === 'move' ? selectedPieceMoves : 
+                    (actionType === 'attack' ? selectedPieceAttacks : undefined)
+                  }
                   updateSelected={updateSelected}
                 />
                 <TurnLine
