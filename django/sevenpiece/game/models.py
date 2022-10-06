@@ -238,6 +238,8 @@ class Piece(models.Model):
             return IceWizard.objects.get(id=self.id)
         elif self.character.name == "Scout":
             return Scout.objects.get(id=self.id)
+        elif self.character.name == "Archer":
+            return Archer.objects.get(id=self.id)
         return self
 
     def reset_stats(self):
@@ -432,6 +434,15 @@ class Piece(models.Model):
         self.save(update_fields=['location_x','location_y','point_value','health'])
         return point_value
     
+class Archer(Piece):
+    class Meta:
+        proxy = True
+    def move_piece(self, location):
+        print("Archer move")
+        self.attack = 0
+        self.save(update_fields=['attack'])
+        Piece.move_piece(self, location)
+
 class Scout(Piece):
     class Meta:
         proxy = True
@@ -447,7 +458,6 @@ class Scout(Piece):
         self.speed = min(self.speed,2)
         self.save(update_fields=['speed'])
         return game_state
-
 
 class IceWizard(Piece):
     class Meta:
