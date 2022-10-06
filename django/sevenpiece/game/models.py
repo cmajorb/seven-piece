@@ -181,10 +181,8 @@ class Player(models.Model):
         for i, piece in enumerate(pieces):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
-            if piece == "Ice Wizard":
-                new_piece = IceWizard.objects.create(character=character, game=self.game, player=self)
-            else:
-                new_piece = Piece.objects.create(character=character, game=self.game, player=self)
+            new_piece = Piece.objects.create(character=character, game=self.game, player=self)
+            new_piece = new_piece.cast_piece()
             new_piece.make_move([start_tile[0],start_tile[1]])
             all_pieces.append(new_piece)
         if len(self.game.piece_set.all()) == self.game.map.num_characters * self.game.map.player_size:
@@ -234,6 +232,11 @@ class Piece(models.Model):
 
     def __str__(self):
         return self.character.name
+
+    def cast_piece(self):
+        if self.character.name == "Ice Wizard":
+            return IceWizard.objects.get(id=self.id)
+        return self
 
     def reset_stats(self):
         self.speed = self.character.speed
@@ -455,3 +458,8 @@ class IceWizard(Piece):
             raise IllegalMoveError
         self.game.refresh_from_db()
         return self.game
+        
+    def make_move(self, location):
+        print("TEST")
+        return Piece.make_move(self, location)
+        

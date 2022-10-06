@@ -100,3 +100,39 @@ class PieceTestCase(TestCase):
         pieces1[1].freeze_special([2,3])
         print(game_state.get_game_summary())
         print(game_state.get_game_state())
+
+    def test_ice_wizard(self):
+        session0 = "123"
+        session1 = "789"
+        game_state = create_game(self.map.id)
+
+        game_state.join_game(session0)
+        game_state.join_game(session1)
+        player1 = Player.objects.get(session=session0, game=game_state)
+        player2 = Player.objects.get(session=session1, game=game_state)
+
+        pieces = ["Berserker", "Ice Wizard"]
+        pieces1 = player1.select_pieces(pieces)
+        pieces = ["Ice Wizard", "Berserker"]
+        pieces2 = player2.select_pieces(pieces)
+
+        game_state = pieces1[0].make_move([1,1])
+        game_state = pieces1[1].make_move([1,0])
+        game_state = pieces2[1].make_move([4,3])
+        game_state = pieces2[0].make_move([3,3])
+
+        game_state = player1.end_turn()
+
+        game_state = pieces1[0].make_move([2,2])
+        game_state = pieces1[1].make_move([2,1])
+
+        game_state = player1.end_turn()
+        game_state = pieces2[0].make_move([2,3])
+        game_state = pieces2[1].make_move([3,2])
+        game_state = pieces2[0].freeze_special([2,2])
+        print(game_state.get_game_summary())
+        game_state = player2.end_turn()
+        print(game_state.get_game_summary())
+        pieces1[1].freeze_special([2,3])
+        print(game_state.get_game_summary())
+        # print(game_state.get_game_state())

@@ -111,6 +111,7 @@ class GameConsumer(JsonWebsocketConsumer):
             #Make sure it belongs to the user
             try:
                 piece = Piece.objects.get(player=self.player, id=content["piece"])
+                piece = piece.cast_piece()
             except:
                 error = "Piece does not exist"
             if content["action_type"] == "move":
