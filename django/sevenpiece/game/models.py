@@ -268,10 +268,14 @@ class Piece(models.Model):
         dictionary["current_stats"]["health"] = piece.health
         dictionary["current_stats"]["speed"] = piece.speed
         dictionary["current_stats"]["attack"] = piece.attack
+        dictionary["current_stats"]["attack_range_min"] = piece.character.attack_range_min
+        dictionary["current_stats"]["attack_range_max"] = piece.character.attack_range_max        
 
         dictionary["start_stats"]["health"] = piece.health_start
         dictionary["start_stats"]["speed"] = piece.speed_start
         dictionary["start_stats"]["attack"] = piece.attack_start
+        dictionary["start_stats"]["attack_range_min"] = piece.character.attack_range_min
+        dictionary["start_stats"]["attack_range_max"] = piece.character.attack_range_max
 
         dictionary["default_stats"]["health"] = piece.character.health
         dictionary["default_stats"]["speed"] = piece.character.speed

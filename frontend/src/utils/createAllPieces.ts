@@ -16,6 +16,8 @@ export default function createAllPieces (all_pieces_info: any[]) {
             current_stats: {
                 health: piece_info.health,
                 attack: piece_info.attack,
+                attack_range_max: piece_info.attack_range_max,
+                attack_range_min: piece_info.attack_range_min,
                 speed: piece_info.speed,
                 special_range: piece_info.special_range,
                 special: piece_info.special
@@ -23,6 +25,8 @@ export default function createAllPieces (all_pieces_info: any[]) {
             start_stats: {
                 health: piece_info.health,
                 attack: piece_info.attack,
+                attack_range_max: piece_info.attack_range_max,
+                attack_range_min: piece_info.attack_range_min,                
                 speed: piece_info.speed,
                 special_range: piece_info.special_range,
                 special: piece_info.special
@@ -30,6 +34,8 @@ export default function createAllPieces (all_pieces_info: any[]) {
             default_stats: {
                 health: piece_info.health,
                 attack: piece_info.attack,
+                attack_range_max: piece_info.attack_range_max,
+                attack_range_min: piece_info.attack_range_min,                
                 speed: piece_info.speed,
                 special_range: piece_info.special_range,
                 special: piece_info.special

@@ -37,6 +37,8 @@ export type Stats = {
     health: number;
     speed: number;
     attack: number;
+    attack_range_max: number;
+    attack_range_min: number;
     special: string;
     special_range: number;
 };
