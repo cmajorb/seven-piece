@@ -103,7 +103,7 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                     onClick={() => { ((piece.player === this_player_id) && setActionType('attack')) }}
                 >
                     <BottomBarImgs
-                        type={'attack'}
+                        type={piece.current_stats.attack_range_max > 1 ? 'range' : 'melee'}
                         current_stat={piece.current_stats[getStatType(1) as keyof Stats] !== 0 ? 1 : 0}
                         max_stat={1}
                         height={image_height}

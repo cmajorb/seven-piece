@@ -3,7 +3,8 @@ import { styled } from '@mui/material/styles';
 import WallImage from '../../images/rock.png';
 import SkullImage from '../../images/skull.png';
 import PieceHealth from '../../images/health_icon.png';
-import PieceAttack from '../../images/attack_icon.png';
+import PieceMeleeAttack from '../../images/attack_icon.png';
+import PieceRangeAttack from '../../images/arrow_icon.png';
 import PieceSpeed from '../../images/speed_icon.png';
 import NeutralBanner from '../../images/banner_gold.png';
 import NeutralKillBanner from '../../images/banner_black.png';
@@ -163,7 +164,8 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: 
     const current_stat_nums = (Array.from(Array(current_stat).keys()));
     const max_stat_nums = (Array.from(Array(max_stat - current_stat).keys()));
     let piece_img = '';
-    if (type === 'attack') { piece_img = PieceAttack }
+    if (type === 'melee') { piece_img = PieceMeleeAttack }
+    else if (type === 'range') { piece_img = PieceRangeAttack }
     else if (type === 'speed') { piece_img = PieceSpeed }
     else if (type === 'health') { piece_img = PieceHealth };
 

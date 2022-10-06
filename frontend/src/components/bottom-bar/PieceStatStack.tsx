@@ -60,7 +60,7 @@ export default function PieceStatStack({ this_piece, selected_piece, selected_ti
                 {stat_types.map((stat, index) => (
                 <BottomBarImgs
                   key={this_piece.id + this_piece.name + stat + this_piece.player + index}
-                  type={stat}
+                  type={stat === 'attack' ? (this_piece.current_stats.attack_range_max > 1 ? 'range' : 'melee') : stat}
                   current_stat={this_piece.current_stats[getStatType(index) as keyof Stats] as number}
                   max_stat={this_piece.start_stats[getStatType(index) as keyof Stats] as number}
                   height={20}

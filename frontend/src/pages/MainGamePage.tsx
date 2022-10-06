@@ -65,7 +65,6 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
               console.log('Setting This Player', message.player);
               break;
             case 'get_characters':
-
               setAllPieces(createAllPieces(message.characters));
               console.log('Setting All Characters', message.characters);
               break;
