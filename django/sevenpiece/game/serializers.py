@@ -19,5 +19,6 @@ class CharacterSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=500)
     attack_range_min = serializers.IntegerField()
     attack_range_max = serializers.IntegerField()
-    special_range = serializers.IntegerField()
+    special_range_min = serializers.IntegerField()
+    special_range_max = serializers.IntegerField()
 
