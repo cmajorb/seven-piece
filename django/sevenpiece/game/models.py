@@ -230,6 +230,7 @@ class Piece(models.Model):
     special = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
     point_value = models.IntegerField(default=1)
+    state = models.CharField(max_length=50, default='normal')
 
     def __str__(self):
         return self.character.name
@@ -246,13 +247,17 @@ class Piece(models.Model):
     def reset_stats(self):
         self.speed = self.character.speed
         self.attack = self.character.attack
+        self.state = "normal"
         if self.character.special != "None":
             self.special = 1
-        self.save(update_fields=['speed','attack','special'])
+        self.save(update_fields=['speed','attack','special','state'])
 
     def freeze(self):
         self.speed = 0
-        self.save(update_fields=['speed'])
+        self.attack = 0
+        self.special = 0
+        self.state = "frozen"
+        self.save(update_fields=['speed','attack','special','state'])
         return self
         #Change image
 
@@ -269,6 +274,7 @@ class Piece(models.Model):
         dictionary["location"] = [piece.location_x, piece.location_y]
         dictionary["image"] = piece.character.image
         dictionary["id"] = piece.id
+        dictionary["state"] = piece.state
 
         dictionary["current_stats"]["health"] = piece.health
         dictionary["current_stats"]["speed"] = piece.speed
