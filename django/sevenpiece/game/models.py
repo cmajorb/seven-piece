@@ -46,7 +46,8 @@ class Character(models.Model):
     description = models.CharField(max_length=500)
     attack_range_min = models.IntegerField(default=1)
     attack_range_max = models.IntegerField(default=1)
-    special_range = models.IntegerField(default=1)
+    special_range_min = models.IntegerField(default=0)
+    special_range_max = models.IntegerField(default=0)
     
     def __str__(self):
         return self.name + " ({})".format(str(self.id))
@@ -272,8 +273,11 @@ class Piece(models.Model):
         dictionary["current_stats"]["health"] = piece.health
         dictionary["current_stats"]["speed"] = piece.speed
         dictionary["current_stats"]["attack"] = piece.attack
+        dictionary["current_stats"]["special"] = piece.special
         dictionary["current_stats"]["attack_range_min"] = piece.character.attack_range_min
-        dictionary["current_stats"]["attack_range_max"] = piece.character.attack_range_max        
+        dictionary["current_stats"]["attack_range_max"] = piece.character.attack_range_max    
+        dictionary["current_stats"]["special_range_min"] = piece.character.special_range_min
+        dictionary["current_stats"]["special_range_max"] = piece.character.special_range_max      
 
         dictionary["start_stats"]["health"] = piece.health_start
         dictionary["start_stats"]["speed"] = piece.speed_start
@@ -472,7 +476,7 @@ class IceWizard(Piece):
         if self.special == 0:
             print("No available special")
             raise IllegalMoveError
-        if not self.is_range_valid(location, 0, self.character.special_range):
+        if not self.is_range_valid(location, self.character.special_range_min, self.character.special_range_max):
             print("Out of range")
             raise IllegalMoveError
         target_piece = self.game.get_piece_by_location(location)

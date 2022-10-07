@@ -23,11 +23,6 @@ def initial_setup():
     scout = Character.objects.get_or_create(name="Scout", health=2, speed=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Can move quickly")
     archer = Character.objects.get_or_create(name="Archer", health=2, attack_range_min=2, attack_range_max=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has distance attack")
     berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has strong attack")
-    ice_wizard = Character.objects.get_or_create(name="Ice Wizard", attack=0, special="Freeze", special_range = 2, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Freezes other pieces")
-
-    #Testing
-    # player_1 = Player.objects.get_or_create()
-    # player_2 = Player.objects.get_or_create()
-    # game_state = GameState.objects.get_or_create(map=map[0])
+    ice_wizard = Character.objects.get_or_create(name="Ice Wizard", attack=0, special="Freeze", special_range_min = 1, special_range_max = 2, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Freezes other pieces")
     
 initial_setup()
