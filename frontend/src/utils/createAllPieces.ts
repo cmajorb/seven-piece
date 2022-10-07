@@ -19,26 +19,29 @@ export default function createAllPieces (all_pieces_info: any[]) {
                 attack_range_max: piece_info.attack_range_max,
                 attack_range_min: piece_info.attack_range_min,
                 speed: piece_info.speed,
-                special_range: piece_info.special_range,
-                special: piece_info.special
+                special: piece_info.special,
+                special_range_max: piece_info.special_range_max,
+                special_range_min: piece_info.special_range_min,
             },
             start_stats: {
                 health: piece_info.health,
                 attack: piece_info.attack,
                 attack_range_max: piece_info.attack_range_max,
-                attack_range_min: piece_info.attack_range_min,                
+                attack_range_min: piece_info.attack_range_min,
                 speed: piece_info.speed,
-                special_range: piece_info.special_range,
-                special: piece_info.special
+                special: piece_info.special,
+                special_range_max: piece_info.special_range_max,
+                special_range_min: piece_info.special_range_min,
             },
             default_stats: {
                 health: piece_info.health,
                 attack: piece_info.attack,
                 attack_range_max: piece_info.attack_range_max,
-                attack_range_min: piece_info.attack_range_min,                
+                attack_range_min: piece_info.attack_range_min,
                 speed: piece_info.speed,
-                special_range: piece_info.special_range,
-                special: piece_info.special
+                special: piece_info.special,
+                special_range_max: piece_info.special_range_max,
+                special_range_min: piece_info.special_range_min,
             },
         }
         all_pieces.push(parsed_piece);

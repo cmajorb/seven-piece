@@ -39,8 +39,11 @@ export type Stats = {
     attack: number;
     attack_range_max: number;
     attack_range_min: number;
-    special: string;
-    special_range: number;
+    special: number;
+    special_range_max: number;
+    special_range_min: number;
+    // special: string;
+    // special_range: number;
 };
 
 export type GameState = {
@@ -80,5 +83,12 @@ export type CellStatus = {
     objective_owner: number | undefined;
 };
 
-export type PieceActions = 'move' | 'attack';
+export type SpecialAbility = {
+    characters: string[];
+    description: string;
+    icon: string;
+    name: string;
+};
+
+export type PieceActions = 'move' | 'attack' |  'freeze';
 export type WebSocketStatus = 'Connecting' | 'Open' | 'Closing' | 'Closed' | 'Uninstantiated';
