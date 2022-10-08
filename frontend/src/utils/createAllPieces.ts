@@ -13,6 +13,7 @@ export default function createAllPieces (all_pieces_info: any[]) {
             description: piece_info.description,
             location: [-1, -1],
             image: piece_info.image,
+            state: piece_info.state,
             current_stats: {
                 health: piece_info.health,
                 attack: piece_info.attack,

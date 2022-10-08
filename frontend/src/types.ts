@@ -8,6 +8,7 @@ export type Piece = {
     current_stats: Stats;
     start_stats: Stats;
     default_stats: Stats;
+    state: "normal" | "frozen";
   };  
 
   export type Score = {

@@ -283,19 +283,25 @@ class Piece(models.Model):
         dictionary["current_stats"]["attack_range_min"] = piece.character.attack_range_min
         dictionary["current_stats"]["attack_range_max"] = piece.character.attack_range_max    
         dictionary["current_stats"]["special_range_min"] = piece.character.special_range_min
-        dictionary["current_stats"]["special_range_max"] = piece.character.special_range_max      
+        dictionary["current_stats"]["special_range_max"] = piece.character.special_range_max
 
         dictionary["start_stats"]["health"] = piece.health_start
         dictionary["start_stats"]["speed"] = piece.speed_start
         dictionary["start_stats"]["attack"] = piece.attack_start
+        dictionary["start_stats"]["special"] = piece.special
         dictionary["start_stats"]["attack_range_min"] = piece.character.attack_range_min
         dictionary["start_stats"]["attack_range_max"] = piece.character.attack_range_max
+        dictionary["start_stats"]["special_range_min"] = piece.character.special_range_min
+        dictionary["start_stats"]["special_range_max"] = piece.character.special_range_max
 
         dictionary["default_stats"]["health"] = piece.character.health
         dictionary["default_stats"]["speed"] = piece.character.speed
         dictionary["default_stats"]["attack"] = piece.character.attack
+        dictionary["default_stats"]["special"] = piece.special
         dictionary["default_stats"]["attack_range_min"] = piece.character.attack_range_min
         dictionary["default_stats"]["attack_range_max"] = piece.character.attack_range_max
+        dictionary["default_stats"]["special_range_min"] = piece.character.special_range_min
+        dictionary["default_stats"]["special_range_max"] = piece.character.special_range_max
         
         return dictionary
     

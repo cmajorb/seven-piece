@@ -5,6 +5,7 @@ import SkullImage from '../../images/skull.png';
 import PieceHealth from '../../images/health_icon.png';
 import PieceMeleeAttack from '../../images/attack_icon.png';
 import PieceRangeAttack from '../../images/arrow_icon.png';
+import PieceFreeze from '../../images/magic_icon.png';
 import PieceSpeed from '../../images/speed_icon.png';
 import NeutralBanner from '../../images/banner_gold.png';
 import NeutralKillBanner from '../../images/banner_black.png';
@@ -60,7 +61,7 @@ export function WallImg () {
     return (
         <Stack alignItems="center" justifyContent="center">
             <Box height={70} width={70} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
-                <img alt='testing' src={WallImage} height={60} width={60} />
+                <img alt='testing' src={WallImage} height={60} width={60} style={{ filter: 'brightness(50%)' }} />
             </Box>
         </Stack>
     );
@@ -166,6 +167,7 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: 
     let piece_img = '';
     if (type === 'melee') { piece_img = PieceMeleeAttack }
     else if (type === 'range') { piece_img = PieceRangeAttack }
+    else if (type === 'freeze') { piece_img = PieceFreeze }
     else if (type === 'speed') { piece_img = PieceSpeed }
     else if (type === 'health') { piece_img = PieceHealth };
 
