@@ -57,7 +57,7 @@ class Character(models.Model):
 class GameState(models.Model):
     session = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     map = models.ForeignKey(Map, on_delete=models.CASCADE, null=True)
-    state = models.CharField(max_length=50, default='WAITING', choices=[('WAITING', 'Waiting for players'), ('READY', 'Ready to play'), ('PLACING', 'Placing pieces'), ('PLAYING', 'Game in progress'), ('FINISHED', 'Game Over')])
+    state = models.CharField(max_length=50, default='WAITING', choices=[('WAITING', 'Waiting for players'), ('SELECTING', 'Selecting pieces'), ('PLACING', 'Placing pieces'), ('PLAYING', 'Game in progress'), ('FINISHED', 'Game Over')])
     turn_count = models.IntegerField(default=0)
     objectives = models.CharField(max_length=50, default="")
     winner  = models.IntegerField(default=-1)
@@ -97,7 +97,7 @@ class GameState(models.Model):
             # raise JoinGameError
         player = Player.objects.create(session=session, game=self, number=num_of_players)
         if num_of_players + 1 == self.map.player_size:
-            self.state = "PLACING"
+            self.state = "SELECTING"
             self.save(update_fields=['state'])
         return [self, player]
 
@@ -149,6 +149,7 @@ class Player(models.Model):
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     score = models.IntegerField(default=0)
     number = models.IntegerField()
+    ready = models.BooleanField(default=False)
 
     def get_info(self):
         dictionary = {}
@@ -171,7 +172,7 @@ class Player(models.Model):
 
     def select_pieces(self, pieces):
         all_pieces = []
-        if self.game.state != "PLACING":
+        if self.game.state != "SELECTING":
             raise IllegalPieceSelection
         if len(pieces) != self.game.map.num_characters:
             raise IllegalPieceSelection
@@ -194,7 +195,10 @@ class Player(models.Model):
         #Check to make sure all pieces have moved
         self.game.refresh_from_db()
         if self.game.state == "PLACING":
-            self.game.start_game()
+            self.ready = True
+            self.save(update_fields=['ready'])
+            if len(self.game.player_set.filter(ready=True)) == self.game.map.player_size:
+                self.game.start_game()
             return self.game
         if self.game.state != "PLAYING":
             print("Not in the right game state")
@@ -347,7 +351,7 @@ class Piece(models.Model):
     def make_move(self, location):
         self.refresh_from_db()
         self.game.refresh_from_db()
-        if self.game.state == "PLACING":
+        if self.game.state == "PLACING" or self.game.state == "SELECTING":
             self.place_piece(location)
             self.game.refresh_from_db()
             return self.game

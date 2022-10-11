@@ -82,6 +82,7 @@ class PieceTestCase(TestCase):
         print(game_state.get_game_summary())
 
         game_state = player1.end_turn()
+        game_state = player2.end_turn()
 
         game_state = pieces1[0].make_move([2,2])
         print(game_state.get_game_summary())
@@ -122,6 +123,7 @@ class PieceTestCase(TestCase):
         game_state = pieces2[0].make_move([3,3])
 
         game_state = player1.end_turn()
+        game_state = player2.end_turn()
 
         game_state = pieces1[0].make_move([2,2])
         game_state = pieces1[1].make_move([2,1])
