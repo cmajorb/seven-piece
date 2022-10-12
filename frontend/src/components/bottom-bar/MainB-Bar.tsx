@@ -45,7 +45,7 @@ export default function MainBBar(
           <Toolbar sx={{ pt: 0.2, alignItems: 'center', justifyContent: 'space-around' }}>
 
             { pieces &&
-            <Stack direction={'row'} spacing={6} justifyContent={'space-between'} alignItems={'center'}>
+            <Stack direction={'row'} spacing={1} justifyContent={'space-between'} alignItems={'center'}>
               {pieces.map((piece: Piece) => ( piece.player === 0 && (
                 <PieceStatStack
                   key={piece.player + piece.id + piece.name}
@@ -70,7 +70,7 @@ export default function MainBBar(
             />
 
             { pieces &&
-            <Stack direction={'row'} spacing={6} justifyContent={'space-between'} alignItems={'center'}>
+            <Stack direction={'row'} spacing={1} justifyContent={'space-between'} alignItems={'center'}>
               {pieces.map((piece: Piece) => ( piece.player === 1 && (
                 <PieceStatStack
                   key={piece.player + piece.id + piece.name}
