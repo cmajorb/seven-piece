@@ -16,6 +16,10 @@ import PieceBackground from '../../images/avatar-frame_silver.png';
 
 // ----------------------------------------------------------------------
 
+type WallProps = {
+    size: number,
+};
+
 type ObjectiveProps = {
     player_id: number,
     width: number,
@@ -57,11 +61,11 @@ type ObjectiveAndPieceProps = {
 
 const OutlinedAvatar = styled(Avatar)`border: 2px solid black; background-color: black;`;
 
-export function WallImg () {
+export function WallImg ({ size }: WallProps) {
     return (
         <Stack alignItems="center" justifyContent="center">
-            <Box height={70} width={70} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
-                <img alt='testing' src={WallImage} height={60} width={60} style={{ filter: 'brightness(50%)' }} />
+            <Box height={size} width={size} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
+                <img alt='testing' src={WallImage} height={size / 1.2} width={size / 1.2} style={{ filter: 'brightness(50%)' }} />
             </Box>
         </Stack>
     );
@@ -75,7 +79,7 @@ export function ObjectiveImg ({ player_id, width, height, req_score, sx }: Objec
     else if (req_score) { objective_img = NeutralKillBanner };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.25, ...(sx && { ...sx }) }}>
+        <Stack alignItems="center" justifyContent="center" sx={{ pt: 0, ...(sx && { ...sx }) }}>
             <Box height={height} width={width} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
                 <img alt='testing' src={objective_img} height={height * 0.7} width={width * 0.75} />
             </Box>
@@ -110,8 +114,8 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
 export function PieceImg ({ player_id, piece_name, health, on_board, selected, height, width, sx }: PieceProps) {
     const piece_img = getPieceImg(piece_name);
     // const heart_nums = (Array.from(Array(health).keys()));
-    const default_piece_container_size = 70;
-    const default_piece_image_size = 48;
+    const default_piece_container_size = 60;
+    const default_piece_image_size = 42;
     // const default_health_size = 14;
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
@@ -131,7 +135,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, selected, h
                         style={{
                             filter: `${on_board ? filter_string : 'brightness(70%)'}`,
                             transition: 'scale 0.25s',
-                            scale: (on_board && selected) ? '1.25' : '1',
+                            scale: (on_board && selected) ? '1.5' : '1',
                         }}
                     />
                 </Box>
@@ -141,7 +145,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, selected, h
                         width: (width ? (width * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
                         height: (height ? (height * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
                         transition: 'scale 0.25s',
-                        scale: (on_board && selected) ? '1.25' : '1',
+                        scale: (on_board && selected) ? '1.5' : '1',
                     }}
                 />
                 {/* <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
@@ -198,15 +202,15 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
     const piece_img = getPieceImg(piece_name);
     // const heart_nums = (Array.from(Array(health).keys()));
     let objective_img = NeutralBanner;
-    const default_piece_container_size = 70;
-    const default_piece_image_size = 48;
+    const default_piece_container_size = 60;
+    const default_piece_image_size = 42;
     if (player_id === 0) { objective_img = Team1Banner }
     else if (player_id === 1) { objective_img = Team2Banner };
     const ObjectiveAvatar = styled(Avatar)(() => ({
         backgroundColor: 'transparent',
         width: 20,
         height: 22,
-        imgProps: { sx: { width: 1, height: 1, transition: 'scale 0.25s', scale: selected ? '1.25' : '1' } }
+        imgProps: { sx: { width: 1, height: 1, transition: 'scale 0.25s', scale: selected ? '1.5' : '1' } }
     }));
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
@@ -220,8 +224,8 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
             >
                 <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                     <Box
-                        height={70}
-                        width={70}
+                        height={60}
+                        width={60}
                         sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
                         <img
                             alt='testing'
@@ -231,7 +235,7 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
                             style={{
                                 filter: `${filter_string}`,
                                 transition: 'scale 0.25s',
-                                scale: selected ? '1.25' : '1',
+                                scale: selected ? '1.5' : '1',
                             }}
                         />
                     </Box>
@@ -241,7 +245,7 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
                             width: default_piece_image_size,
                             height: default_piece_image_size,
                             transition: 'scale 0.25s',
-                            scale: selected ? '1.25' : '1',
+                            scale: selected ? '1.5' : '1',
                         }}
                     />
                     {/* <Stack direction={'row'} spacing={0.05} sx={{ position: "absolute", pt: 8.5 }}>
@@ -250,7 +254,7 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
                                 <img alt='testing' src={PieceHealth} height={14} width={14} />
                             </Box>
                         )) }
-                    </Stack>                     */}
+                    </Stack> */}
                 </Stack>
             </Badge>
         </Stack>

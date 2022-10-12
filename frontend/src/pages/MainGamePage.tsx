@@ -212,7 +212,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
       <>
         { gameState && (thisPlayer !== undefined) &&
           <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
-            <Stack spacing={2} justifyContent={'center'} alignItems={'center'}>
+            <Stack spacing={0} justifyContent={'center'} alignItems={'center'}>
               { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
                 <BannerScore
                   team_scores={getTeamScores(gameState.players)}

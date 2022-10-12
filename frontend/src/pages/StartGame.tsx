@@ -13,7 +13,8 @@ export default function StartGame() {
 
     const theme = useTheme();
     const path_str = "menu";
-    const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str)
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str);
+    const default_map = 2;
 
     const [gameID, setGameID] = useState<string>('');
     const handleChangeGameID = (event: any) => {
@@ -97,7 +98,7 @@ export default function StartGame() {
                 <Button
                     variant='contained'
                     sx={{ width: 300 }}
-                    onClick={() => { sendJsonMessage({ type: "create_game", map: "2" }) }}
+                    onClick={() => { sendJsonMessage({ type: "create_game", map: default_map.toString() }) }}
                 >
                     Create Game
                 </Button>
