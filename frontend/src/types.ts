@@ -93,3 +93,4 @@ export type SpecialAbility = {
 
 export type PieceActions = 'move' | 'attack' |  'freeze';
 export type WebSocketStatus = 'Connecting' | 'Open' | 'Closing' | 'Closed' | 'Uninstantiated';
+export type GameStatus = 'WAITING' | 'SELECTING' | 'PLACING' | 'PLAYING' | 'FINISHED';

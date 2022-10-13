@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Piece, Map } from '../types';
+import { Piece, Map, GameStatus } from '../types';
 import { Box, Button, Grid, keyframes, Stack, Typography, useTheme } from '@mui/material';
 import { TurnLine } from '../components/misc/DynamicLines';
 import PieceInfoCard from './PieceInfoCard';
@@ -14,7 +14,7 @@ type Props = {
     all_pieces: Piece[],
     all_selected_pieces: Piece[],
     num_allowed_pieces: number,
-    game_state: string,
+    game_state: GameStatus,
     map: Map,
     this_player_id: number,
     setPieces: any,

@@ -1,5 +1,5 @@
 import { useTheme, Stack, Box } from '@mui/material';
-import { ColorScheme, Piece, PieceActions, SpecialAbility, Stats } from '../../types';
+import { ColorScheme, GameStatus, Piece, PieceActions, SpecialAbility, Stats } from '../../types';
 import GetBorderColor from '../../utils/getBorderColor';
 import checkSameLocation from '../../utils/checkSameLocation';
 import { BottomBarImgs } from '../misc/PNGImages';
@@ -18,13 +18,13 @@ type Props = {
     this_player_id: number,
     color_scheme: ColorScheme,
     all_specials: SpecialAbility[] | undefined,
-    updateSelected: any,
+    current_state: GameStatus,
     setActionType: any,
   };
 
 // ----------------------------------------------------------------------
 
-export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player_id, color_scheme, all_specials, setActionType }: Props) {
+export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player_id, color_scheme, all_specials, current_state, setActionType }: Props) {
 
     const theme = useTheme();
     const stat_types: string[] = ['health', 'attack', 'speed', 'special'];
@@ -68,7 +68,7 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                 />
             </Box>            
             }
-            { piece ?
+            { (piece && current_state !== 'PLACING') ?
             <Stack spacing={0.3}>
                 <Box
                     sx={{

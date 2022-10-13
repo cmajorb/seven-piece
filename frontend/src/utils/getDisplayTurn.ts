@@ -1,4 +1,8 @@
-export default function getDisplayTurn (game_state: string, round: number) {
+import { GameStatus } from "../types"
+
+// ----------------------------------------------------------------------
+
+export default function getDisplayTurn (game_state: GameStatus, round: number) {
     if ((
         game_state === ('PLACING') ||
         game_state === ('SELECTING') ||

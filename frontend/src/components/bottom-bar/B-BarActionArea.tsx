@@ -1,5 +1,5 @@
 import { Box, Stack, Button } from '@mui/material';
-import { ColorScheme } from '../../types';
+import { ColorScheme, GameStatus } from '../../types';
 import useKeyPress from '../../utils/useKeyPress';
 import { ObjectiveImg } from '../misc/PNGImages';
 import LeftArrow from '../../images/backward-arrow.svg';
@@ -11,7 +11,7 @@ type Props = {
   active_player_id: number | undefined,
   this_player_id: number,
   color_scheme: ColorScheme,
-  current_state: string,
+  current_state: GameStatus,
   score_to_win: number,
   endTurn: any,
   setPieces: any,
@@ -49,12 +49,13 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
 
             <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
                 { current_state === 'PLACING' &&
-                <Button fullWidth variant={'contained'} onClick={() => { setPieces(JSON.stringify(["Soldier", "Berserker"])) }}>
+                <Button fullWidth variant={'contained'} onClick={() => { endTurn() }}>
                     Place Pieces
                 </Button> }
+                { current_state !== 'PLACING' &&
                 <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
                     End Turn
-                </Button>
+                </Button> }
             </Stack>
 
             { (active_player_id !== undefined && active_player_id === 0 && current_state === 'PLAYING') ?

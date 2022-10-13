@@ -1,5 +1,5 @@
 import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material';
-import { ColorScheme, Piece } from '../../types';
+import { ColorScheme, GameStatus, Piece } from '../../types';
 import BBarActionArea from './B-BarActionArea';
 import PieceStatStack from './PieceStatStack';
 import calcHexToRGB from '../../utils/calcHexToRGB';
@@ -13,7 +13,7 @@ type Props = {
   selected_tile: number[],
   this_player_id: number,
   color_scheme: ColorScheme,
-  current_state: string,
+  current_state: GameStatus,
   score_to_win: number,
   updateSelected: any,
   endTurn: any,

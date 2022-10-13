@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainBoard from '../components/game-board/MainBoard';
-import { GameState, Piece, PieceActions, Player, SpecialAbility } from '../types';
+import { GameState, GameStatus, Piece, PieceActions, Player, SpecialAbility } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
 import BannerScore from '../components/game-board/BannerScore';
@@ -87,7 +87,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
 
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
-    if (gameState && (gameState.state === 'WAITING' || gameState.state === 'PLACING') && !allPieces) {
+    if (gameState && (gameState.state === 'WAITING' || gameState.state === 'SELECTING') && !allPieces) {
       sendJsonMessage({ type: "get_characters" });
       sendJsonMessage({ type: "get_specials" });
     };
@@ -195,7 +195,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         (connectionStatus === 'Open' &&
         gameState &&
         thisPlayer &&
-        (gameState.state === 'WAITING' || gameState.state === 'PLACING')) ?
+        (gameState.state === 'WAITING' || gameState.state === 'SELECTING')) ?
       <>
         { allPieces &&
         <SelectPieces
@@ -213,7 +213,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         { gameState && (thisPlayer !== undefined) &&
           <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
             <Stack spacing={0} justifyContent={'center'} alignItems={'center'}>
-              { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
+              { getDisplayTurn(gameState.state as GameStatus, gameState.turn_count) >= 0 &&
                 <BannerScore
                   team_scores={getTeamScores(gameState.players)}
                   total_objectives={(gameState.objectives).length}
@@ -229,7 +229,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                   this_player_id={thisPlayer.number}
                   color_scheme={gameState.map.color_scheme}
                   all_specials={allSpecials}
-                  updateSelected={updateSelected}
+                  current_state={gameState.state as GameStatus}
                   setActionType={setActionType}
                 />
                 <MainBoard
@@ -262,7 +262,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                 this_player_id={thisPlayer.number}
                 active_player_id={gameState.turn_count % gameState.players.length}
                 color_scheme={gameState.map.color_scheme}
-                current_state={gameState.state}
+                current_state={gameState.state as GameStatus}
                 score_to_win={gameState.score_to_win}
                 updateSelected={updateSelected}
                 endTurn={endTurn}
