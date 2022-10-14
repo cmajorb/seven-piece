@@ -69,9 +69,3 @@ def simulate(game_state):
     step(game_state)
     pieces1[1].freeze_special([2,3])
     step(game_state)
-
-print("Running")
-simulated_game_state = create_game(2)
-simulated_game_state = simulation_setup(simulated_game_state)
-simulate(simulated_game_state)
-print("Finished")
