@@ -1,5 +1,5 @@
 import { useTheme, Stack, Box } from '@mui/material';
-import { ColorScheme, GameStatus, Piece, PieceActions, SpecialAbility, Stats } from '../../types';
+import { ColorScheme, GameStatus, Piece, PieceActions, Player, SpecialAbility, Stats } from '../../types';
 import GetBorderColor from '../../utils/getBorderColor';
 import checkSameLocation from '../../utils/checkSameLocation';
 import { BottomBarImgs } from '../misc/PNGImages';
@@ -15,7 +15,7 @@ type Props = {
     all_pieces: Piece[] | undefined,
     selected_tile: number[],
     selected_action: PieceActions,
-    this_player_id: number,
+    this_player: Player,
     color_scheme: ColorScheme,
     all_specials: SpecialAbility[] | undefined,
     current_state: GameStatus,
@@ -24,7 +24,7 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player_id, color_scheme, all_specials, current_state, setActionType }: Props) {
+export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player, color_scheme, all_specials, current_state, setActionType }: Props) {
 
     const theme = useTheme();
     const stat_types: string[] = ['health', 'attack', 'speed', 'special'];
@@ -77,12 +77,12 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'move') && (piece.player === this_player_id) && {
-                            borderColor: (GetBorderColor(color_scheme, this_player_id, true))
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'move') && (piece.player === this_player.number) && {
+                            borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player_id) && setActionType('move')) }}
+                    onClick={() => { ((piece.player === this_player.number) && setActionType('move')) }}
                 >
                     <BottomBarImgs
                         type={'speed'}
@@ -99,12 +99,12 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'attack') && (piece.player === this_player_id) && {
-                            borderColor: (GetBorderColor(color_scheme, this_player_id, true))
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'attack') && (piece.player === this_player.number) && {
+                            borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player_id && piece.start_stats['attack'] > 0) && setActionType('attack')) }}
+                    onClick={() => { ((piece.player === this_player.number && piece.start_stats['attack'] > 0) && setActionType('attack')) }}
                 >
                     <BottomBarImgs
                         type={
@@ -124,12 +124,12 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === special_ability) && (piece.player === this_player_id) && {
-                            borderColor: (GetBorderColor(color_scheme, this_player_id, true))
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === special_ability) && (piece.player === this_player.number) && {
+                            borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player_id && special_ability) && setActionType(special_ability)) }}
+                    onClick={() => { ((piece.player === this_player.number && special_ability) && setActionType(special_ability)) }}
                 >
                     <BottomBarImgs
                         type={special_ability ? special_ability : 'disabled' }

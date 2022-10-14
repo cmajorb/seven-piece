@@ -1,5 +1,5 @@
 import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material';
-import { ColorScheme, GameStatus, Piece } from '../../types';
+import { ColorScheme, GameStatus, Piece, Player } from '../../types';
 import BBarActionArea from './B-BarActionArea';
 import PieceStatStack from './PieceStatStack';
 import calcHexToRGB from '../../utils/calcHexToRGB';
@@ -11,7 +11,7 @@ type Props = {
   selected_piece: Piece | undefined,
   active_player_id: number | undefined,
   selected_tile: number[],
-  this_player_id: number,
+  this_player: Player,
   color_scheme: ColorScheme,
   current_state: GameStatus,
   score_to_win: number,
@@ -23,7 +23,7 @@ type Props = {
 // ----------------------------------------------------------------------
 
 export default function MainBBar(
-  { pieces, selected_piece, selected_tile, this_player_id, color_scheme, score_to_win,
+  { pieces, selected_piece, selected_tile, this_player, color_scheme, score_to_win,
     active_player_id, current_state, updateSelected, endTurn, setPieces
   }: Props) {
 
@@ -52,7 +52,7 @@ export default function MainBBar(
                   this_piece={piece}
                   selected_piece={selected_piece}
                   selected_tile={selected_tile}
-                  this_player_id={this_player_id}
+                  this_player_id={this_player.number}
                   color_scheme={color_scheme}
                   updateSelected={updateSelected}
                 />
@@ -61,12 +61,12 @@ export default function MainBBar(
 
             <BBarActionArea
               active_player_id={active_player_id}
-              this_player_id={this_player_id}
+              this_player_id={this_player.number}
               color_scheme={color_scheme}
               current_state={current_state}
               score_to_win={score_to_win}
+              this_player_ready={this_player.ready}
               endTurn={endTurn}
-              setPieces={setPieces}
             />
 
             { pieces &&
@@ -77,7 +77,7 @@ export default function MainBBar(
                   this_piece={piece}
                   selected_piece={selected_piece}
                   selected_tile={selected_tile}
-                  this_player_id={this_player_id}
+                  this_player_id={this_player.number}
                   color_scheme={color_scheme}
                   updateSelected={updateSelected}
                 />

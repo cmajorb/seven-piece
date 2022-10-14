@@ -132,6 +132,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
     setSelectedPiece(undefined);
     if (gameState && thisPlayer) {
       const player: Player = thisPlayer;
+      if (gameState && gameState.state as GameStatus === 'PLACING') { player.ready = gameState.players[player.number].ready };
       if ((gameState.turn_count % gameState.players.length) === player.number) { player.is_turn = true }
       else if ((gameState.turn_count % gameState.players.length) !== player.number) { player.is_turn = false };
       setThisPlayer(player);
@@ -165,14 +166,14 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   
   useEffect(() => { setActionType('move') }, [selectedPiece]);
 
-  const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean) => {
+  const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean, show_opponent_pieces: boolean) => {
     const same_location = checkSameLocation(location, selectedTile);
     if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
     else {
       if (selectedPiece && !checking) { submitPieceAction(selectedPiece.id, location, actionType) };
       setSelectedTile(location);
       if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
-      else if (piece && piece.player !== thisPlayer?.number) { console.log("CLICKED ON ANOTHER PIECE") }
+      else if (piece && piece.player !== thisPlayer?.number && show_opponent_pieces) { console.log("CLICKED ON ANOTHER PIECE") }
       else { setSelectedPiece(undefined) };
     }
   };
@@ -226,7 +227,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                   all_pieces={gameState.pieces}
                   selected_tile={selectedTile}
                   selected_action={actionType}
-                  this_player_id={thisPlayer.number}
+                  this_player={thisPlayer}
                   color_scheme={gameState.map.color_scheme}
                   all_specials={allSpecials}
                   current_state={gameState.state as GameStatus}
@@ -243,6 +244,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                     (actionType === 'attack' ? selectedPieceAttacks :
                     (actionType.length > 0 ? selectedPieceSpecials : undefined))
                   }
+                  current_state={gameState.state as GameStatus}
                   updateSelected={updateSelected}
                 />
                 <TurnLine
@@ -259,7 +261,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                 pieces={gameState.pieces}
                 selected_piece={selectedPiece}
                 selected_tile={selectedTile}
-                this_player_id={thisPlayer.number}
+                this_player={thisPlayer}
                 active_player_id={gameState.turn_count % gameState.players.length}
                 color_scheme={gameState.map.color_scheme}
                 current_state={gameState.state as GameStatus}

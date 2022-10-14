@@ -4,6 +4,7 @@ import useKeyPress from '../../utils/useKeyPress';
 import { ObjectiveImg } from '../misc/PNGImages';
 import LeftArrow from '../../images/backward-arrow.svg';
 import RightArrow from '../../images/forward-arrow.svg';
+import WaitingDots from '../misc/WaitingDots';
 
 // ----------------------------------------------------------------------
 
@@ -13,13 +14,13 @@ type Props = {
   color_scheme: ColorScheme,
   current_state: GameStatus,
   score_to_win: number,
+  this_player_ready: boolean,
   endTurn: any,
-  setPieces: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function BBarActionArea({ this_player_id, active_player_id, current_state, score_to_win, endTurn, setPieces }: Props) {
+export default function BBarActionArea({ this_player_id, active_player_id, current_state, score_to_win, endTurn, this_player_ready }: Props) {
 
     const onKeyPress = (event: any) => {
         const key: string = ((event.key).toString());
@@ -48,11 +49,13 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
             }
 
             <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
-                { current_state === 'PLACING' &&
-                <Button fullWidth variant={'contained'} onClick={() => { endTurn() }}>
-                    Place Pieces
-                </Button> }
-                { current_state !== 'PLACING' &&
+                { current_state === 'PLACING' ?
+                <>
+                    { this_player_ready ? <WaitingDots /> :
+                    <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={this_player_ready}>
+                        Place Pieces
+                    </Button> }
+                </> :
                 <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
                     End Turn
                 </Button> }

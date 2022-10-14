@@ -22,6 +22,7 @@ export type Piece = {
     session: string;
     score: Score;
     is_turn: boolean;
+    ready: boolean;
   };
 
 export type ColorScheme = {

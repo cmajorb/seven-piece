@@ -1,6 +1,6 @@
 import { Stack } from '@mui/material';
 import Cell from './Cell';
-import { Piece, Map } from '../../types';
+import { Piece, Map, GameStatus } from '../../types';
 import calcSelectedTile from '../../utils/calcSelectedTile';
 import getCellStatus from '../../utils/getCellStatus';
 
@@ -13,13 +13,16 @@ type Props = {
     this_player_id: number,
     objectives: string[],
     selected_piece_actions: number[][] | undefined,
+    current_state: GameStatus,
     updateSelected: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainGrid({ pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, updateSelected }: Props) {
+export default function MainBoard({ pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, current_state, updateSelected }: Props) {
     
+    const cell_size: number = 60;
+    const show_opponent_pieces: boolean = (current_state === 'PLACING') ? false : true;
     const row_length: number = map.data.length;
     const row_nums: number[] = (Array.from(Array(row_length).keys())).sort((a, b) => b - a);
 
@@ -36,10 +39,12 @@ export default function MainGrid({ pieces, map, objectives, selected_tile, this_
                             {row_nums.map((row) => (
                                 <Cell key={([row, column]).toString()}
                                     location={[row, column]}
+                                    cell_size={cell_size}
                                     selected={calcSelectedTile(selected_tile, [row, column])}
                                     selected_piece_actions={selected_piece_actions}
                                     cell_status={getCellStatus(objectives, map.data, [row, column])}
                                     pieces={pieces}
+                                    show_opponent_pieces={show_opponent_pieces}
                                     color_scheme={map.color_scheme}
                                     this_player_id={this_player_id}
                                     updateSelected={updateSelected}

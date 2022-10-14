@@ -7,6 +7,7 @@ import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
 import getPieceNames from '../utils/getPieceNames';
 import checkIfTeamSubmitted from '../utils/checkIfTeamSubmitted';
 import useKeyPress from '../utils/useKeyPress';
+import WaitingDots from './misc/WaitingDots';
 
 // ----------------------------------------------------------------------
 
@@ -92,18 +93,7 @@ export default function SelectPieces({ all_pieces, all_selected_pieces, game_sta
             </Button> :
             <Stack spacing={2} justifyContent={'center'}>
                 <Typography variant='h5' fontFamily={'fantasy'} fontWeight={'bold'} color={theme.palette.grey[300]}>Pieces Selected: {selectedTeam.length}/{num_allowed_pieces}</Typography>
-                { waiting_for_other_player ?
-                <Stack direction={'row'} spacing={1} justifyContent={'center'} alignItems={'center'}>
-                    <Stack justifyContent={'center'} alignItems={'center'} sx={{ animation: `${dots_waiting} 1s infinite linear alternate` }}>
-                        <div style={{ background: `linear-gradient(45deg, #${EDGE_COLOR} 30%, #${MIDDLE_COLOR} 80%)`, borderRadius: '50%', width: '10px', height: '10px' }}/>
-                    </Stack>
-                    <Stack justifyContent={'center'} alignItems={'center'} sx={{ animation: `${dots_waiting} 1s infinite linear alternate` }}>
-                        <div style={{ background: `linear-gradient(45deg, #${EDGE_COLOR} 30%, #${MIDDLE_COLOR} 80%)`, borderRadius: '50%', width: '10px', height: '10px' }}/>
-                    </Stack>
-                    <Stack justifyContent={'center'} alignItems={'center'} sx={{ animation: `${dots_waiting} 1s infinite linear alternate` }}>
-                        <div style={{ background: `linear-gradient(45deg, #${EDGE_COLOR} 30%, #${MIDDLE_COLOR} 80%)`, borderRadius: '50%', width: '10px', height: '10px' }}/>
-                    </Stack>
-                </Stack> :
+                { waiting_for_other_player ? <WaitingDots /> :
                 <Button variant={'contained'} disabled={submit_team_ready ? false : true} onClick={() => { setPieces(JSON.stringify(getPieceNames(selectedTeam))) }}>
                     Submit Pieces
                 </Button> }
