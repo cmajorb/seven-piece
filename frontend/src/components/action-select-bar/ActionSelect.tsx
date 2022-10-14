@@ -1,5 +1,5 @@
 import { useTheme, Stack, Box } from '@mui/material';
-import { ColorScheme, Piece, PieceActions, SpecialAbility, Stats } from '../../types';
+import { ColorScheme, GameStatus, Piece, PieceActions, Player, SpecialAbility, Stats } from '../../types';
 import GetBorderColor from '../../utils/getBorderColor';
 import checkSameLocation from '../../utils/checkSameLocation';
 import { BottomBarImgs } from '../misc/PNGImages';
@@ -7,6 +7,7 @@ import useKeyPress from '../../utils/useKeyPress';
 import getPiece from '../../utils/getPiece';
 import PieceDetails from './PieceDetails';
 import getSpecialAbility from '../../utils/getSpecialAbility';
+import { useEffect } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -15,16 +16,18 @@ type Props = {
     all_pieces: Piece[] | undefined,
     selected_tile: number[],
     selected_action: PieceActions,
-    this_player_id: number,
+    this_player: Player,
     color_scheme: ColorScheme,
     all_specials: SpecialAbility[] | undefined,
-    updateSelected: any,
+    current_state: GameStatus,
+    infoOpen: boolean,
     setActionType: any,
+    handleInfoToggle: any,
   };
 
 // ----------------------------------------------------------------------
 
-export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player_id, color_scheme, all_specials, setActionType }: Props) {
+export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player, color_scheme, all_specials, current_state, infoOpen, setActionType, handleInfoToggle }: Props) {
 
     const theme = useTheme();
     const stat_types: string[] = ['health', 'attack', 'speed', 'special'];
@@ -44,6 +47,8 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
     };
     useKeyPress(['1', '2', '3'], onKeyPress);
 
+    useEffect(() => {}, [infoOpen]);
+
     return (
         <Stack spacing={3} sx={{ position: 'fixed', top: '35%', right: 10 }}>
             { observed_piece ?
@@ -56,7 +61,7 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                     '&:hover': { cursor: 'pointer' },
                 }}
             >
-                <PieceDetails observed_piece={observed_piece} width={image_width} height={image_height} />
+                <PieceDetails observed_piece={observed_piece} width={image_width} height={image_height} infoOpen={infoOpen} handleInfoToggle={handleInfoToggle} />
             </Box> :
             <Box sx={{ p: 0.5, border: 2, borderColor: default_border_color, borderRadius: '5px', '&:hover': { cursor: 'pointer' } }}>
                 <BottomBarImgs
@@ -68,7 +73,7 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                 />
             </Box>            
             }
-            { piece ?
+            { (piece && current_state !== 'PLACING') ?
             <Stack spacing={0.3}>
                 <Box
                     sx={{
@@ -77,12 +82,12 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'move') && (piece.player === this_player_id) && {
-                            borderColor: (GetBorderColor(color_scheme, this_player_id, true))
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'move') && (piece.player === this_player.number) && {
+                            borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player_id) && setActionType('move')) }}
+                    onClick={() => { ((piece.player === this_player.number) && setActionType('move')) }}
                 >
                     <BottomBarImgs
                         type={'speed'}
@@ -99,12 +104,12 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'attack') && (piece.player === this_player_id) && {
-                            borderColor: (GetBorderColor(color_scheme, this_player_id, true))
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'attack') && (piece.player === this_player.number) && {
+                            borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player_id && piece.start_stats['attack'] > 0) && setActionType('attack')) }}
+                    onClick={() => { ((piece.player === this_player.number && piece.start_stats['attack'] > 0) && setActionType('attack')) }}
                 >
                     <BottomBarImgs
                         type={
@@ -124,12 +129,12 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === special_ability) && (piece.player === this_player_id) && {
-                            borderColor: (GetBorderColor(color_scheme, this_player_id, true))
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === special_ability) && (piece.player === this_player.number) && {
+                            borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player_id && special_ability) && setActionType(special_ability)) }}
+                    onClick={() => { ((piece.player === this_player.number && special_ability) && setActionType(special_ability)) }}
                 >
                     <BottomBarImgs
                         type={special_ability ? special_ability : 'disabled' }

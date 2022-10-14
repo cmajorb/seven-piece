@@ -2,20 +2,18 @@ import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useParams } from 'react-router-dom';
 import MainBoard from '../components/game-board/MainBoard';
-import { GameState, Piece, PieceActions, Player, SpecialAbility } from '../types';
+import { GameState, GameStatus, Piece, PieceActions, Player, SpecialAbility } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
-import BannerScore from '../components/game-board/BannerScore';
-import getDisplayTurn from '../utils/getDisplayTurn';
 import MainBBar from '../components/bottom-bar/MainB-Bar';
 import checkSameLocation from '../utils/checkSameLocation';
 import ActionSelect from '../components/action-select-bar/ActionSelect';
 import { TurnLine } from '../components/misc/DynamicLines';
-import createAllPieces from '../utils/createAllPieces';
 import SelectPieces from '../components/SelectPieces';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
 import { calcValidPieceMoves, calcValidPieceAttacks, calcValidPieceSpecial } from '../utils/calcValidPieceActions';
 import getPiece from '../utils/getPiece';
+import handleGameState from '../utils/handleGameState';
 
 // ----------------------------------------------------------------------
 
@@ -40,73 +38,16 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   const [selectedPieceSpecials, setSelectedPieceSpecials] = useState<number[][]>([]);
   const [actionType, setActionType] = useState<PieceActions>('move');
 
+  const [infoOpen, setInfoOpen] = useState<boolean>(false);
+  const handleInfoToggle = () => { setInfoOpen((prev) => !prev) };
+
   const { game_id } = useParams();
 
   const path_str = "game/" + game_id;
-  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str)
+  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str);
 
-  useEffect(() => {
-    console.log("Joining:");
-    sendJsonMessage({ type: "join_game", session: game_id });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (lastJsonMessage !== null) {
-        const message_str = JSON.stringify(lastJsonMessage);
-        const message = JSON.parse(message_str);
-        switch (message.type) {
-            case 'game_state':
-              const game_state: GameState = JSON.parse(message.state);
-              console.log('Set GameState:', game_state);
-              setGameState(game_state);
-              break;
-            case 'error':
-              console.log('error', message.message);
-              break;
-            case 'connect':
-              setThisPlayer(message.player);
-              console.log('Setting This Player', message.player);
-              break;
-            case 'get_characters':
-              setAllPieces(createAllPieces(message.characters));
-              console.log('Setting All Characters', message.characters);
-              break;
-            case 'get_specials':
-              setAllSpecials(message.specials);
-              console.log("Specials", message.specials);
-              break;
-            default:
-              console.error('Unknown message type!');
-              console.log(message);
-              break;
-        }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastJsonMessage]);
-
-  useEffect(() => {
-    setCurrentState((gameState ? gameState.state : "None"));
-    if (gameState && (gameState.state === 'WAITING' || gameState.state === 'PLACING') && !allPieces) {
-      sendJsonMessage({ type: "get_characters" });
-      sendJsonMessage({ type: "get_specials" });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState]);
-
-  const setPieces = (piece_array: string) => {
-    sendJsonMessage({
-      type: "select_pieces",
-      pieces: piece_array
-    })
-  };
-
-  const endTurn = () => {
-    sendJsonMessage({
-      type: "end_turn",
-    })
-  };
-
+  const setPieces = (piece_array: string) => { sendJsonMessage({ type: "select_pieces", pieces: piece_array }) };
+  const endTurn = () => { sendJsonMessage({ type: "end_turn" }) };
   const submitPieceAction = (piece_id: number, new_location: number[], action_type: string) => {
     sendJsonMessage({
       type: "action",
@@ -116,6 +57,27 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
       action_type: action_type
     })
   };
+
+  useEffect(() => {
+    console.log("Joining:");
+    sendJsonMessage({ type: "join_game", session: game_id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (lastJsonMessage !== null) {
+      handleGameState(lastJsonMessage, setGameState, setThisPlayer, setAllPieces, setAllSpecials)
+    }
+  }, [lastJsonMessage]);
+
+  useEffect(() => {
+    setCurrentState((gameState ? gameState.state : "None"));
+    if (gameState && (gameState.state === 'WAITING' || gameState.state === 'SELECTING') && !allPieces) {
+      sendJsonMessage({ type: "get_characters" });
+      sendJsonMessage({ type: "get_specials" });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -132,6 +94,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
     setSelectedPiece(undefined);
     if (gameState && thisPlayer) {
       const player: Player = thisPlayer;
+      if (gameState && gameState.state as GameStatus === 'PLACING') { player.ready = gameState.players[player.number].ready };
       if ((gameState.turn_count % gameState.players.length) === player.number) { player.is_turn = true }
       else if ((gameState.turn_count % gameState.players.length) !== player.number) { player.is_turn = false };
       setThisPlayer(player);
@@ -152,11 +115,9 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         } else if (actionType === 'attack') {
           const valid_piece_range: number[][] = calcValidPieceAttacks(current_piece, gameState.pieces, gameState.map, selectedTile, gameState.objectives);
           setSelectedPieceAttacks(valid_piece_range);
-          console.log(valid_piece_range);
         } else if (actionType === 'freeze') {
           const valid_piece_range: number[][] = calcValidPieceSpecial(current_piece, gameState.pieces, gameState.map, selectedTile, gameState.objectives);
           setSelectedPieceSpecials(valid_piece_range);
-          console.log(valid_piece_range);          
         }
       }
     }
@@ -165,16 +126,17 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   
   useEffect(() => { setActionType('move') }, [selectedPiece]);
 
-  const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean) => {
+  const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean, show_opponent_pieces: boolean, click: string) => {
     const same_location = checkSameLocation(location, selectedTile);
     if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
     else {
-      if (selectedPiece && !checking) { submitPieceAction(selectedPiece.id, location, actionType) };
+      if (selectedPiece && !checking && click === 'left') { submitPieceAction(selectedPiece.id, location, actionType) };
       setSelectedTile(location);
       if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
-      else if (piece && piece.player !== thisPlayer?.number) { console.log("CLICKED ON ANOTHER PIECE") }
+      else if (piece && piece.player !== thisPlayer?.number && show_opponent_pieces) { console.log("CLICKED ON ANOTHER PIECE") }
       else { setSelectedPiece(undefined) };
     }
+    if (click === 'right') { handleInfoToggle() };
   };
 
   return (
@@ -195,7 +157,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         (connectionStatus === 'Open' &&
         gameState &&
         thisPlayer &&
-        (gameState.state === 'WAITING' || gameState.state === 'PLACING')) ?
+        (gameState.state === 'WAITING' || gameState.state === 'SELECTING')) ?
       <>
         { allPieces &&
         <SelectPieces
@@ -212,61 +174,52 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
       <>
         { gameState && (thisPlayer !== undefined) &&
           <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
-            <Stack spacing={0} justifyContent={'center'} alignItems={'center'}>
-              { getDisplayTurn(gameState.state, gameState.turn_count) >= 0 &&
-                <BannerScore
-                  team_scores={getTeamScores(gameState.players)}
-                  total_objectives={(gameState.objectives).length}
-                  score_to_win={gameState.score_to_win}
-                />
-              }
-              <Stack direction='row-reverse'>
-                <ActionSelect
-                  piece={selectedPiece}
-                  all_pieces={gameState.pieces}
-                  selected_tile={selectedTile}
-                  selected_action={actionType}
-                  this_player_id={thisPlayer.number}
-                  color_scheme={gameState.map.color_scheme}
-                  all_specials={allSpecials}
-                  updateSelected={updateSelected}
-                  setActionType={setActionType}
-                />
-                <MainBoard
-                  pieces={gameState.pieces}
-                  map={gameState.map}
-                  objectives={gameState.objectives}
-                  this_player_id={thisPlayer.number}
-                  selected_tile={selectedTile}
-                  selected_piece_actions={
-                    actionType === 'move' ? selectedPieceMoves : 
-                    (actionType === 'attack' ? selectedPieceAttacks :
-                    (actionType.length > 0 ? selectedPieceSpecials : undefined))
-                  }
-                  updateSelected={updateSelected}
-                />
-                <TurnLine
-                  is_turn={thisPlayer.is_turn}
-                  bg_color={BG_COLOR}
-                  middle_color={MIDDLE_COLOR}
-                  edge_color={EDGE_COLOR}
-                  turn_seconds={100}
-                />
-              </Stack>
+            <Stack direction='row-reverse'>
+              <ActionSelect
+                piece={selectedPiece}
+                all_pieces={gameState.pieces}
+                selected_tile={selectedTile}
+                selected_action={actionType}
+                this_player={thisPlayer}
+                color_scheme={gameState.map.color_scheme}
+                all_specials={allSpecials}
+                current_state={gameState.state as GameStatus}
+                infoOpen={infoOpen}
+                setActionType={setActionType}
+                handleInfoToggle={handleInfoToggle}
+              />
+              <MainBoard
+                pieces={gameState.pieces}
+                map={gameState.map}
+                objectives={gameState.objectives}
+                this_player_id={thisPlayer.number}
+                selected_tile={selectedTile}
+                selected_piece_actions={
+                  actionType === 'move' ? selectedPieceMoves : 
+                  (actionType === 'attack' ? selectedPieceAttacks :
+                  (actionType.length > 0 ? selectedPieceSpecials : undefined))
+                }
+                current_state={gameState.state as GameStatus}
+                updateSelected={updateSelected}
+              />
+              <TurnLine
+                is_turn={thisPlayer.is_turn}
+                bg_color={BG_COLOR}
+                middle_color={MIDDLE_COLOR}
+                edge_color={EDGE_COLOR}
+                turn_seconds={100}
+              />
             </Stack>
             { gameState && (thisPlayer !== undefined) &&
               <MainBBar
                 pieces={gameState.pieces}
-                selected_piece={selectedPiece}
-                selected_tile={selectedTile}
-                this_player_id={thisPlayer.number}
+                team_scores={getTeamScores(gameState.players)}
+                this_player={thisPlayer}
                 active_player_id={gameState.turn_count % gameState.players.length}
                 color_scheme={gameState.map.color_scheme}
-                current_state={gameState.state}
+                current_state={gameState.state as GameStatus}
                 score_to_win={gameState.score_to_win}
-                updateSelected={updateSelected}
                 endTurn={endTurn}
-                setPieces={setPieces}
               />
             }
           </Stack>

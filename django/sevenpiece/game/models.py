@@ -165,6 +165,7 @@ class Player(models.Model):
 
         dictionary["number"] = self.number
         dictionary["session"] = self.session
+        dictionary["ready"] = self.ready
         return dictionary
 
     def is_current_turn(self):

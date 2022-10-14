@@ -22,6 +22,7 @@ export type Piece = {
     session: string;
     score: Score;
     is_turn: boolean;
+    ready: boolean;
   };
 
 export type ColorScheme = {
@@ -93,3 +94,4 @@ export type SpecialAbility = {
 
 export type PieceActions = 'move' | 'attack' |  'freeze';
 export type WebSocketStatus = 'Connecting' | 'Open' | 'Closing' | 'Closed' | 'Uninstantiated';
+export type GameStatus = 'WAITING' | 'SELECTING' | 'PLACING' | 'PLAYING' | 'FINISHED';

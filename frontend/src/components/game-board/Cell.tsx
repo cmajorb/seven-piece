@@ -10,22 +10,23 @@ import Ice from '../../images/ice_layer.png';
 
 type Props = {
   location: number[],
+  cell_size: number,
   selected: boolean,
   selected_piece_actions: number[][] | undefined,
   cell_status: CellStatus,
   pieces: Piece[],
   color_scheme: ColorScheme,
   this_player_id: number,
+  show_opponent_pieces: boolean,
   updateSelected: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, selected, selected_piece_actions, cell_status, pieces, color_scheme, this_player_id, updateSelected }: Props) {
+export default function Cell({ location, cell_size, selected, selected_piece_actions, cell_status, pieces, color_scheme, this_player_id, show_opponent_pieces, updateSelected }: Props) {
   
   const theme = useTheme();
   const piece: Piece | undefined = getPiece(location, pieces);
-  const cell_size: number = 60;
 
   function isValidPieceMove () {
     let is_valid = false;
@@ -49,8 +50,8 @@ export default function Cell({ location, selected, selected_piece_actions, cell_
         opacity: cell_status.is_empty ? '0%' : '100%',
         '&:hover': { cursor: cell_status.is_empty ? null : 'pointer' },
       }}
-      onClick={() => { updateSelected(location, piece, false) }}
-      onContextMenu={() => { console.log("RIGHT CLICKED!", location, piece) }}
+      onClick={() => { updateSelected(location, piece, false, show_opponent_pieces, 'left') }}
+      onContextMenu={() => { updateSelected(location, piece, false, show_opponent_pieces, 'right') }}
     >
       
       {piece && piece.state === 'frozen' &&
@@ -83,7 +84,7 @@ export default function Cell({ location, selected, selected_piece_actions, cell_
       { cell_status.contains_objective && !cell_status.contains_piece &&
         <ObjectiveImg player_id={cell_status.objective_owner!} width={43} height={54} sx={{ pt: 0.25 }}/>
       }
-      { piece && cell_status.contains_piece && !cell_status.contains_objective &&
+      { piece && cell_status.contains_piece && !cell_status.contains_objective && (show_opponent_pieces || piece.player === this_player_id) &&
         <PieceImg
           player_id={piece.player}
           piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.name : ''}

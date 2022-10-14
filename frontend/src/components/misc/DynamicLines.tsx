@@ -53,7 +53,7 @@ export function TurnLine({ is_turn, bg_color, middle_color, edge_color, turn_sec
                         position: 'absolute',
                         borderRadius: '10px',
                         maxHeight: line_height,
-                        width: 11.9,
+                        width: 15,
                         animation: `${is_turn ? line_fade : line_grow} ${is_turn ? turn_seconds : 1}s forwards linear`, backgroundImage: background_img
                     }}
                 />                
@@ -63,7 +63,7 @@ export function TurnLine({ is_turn, bg_color, middle_color, edge_color, turn_sec
                         position: 'fixed',
                         border: 2,
                         borderColor: theme.palette.grey[700],
-                        width: 12,
+                        width: 15,
                         borderRadius: '10px',
                         height: line_height,
                     }}

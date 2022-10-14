@@ -1,6 +1,5 @@
 import { Piece } from '../../types';
 import { AnimatePresence, m } from 'framer-motion';
-import { useState } from 'react';
 import { Stack, useTheme } from '@mui/material';
 import { varFade } from '../animate';
 import Iconify from '../misc/Iconify';
@@ -12,25 +11,24 @@ type Props = {
   observed_piece: Piece,
   width: number,
   height: number,
+  infoOpen: boolean,
+  handleInfoToggle: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function PieceDetails ({ observed_piece, width, height }: Props) {
+export default function PieceDetails ({ observed_piece, width, height, infoOpen, handleInfoToggle }: Props) {
 
   const theme = useTheme();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const handleToggle = () => { setOpen((prev) => !prev) };
-
   return (
         <>
-            <Stack onClick={handleToggle} justifyContent={'center'} alignItems={'center'}>
-                <Iconify icon={open ? 'eva:arrowhead-right-outline' : 'eva:arrowhead-left-outline'} width={width} height={height} sx={{ color: theme.palette.grey[500] }} />
+            <Stack onClick={handleInfoToggle} justifyContent={'center'} alignItems={'center'}>
+                <Iconify icon={infoOpen ? 'eva:arrowhead-right-outline' : 'eva:arrowhead-left-outline'} width={width} height={height} sx={{ color: theme.palette.grey[500] }} />
             </Stack>
 
             <AnimatePresence>
-                { open && observed_piece && (
+                { infoOpen && observed_piece && (
                     <m.div
                     key={'animation'}
                     variants={varFade({
@@ -44,7 +42,7 @@ export default function PieceDetails ({ observed_piece, width, height }: Props) 
                         position: 'fixed',
                         zIndex: theme.zIndex.drawer + 3,
                     }}>
-                        <PieceInfoCard observed_piece={observed_piece} />
+                        <PieceInfoCard observed_piece={observed_piece} team_pick_option={false} />
                     </m.div>
                 )}
             </AnimatePresence>

@@ -1,4 +1,4 @@
-import { Box, Stack, Avatar, Badge, Typography, useTheme, SxProps } from '@mui/material';
+import { Box, Stack, Avatar, Badge, SxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import WallImage from '../../images/rock.png';
 import SkullImage from '../../images/skull.png';
@@ -71,24 +71,17 @@ export function WallImg ({ size }: WallProps) {
     );
 }
 
-export function ObjectiveImg ({ player_id, width, height, req_score, sx }: ObjectiveProps) {
-    const theme = useTheme();
+export function ObjectiveImg ({ player_id, width, height, sx }: ObjectiveProps) {
     let objective_img = NeutralBanner;
     if (player_id === 0) { objective_img = Team1Banner }
     else if (player_id === 1) { objective_img = Team2Banner }
-    else if (req_score) { objective_img = NeutralKillBanner };
+    else if (player_id === -2) { objective_img = NeutralKillBanner };
 
     return (
         <Stack alignItems="center" justifyContent="center" sx={{ pt: 0, ...(sx && { ...sx }) }}>
             <Box height={height} width={width} sx={{ justifyContent: "center", alignItems: "center", display: "flex" }}>
                 <img alt='testing' src={objective_img} height={height * 0.7} width={width * 0.75} />
-            </Box>
-            { req_score &&
-            <Box height={height * 0.6} width={width * 0.6} sx={{ pb: 1, justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
-                <Typography variant='h4' fontWeight={'bold'} sx={{ color: theme.palette.grey[300] }}>
-                    {req_score}
-                </Typography>
-            </Box> }    
+            </Box>  
         </Stack>
     );
 }
