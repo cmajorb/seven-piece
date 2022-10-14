@@ -69,9 +69,9 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
                                 {stat_types.map((stat, index) => (
                                 <BottomBarImgs
                                     key={stat + index}
-                                    type={stat === 'attack' ? (observed_piece.default_stats.attack_range_max > 1 ? 'range' : 'melee') : stat}
-                                    current_stat={observed_piece.default_stats[getStatType(index) as keyof Stats] as number}
-                                    max_stat={observed_piece.default_stats[getStatType(index) as keyof Stats] as number}
+                                    type={stat === 'attack' ? (observed_piece.current_stats.attack_range_max > 1 ? 'range' : 'melee') : stat}
+                                    current_stat={observed_piece.current_stats[getStatType(index) as keyof Stats] as number}
+                                    max_stat={observed_piece.start_stats[getStatType(index) as keyof Stats] as number}
                                     height={30}
                                     width={30}
                                 />
