@@ -7,7 +7,7 @@ import { BLACK_COLOR, HOVER_RATIO, MIDDLE_COLOR, TAP_RATIO } from '../utils/defa
 
 type Props = {
     observed_piece?: Piece,
-    team_pick_option?: boolean,
+    team_pick_option: boolean,
     team_picked?: boolean,
     transferTeam?: any,
 };

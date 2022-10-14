@@ -50,8 +50,8 @@ export default function Cell({ location, cell_size, selected, selected_piece_act
         opacity: cell_status.is_empty ? '0%' : '100%',
         '&:hover': { cursor: cell_status.is_empty ? null : 'pointer' },
       }}
-      onClick={() => { updateSelected(location, piece, false) }}
-      onContextMenu={() => { console.log("RIGHT CLICKED!", location, piece) }}
+      onClick={() => { updateSelected(location, piece, false, show_opponent_pieces, 'left') }}
+      onContextMenu={() => { updateSelected(location, piece, false, show_opponent_pieces, 'right') }}
     >
       
       {piece && piece.state === 'frozen' &&

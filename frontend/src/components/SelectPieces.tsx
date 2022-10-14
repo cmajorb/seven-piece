@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Piece, Map, GameStatus } from '../types';
-import { Box, Button, Grid, keyframes, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Button, Grid, Stack, Typography, useTheme } from '@mui/material';
 import { TurnLine } from '../components/misc/DynamicLines';
 import PieceInfoCard from './PieceInfoCard';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
@@ -37,18 +37,6 @@ export default function SelectPieces({ all_pieces, all_selected_pieces, game_sta
         (!team_submitted)
     );
     const waiting_for_other_player: boolean = team_submitted && !begin_game_ready;
-
-    const dots_waiting = (
-        keyframes`
-        0% {
-            opacity: 35%;
-            scale: 1.2;
-        }
-        100% {
-            opacity: 100%;
-            scale: 1;
-        }`
-    );
 
     const onKeyPress = (event: any) => {
         if (event.key === 'Enter') {

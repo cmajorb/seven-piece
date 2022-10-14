@@ -1,7 +1,6 @@
 import { Box, Stack, Button } from '@mui/material';
 import { ColorScheme, GameStatus } from '../../types';
 import useKeyPress from '../../utils/useKeyPress';
-import { ObjectiveImg } from '../misc/PNGImages';
 import LeftArrow from '../../images/backward-arrow.svg';
 import RightArrow from '../../images/forward-arrow.svg';
 import WaitingDots from '../misc/WaitingDots';
@@ -32,12 +31,10 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
     const banner_width = banner_height * 0.8;
 
     return (
-        <>
+        <Stack direction={'row'} justifyContent={'space-between'} width={'100%'}>
             { (active_player_id !== undefined && active_player_id === 1 && current_state === 'PLAYING') ?
-                <Box sx={{ width: banner_width, height: banner_height }}>
-                    <ObjectiveImg player_id={-1} width={banner_width} height={banner_height} req_score={score_to_win}/>
-                </Box> :
-                <>
+                <Box sx={{ width: banner_width, height: banner_height }} /> :
+                <Stack alignItems={'center'} justifyContent={'center'}>
                     { active_player_id !== undefined && current_state === 'PLAYING' && 
                     <img
                         alt={'left'}
@@ -45,27 +42,27 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
                         width={70}
                         height={70}
                     /> }
-                </> 
+                </Stack> 
             }
 
             <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
                 { current_state === 'PLACING' ?
-                <>
+                <Stack alignItems={'center'} justifyContent={'center'}>
                     { this_player_ready ? <WaitingDots /> :
                     <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={this_player_ready}>
                         Place Pieces
                     </Button> }
-                </> :
-                <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
-                    End Turn
-                </Button> }
+                </Stack> :
+                <Stack alignItems={'center'} justifyContent={'center'}>
+                    <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
+                        End Turn
+                    </Button>
+                </Stack> }
             </Stack>
 
             { (active_player_id !== undefined && active_player_id === 0 && current_state === 'PLAYING') ?
-                <Box sx={{ width: banner_width, height: banner_height }}>
-                    <ObjectiveImg player_id={-1} width={banner_width} height={banner_height} req_score={score_to_win}/>
-                </Box> :
-                <>
+                <Box sx={{ width: banner_width, height: banner_height }} /> :
+                <Stack alignItems={'center'} justifyContent={'center'}>
                     { active_player_id !== undefined && current_state === 'PLAYING' && 
                     <img
                         alt={'right'}
@@ -73,8 +70,8 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
                         width={70}
                         height={70}
                     /> }
-                </> 
+                </Stack> 
             }
-        </>
+        </Stack>
     );
 }

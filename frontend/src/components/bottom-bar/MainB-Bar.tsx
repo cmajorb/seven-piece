@@ -1,31 +1,25 @@
 import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material';
-import { ColorScheme, GameStatus, Piece, Player } from '../../types';
+import { ColorScheme, GameStatus, Piece, Player, Score } from '../../types';
 import BBarActionArea from './B-BarActionArea';
-import PieceStatStack from './PieceStatStack';
 import calcHexToRGB from '../../utils/calcHexToRGB';
+import BannerScore from './BannerScore';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   pieces: Piece[],
-  selected_piece: Piece | undefined,
   active_player_id: number | undefined,
-  selected_tile: number[],
   this_player: Player,
   color_scheme: ColorScheme,
   current_state: GameStatus,
   score_to_win: number,
-  updateSelected: any,
+  team_scores: Score[],
   endTurn: any,
-  setPieces: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainBBar(
-  { pieces, selected_piece, selected_tile, this_player, color_scheme, score_to_win,
-    active_player_id, current_state, updateSelected, endTurn, setPieces
-  }: Props) {
+export default function MainBBar({ pieces, this_player, color_scheme, score_to_win, team_scores, active_player_id, current_state, endTurn }: Props) {
 
   const theme = useTheme();
 
@@ -38,50 +32,32 @@ export default function MainBBar(
             top: 'auto',
             bottom: 0,
             backgroundColor: calcHexToRGB(theme.palette.grey[900], 0.75),
-            height: 110,
-            justifyContent: 'center'
+            height: 80,
+            justifyContent: 'center',
           }}
         >
-          <Toolbar sx={{ pt: 0.2, alignItems: 'center', justifyContent: 'space-around' }}>
+          <Toolbar sx={{ alignItems: 'center' }}>
 
             { pieces &&
-            <Stack direction={'row'} spacing={1} justifyContent={'space-between'} alignItems={'center'}>
-              {pieces.map((piece: Piece) => ( piece.player === 0 && (
-                <PieceStatStack
-                  key={piece.player + piece.id + piece.name}
-                  this_piece={piece}
-                  selected_piece={selected_piece}
-                  selected_tile={selected_tile}
-                  this_player_id={this_player.number}
-                  color_scheme={color_scheme}
-                  updateSelected={updateSelected}
-                />
-              ) ))}
-            </Stack> }
+            <Box width={'100%'} sx={{ alignItems: 'center', justifyContent: 'flex-start' }}>
+              <BannerScore player_id={0} team_scores={team_scores} score_to_win={score_to_win} />
+            </Box> }
 
-            <BBarActionArea
-              active_player_id={active_player_id}
-              this_player_id={this_player.number}
-              color_scheme={color_scheme}
-              current_state={current_state}
-              score_to_win={score_to_win}
-              this_player_ready={this_player.ready}
-              endTurn={endTurn}
-            />
+            <Stack direction={'row'} width={'100%'} alignItems={'center'} justifyContent={'center'}>
+              <BBarActionArea
+                active_player_id={active_player_id}
+                this_player_id={this_player.number}
+                color_scheme={color_scheme}
+                current_state={current_state}
+                score_to_win={score_to_win}
+                this_player_ready={this_player.ready}
+                endTurn={endTurn}
+              />
+            </Stack>
 
             { pieces &&
-            <Stack direction={'row'} spacing={1} justifyContent={'space-between'} alignItems={'center'}>
-              {pieces.map((piece: Piece) => ( piece.player === 1 && (
-                <PieceStatStack
-                  key={piece.player + piece.id + piece.name}
-                  this_piece={piece}
-                  selected_piece={selected_piece}
-                  selected_tile={selected_tile}
-                  this_player_id={this_player.number}
-                  color_scheme={color_scheme}
-                  updateSelected={updateSelected}
-                />
-              ) ))}
+            <Stack direction={'row'} width={'100%'} alignItems={'center'} justifyContent={'flex-end'}>
+              <BannerScore player_id={1} team_scores={team_scores} score_to_win={score_to_win} />
             </Stack> }
 
           </Toolbar>

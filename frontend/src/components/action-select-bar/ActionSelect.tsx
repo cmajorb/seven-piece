@@ -7,6 +7,7 @@ import useKeyPress from '../../utils/useKeyPress';
 import getPiece from '../../utils/getPiece';
 import PieceDetails from './PieceDetails';
 import getSpecialAbility from '../../utils/getSpecialAbility';
+import { useEffect } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -19,12 +20,14 @@ type Props = {
     color_scheme: ColorScheme,
     all_specials: SpecialAbility[] | undefined,
     current_state: GameStatus,
+    infoOpen: boolean,
     setActionType: any,
+    handleInfoToggle: any,
   };
 
 // ----------------------------------------------------------------------
 
-export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player, color_scheme, all_specials, current_state, setActionType }: Props) {
+export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player, color_scheme, all_specials, current_state, infoOpen, setActionType, handleInfoToggle }: Props) {
 
     const theme = useTheme();
     const stat_types: string[] = ['health', 'attack', 'speed', 'special'];
@@ -44,6 +47,8 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
     };
     useKeyPress(['1', '2', '3'], onKeyPress);
 
+    useEffect(() => {}, [infoOpen]);
+
     return (
         <Stack spacing={3} sx={{ position: 'fixed', top: '35%', right: 10 }}>
             { observed_piece ?
@@ -56,7 +61,7 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
                     '&:hover': { cursor: 'pointer' },
                 }}
             >
-                <PieceDetails observed_piece={observed_piece} width={image_width} height={image_height} />
+                <PieceDetails observed_piece={observed_piece} width={image_width} height={image_height} infoOpen={infoOpen} handleInfoToggle={handleInfoToggle} />
             </Box> :
             <Box sx={{ p: 0.5, border: 2, borderColor: default_border_color, borderRadius: '5px', '&:hover': { cursor: 'pointer' } }}>
                 <BottomBarImgs
