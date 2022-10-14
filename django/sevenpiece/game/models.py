@@ -505,3 +505,19 @@ class IceWizard(Piece):
             raise IllegalMoveError
         self.game.refresh_from_db()
         return self.game
+
+class Cleric(Piece):
+    class Meta:
+        proxy = True
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health < 0:
+            self.health = 0
+            self.remove_shield()
+        self.save(update_fields=['health'])
+        return self
+
+    def remove_shield(self):
+        for piece in self.game.piece_set.all().filter(player = self.player):
+            piece.health = min(piece.health, piece.character.health)
+            piece.save(update_fields=['health'])

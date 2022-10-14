@@ -25,6 +25,7 @@ class PieceTestCase(TestCase):
         self.archer = Character.objects.get_or_create(name="Archer", health=2, attack_range_min=2, attack_range_max=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has distance attack")
         self.berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has strong attack")
         self.ice_wizard = Character.objects.get_or_create(name="Ice Wizard", attack=0, special="Freeze", special_range_min = 1, special_range_max = 2, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Freezes other pieces")
+        self.cleric = Character.objects.get_or_create(name="Cleric", image="https://www.svgrepo.com/show/153027/warrior.svg", description="Gives a shield to other pieces while alive")
 
             #Game
         # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)

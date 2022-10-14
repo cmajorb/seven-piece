@@ -1,5 +1,6 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync, sync_to_async
+from game.simulate import simulation_setup, simulate
 from game.models import GameState, Player, Piece, MapTemplate, Character
 from game.game_logic import create_game
 from game.serializers import MapSerializer, CharacterSerializer
@@ -218,4 +219,7 @@ class MenuConsumer(JsonWebsocketConsumer):
             )
         elif message_type == "simulate":
             logging.info("Running simulation")
+            simulated_game_state = create_game(2)
+            simulated_game_state = simulation_setup(simulated_game_state)
+            simulate(simulated_game_state)
         return super().receive_json(content, **kwargs)
