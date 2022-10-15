@@ -8,7 +8,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 logging.basicConfig(level=logging.INFO)
-sleep_time = 3
+sleep_time = 2
 channel_layer = get_channel_layer()
 
 def step(game_state):
@@ -40,16 +40,15 @@ def simulate(game_state):
     pieces1 = player1.select_pieces(pieces)
     pieces = ["Cleric", "Soldier"]
     pieces2 = player2.select_pieces(pieces)
-    time.sleep(10)
-    step(game_state)
+    # step(game_state)
     game_state = pieces1[0].make_move([1,1])
-    step(game_state)
+    # step(game_state)
     game_state = pieces1[1].make_move([1,0])
-    step(game_state)
+    # step(game_state)
     game_state = pieces2[1].make_move([4,3])
-    step(game_state)
+    # step(game_state)
     game_state = pieces2[0].make_move([3,3])
-    step(game_state)
+    # step(game_state)
     game_state = player1.end_turn()
     game_state = player2.end_turn()
     step(game_state)

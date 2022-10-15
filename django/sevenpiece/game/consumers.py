@@ -6,6 +6,7 @@ from game.game_logic import create_game
 from game.serializers import MapSerializer, CharacterSerializer
 import json
 import logging
+from channels.consumer import SyncConsumer
 
 logging.basicConfig(level=logging.INFO)
 
@@ -182,6 +183,9 @@ class MenuConsumer(JsonWebsocketConsumer):
     def get_maps(self, event):
         self.send_json(event)
 
+    def get_simulation(self, event):
+        self.send_json(event)
+
     def error(self, event):
         self.send_json(event)
         
@@ -221,5 +225,18 @@ class MenuConsumer(JsonWebsocketConsumer):
             logging.info("Running simulation")
             simulated_game_state = create_game(2)
             simulated_game_state = simulation_setup(simulated_game_state)
-            simulate(simulated_game_state)
+            session = str(simulated_game_state.session)
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "get_simulation",
+                    "session": session,
+                },
+            )
+            async_to_sync(self.channel_layer.send)('background-tasks', {'type': 'simulate', 'game_session':session})
         return super().receive_json(content, **kwargs)
+
+class BackgroundTaskConsumer(SyncConsumer):
+    def simulate(self, message):
+        game = GameState.objects.get(session=message['game_session'])
+        simulate(game)

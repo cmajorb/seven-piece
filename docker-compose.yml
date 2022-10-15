@@ -4,6 +4,11 @@ services:
     build: ./django
     ports:
         - "8080:80"
+  worker:
+    build: ./django
+    command: python sevenpiece/manage.py runworker background-tasks
+    links:
+    - redis
   db:
     image: mariadb:latest
     environment:

@@ -46,6 +46,9 @@ export default function StartGame() {
                 case 'get_maps':
                 console.log(message.maps);
                 break;
+                case 'get_simulation':
+                navigate(PATH_DASHBOARD.general.board + message.session)
+                break;
                 default:
                 console.error('Unknown message type!');
                 break;
@@ -115,6 +118,13 @@ export default function StartGame() {
                     onClick={() => { navigate(PATH_DASHBOARD.general.board + gameID) }}
                 >
                     Join Game
+                </Button>
+                <Button
+                    variant='contained'
+                    sx={{ width: 300 }}
+                    onClick={() => { sendJsonMessage({ type: "simulate" }) }}
+                >
+                    Simulate Game
                 </Button>
                 <TextField
                     label="Game ID"

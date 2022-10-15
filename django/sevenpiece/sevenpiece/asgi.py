@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from django.core.asgi import get_asgi_application
 from django.urls import re_path
-from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 from game import consumers
@@ -23,7 +23,9 @@ ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent
 sys.path.append(str(ROOT_DIR / "sevenpiece"))
 
 application = ProtocolTypeRouter({
-
+    'channel': ChannelNameRouter({
+        'background-tasks': consumers.BackgroundTaskConsumer.as_asgi(),
+    }),
     "http": get_asgi_application(),
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
