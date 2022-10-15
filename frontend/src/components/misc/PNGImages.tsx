@@ -53,8 +53,8 @@ type BottomProps = {
 type ObjectiveAndPieceProps = {
     player_id: number,
     piece_name: string,
-    health: number,
     selected: boolean,
+    size: number,
 };
 
 // ----------------------------------------------------------------------
@@ -191,9 +191,8 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: 
     );
 }
 
-export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected }: ObjectiveAndPieceProps) {
+export function ObjectiveAndPieceImg ({ player_id, piece_name, selected, size }: ObjectiveAndPieceProps) {
     const piece_img = getPieceImg(piece_name);
-    // const heart_nums = (Array.from(Array(health).keys()));
     let objective_img = NeutralBanner;
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -201,8 +200,8 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
     else if (player_id === 1) { objective_img = Team2Banner };
     const ObjectiveAvatar = styled(Avatar)(() => ({
         backgroundColor: 'transparent',
-        width: 20,
-        height: 22,
+        width: (size / 3),
+        height: (size / 2.72),
         imgProps: { sx: { width: 1, height: 1, transition: 'scale 0.25s', scale: selected ? '1.5' : '1' } }
     }));
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
@@ -217,14 +216,14 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
             >
                 <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                     <Box
-                        height={60}
-                        width={60}
+                        height={size}
+                        width={size}
                         sx={{ justifyContent: "center", alignItems: "flex-start", display: "flex", position: "absolute" }}>
                         <img
                             alt='testing'
                             src={PieceBackground}
-                            height={default_piece_container_size}
-                            width={default_piece_container_size}
+                            height={size}
+                            width={size}
                             style={{
                                 filter: `${filter_string}`,
                                 transition: 'scale 0.25s',
@@ -235,8 +234,8 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, health, selected 
                     <OutlinedAvatar
                         src={piece_img}
                         sx={{
-                            width: default_piece_image_size,
-                            height: default_piece_image_size,
+                            width: (size ? (size * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
+                            height: (size ? (size * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
                             transition: 'scale 0.25s',
                             scale: selected ? '1.5' : '1',
                         }}

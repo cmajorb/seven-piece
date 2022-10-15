@@ -58,20 +58,22 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static" sx={{ top: 'auto', bottom: 0 }}>
           <Toolbar sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-            <Stack direction={'row'} alignItems={'center'}>
-              { currentSession &&
+            <Stack>
               <Stack direction={'row'} alignItems={'center'}>
-                <Typography variant="button">Session:</Typography>
-                <Button sx={{ pl: 1, pr: 1 }} size='large' color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
-                <Stack justifyContent={'center'} alignItems={'center'} sx={{ animation: `${ripple} 0.85s infinite alternate ease-in-out` }}>
-                  <div style={{ backgroundColor: getConnectionColor(connection_status, theme), borderRadius: '50%', width: '10px', height: '10px', justifyContent: 'center', alignItems: 'center' }}/>
-                </Stack>
-              </Stack> }
+                { currentSession &&
+                <Stack direction={'row'} alignItems={'center'}>
+                  <Stack justifyContent={'center'} alignItems={'center'} sx={{ pr: 1, pb: 0.5, animation: `${ripple} 0.85s infinite alternate ease-in-out` }}>
+                    <div style={{ backgroundColor: getConnectionColor(connection_status, theme), borderRadius: '50%', width: '10px', height: '10px', justifyContent: 'center', alignItems: 'center' }}/>
+                  </Stack>
+                  <Typography variant="button" sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }}>Session:</Typography>
+                  <Button sx={{ pl: 1 }} size='large' color="inherit" style={{ textTransform: 'lowercase', fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
+                </Stack> }
+              </Stack>
+              { current_state && current_state !== 'None' && (pathname.includes(PATH_DASHBOARD.general.board)) &&
+                <Typography variant='body2' sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }}>Game State: {current_state}</Typography>
+              }
             </Stack>
-            { current_state && current_state !== 'None' &&
-              <Typography variant='body2'>Game State: {current_state}</Typography>
-            }
-            <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
+            <Button color="inherit" sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
           </Toolbar>
         </AppBar>
       </Box>

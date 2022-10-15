@@ -14,6 +14,7 @@ import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
 import { calcValidPieceMoves, calcValidPieceAttacks, calcValidPieceSpecial } from '../utils/calcValidPieceActions';
 import getPiece from '../utils/getPiece';
 import handleGameState from '../utils/handleGameState';
+import useWindowDimensions from '../utils/useWindowDimensions';
 
 // ----------------------------------------------------------------------
 
@@ -42,6 +43,8 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   const handleInfoToggle = () => { setInfoOpen((prev) => !prev) };
 
   const { game_id } = useParams();
+  const select_team_seconds = 100;
+  const { height } = useWindowDimensions();
 
   const path_str = "game/" + game_id;
   const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str);
@@ -126,31 +129,33 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   
   useEffect(() => { setActionType('move') }, [selectedPiece]);
 
-  const updateSelected = (location: number[], piece: Piece | undefined, checking: boolean, show_opponent_pieces: boolean, click: string) => {
+  const updateSelected = (location: number[], piece: Piece | undefined, show_opponent_pieces: boolean, click: string) => {
     const same_location = checkSameLocation(location, selectedTile);
     if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
     else {
-      if (selectedPiece && !checking && click === 'left') { submitPieceAction(selectedPiece.id, location, actionType) };
+      if (selectedPiece && click === 'left') { submitPieceAction(selectedPiece.id, location, actionType) };
       setSelectedTile(location);
       if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
       else if (piece && piece.player !== thisPlayer?.number && show_opponent_pieces) { console.log("CLICKED ON ANOTHER PIECE") }
       else { setSelectedPiece(undefined) };
     }
-    if (click === 'right') { handleInfoToggle() };
+    if (click === 'right') {
+      if (gameState && getPiece(location, gameState.pieces)) { setSelectedTile(location); setInfoOpen(true) };
+      if (same_location) { setInfoOpen(false); setSelectedTile([]); setSelectedPiece(undefined) };
+    };
   };
 
   return (
     <Paper square elevation={0} onContextMenu={(e)=> e.preventDefault()} onMouseDown={(e)=> e.preventDefault()}
       sx={{
-        p: 1,
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
-        height: '120vh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        height: (height * 1.1)
       }}
     >
       {
@@ -159,6 +164,14 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         thisPlayer &&
         (gameState.state === 'WAITING' || gameState.state === 'SELECTING')) ?
       <>
+        <TurnLine
+          start_position={height * 0.45}
+          is_turn={(gameState.state === 'WAITING' || gameState.state === 'SELECTING')}
+          bg_color={BG_COLOR}
+          middle_color={MIDDLE_COLOR}
+          edge_color={EDGE_COLOR}
+          turn_seconds={select_team_seconds}
+        />
         { allPieces &&
         <SelectPieces
           all_pieces={allPieces}
@@ -174,21 +187,17 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
       <>
         { gameState && (thisPlayer !== undefined) &&
           <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
-            <Stack direction='row-reverse'>
-              <ActionSelect
-                piece={selectedPiece}
-                all_pieces={gameState.pieces}
-                selected_tile={selectedTile}
-                selected_action={actionType}
-                this_player={thisPlayer}
-                color_scheme={gameState.map.color_scheme}
-                all_specials={allSpecials}
-                current_state={gameState.state as GameStatus}
-                infoOpen={infoOpen}
-                setActionType={setActionType}
-                handleInfoToggle={handleInfoToggle}
+            <Stack direction='row'>
+              <TurnLine
+                start_position={height * 0.45}
+                is_turn={thisPlayer.is_turn}
+                bg_color={BG_COLOR}
+                middle_color={MIDDLE_COLOR}
+                edge_color={EDGE_COLOR}
+                turn_seconds={100}
               />
               <MainBoard
+                grid_size={height * 0.8}
                 pieces={gameState.pieces}
                 map={gameState.map}
                 objectives={gameState.objectives}
@@ -202,13 +211,20 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                 current_state={gameState.state as GameStatus}
                 updateSelected={updateSelected}
               />
-              <TurnLine
-                is_turn={thisPlayer.is_turn}
-                bg_color={BG_COLOR}
-                middle_color={MIDDLE_COLOR}
-                edge_color={EDGE_COLOR}
-                turn_seconds={100}
-              />
+              <ActionSelect
+                start_position={height * 0.2}
+                piece={selectedPiece}
+                all_pieces={gameState.pieces}
+                selected_tile={selectedTile}
+                selected_action={actionType}
+                this_player={thisPlayer}
+                color_scheme={gameState.map.color_scheme}
+                all_specials={allSpecials}
+                current_state={gameState.state as GameStatus}
+                infoOpen={infoOpen}
+                setActionType={setActionType}
+                handleInfoToggle={handleInfoToggle}
+              />              
             </Stack>
             { gameState && (thisPlayer !== undefined) &&
               <MainBBar
@@ -219,6 +235,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                 color_scheme={gameState.map.color_scheme}
                 current_state={gameState.state as GameStatus}
                 score_to_win={gameState.score_to_win}
+                bar_height={height * 0.15}
                 endTurn={endTurn}
               />
             }

@@ -6,6 +6,7 @@ import getWindowDimensions from '../../utils/useWindowDimensions';
 // ----------------------------------------------------------------------
 
 type TurnLineProps = {
+    start_position: number,
     is_turn: boolean,
     bg_color: string,
     middle_color: string,
@@ -15,7 +16,7 @@ type TurnLineProps = {
 
 // ----------------------------------------------------------------------
 
-export function TurnLine({ is_turn, bg_color, middle_color, edge_color, turn_seconds }: TurnLineProps) {
+export function TurnLine({ start_position, is_turn, bg_color, middle_color, edge_color, turn_seconds }: TurnLineProps) {
 
     const { height } = getWindowDimensions();
     const line_height = (height / 1.75);
@@ -45,7 +46,7 @@ export function TurnLine({ is_turn, bg_color, middle_color, edge_color, turn_sec
     const background_img: string = `linear-gradient(to right, rgba(255, 255, 255, 0) 0%, ${bg_rgb} 35%, #${middle_color} 75%, #${edge_color} 100%), linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, ${bg_rgb} 35%, #${middle_color} 75%, #${edge_color} 100%)`;
 
     return (
-        <Stack justifyContent={'center'} alignItems={'flex-start'} sx={{ position: 'fixed', top: '48%', left: 0, pl: 1.5 }}>
+        <Stack justifyContent={'center'} alignItems={'flex-start'} sx={{ position: 'fixed', top: start_position, left: 0, pl: 1.5 }}>
             <Stack justifyContent={'center'} alignItems={'center'}>
                 <Divider
                     orientation="vertical"

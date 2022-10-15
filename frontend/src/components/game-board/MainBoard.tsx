@@ -7,6 +7,7 @@ import getCellStatus from '../../utils/getCellStatus';
 // ----------------------------------------------------------------------
 
 type Props = {
+    grid_size: number,
     pieces: Piece[],
     map: Map,
     selected_tile: number[],
@@ -19,15 +20,16 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function MainBoard({ pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, current_state, updateSelected }: Props) {
+export default function MainBoard({ grid_size, pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, current_state, updateSelected }: Props) {
     
-    const cell_size: number = 60;
     const show_opponent_pieces: boolean = (current_state === 'PLACING') ? false : true;
     const row_length: number = map.data.length;
     const row_nums: number[] = (Array.from(Array(row_length).keys())).sort((a, b) => b - a);
 
     const column_length: number = map.data[0].length;
     const column_nums: number[] = (Array.from(Array(column_length).keys()));
+
+    const cell_size: number = Math.min((grid_size/row_length), (grid_size/column_length));
 
     return (
         <>

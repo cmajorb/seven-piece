@@ -1,11 +1,13 @@
 import { Stack } from '@mui/material';
 import { Score } from '../../types';
+import getBannerDimensions from '../../utils/getBannerDimensions';
 import { getScoreArray } from '../../utils/getScoreArray';
 import { KillObjectiveImg, ObjectiveImg } from '../misc/PNGImages';
 
 // ----------------------------------------------------------------------
 
 type Props = {
+    bar_height: number,
     player_id: number,
     team_scores: Score[],
     score_to_win: number,
@@ -13,15 +15,16 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function BannerScore({ player_id, team_scores, score_to_win }: Props) {
+export default function BannerScore({ bar_height, player_id, team_scores, score_to_win }: Props) {
 
     const score_array: number[] = (getScoreArray(player_id, team_scores, score_to_win));
 
-    const banner_height = 70;
-    const banner_width = banner_height * 0.8;
+    const banner_dimensions = getBannerDimensions(bar_height);
+    const banner_width = banner_dimensions[0];
+    const banner_height = banner_dimensions[1];
 
     return (
-        <Stack direction={'row'} spacing={1.5}>
+        <Stack direction={'row'} spacing={banner_height * 0.0075}>
             {
                 score_array.map((banner_value) => (
                     <>

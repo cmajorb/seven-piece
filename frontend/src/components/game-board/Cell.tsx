@@ -5,6 +5,7 @@ import GetBorderColor from '../../utils/getBorderColor';
 import getPiece from '../../utils/getPiece';
 import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/PNGImages';
 import Ice from '../../images/ice_layer.png';
+import getBannerDimensions from '../../utils/getBannerDimensions';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,10 @@ export default function Cell({ location, cell_size, selected, selected_piece_act
   const theme = useTheme();
   const piece: Piece | undefined = getPiece(location, pieces);
 
+  const banner_dimensions = getBannerDimensions(cell_size);
+  const banner_width = banner_dimensions[0];
+  const banner_height = banner_dimensions[1];
+
   function isValidPieceMove () {
     let is_valid = false;
     if (selected_piece_actions && selected_piece_actions.length > 0) {
@@ -50,8 +55,8 @@ export default function Cell({ location, cell_size, selected, selected_piece_act
         opacity: cell_status.is_empty ? '0%' : '100%',
         '&:hover': { cursor: cell_status.is_empty ? null : 'pointer' },
       }}
-      onClick={() => { updateSelected(location, piece, false, show_opponent_pieces, 'left') }}
-      onContextMenu={() => { updateSelected(location, piece, false, show_opponent_pieces, 'right') }}
+      onClick={() => { updateSelected(location, piece, show_opponent_pieces, 'left') }}
+      onContextMenu={() => { updateSelected(location, piece, show_opponent_pieces, 'right') }}
     >
       
       {piece && piece.state === 'frozen' &&
@@ -77,12 +82,12 @@ export default function Cell({ location, cell_size, selected, selected_piece_act
         <ObjectiveAndPieceImg
           player_id={piece.player}
           piece_name={piece.name}
-          health={piece.current_stats.health}
           selected={selected}
+          size={cell_size * 0.95}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
-        <ObjectiveImg player_id={cell_status.objective_owner!} width={43} height={54} sx={{ pt: 0.25 }}/>
+        <ObjectiveImg player_id={cell_status.objective_owner!} height={banner_height} width={banner_width} sx={{ pt: banner_height * 0.01 }}/>
       }
       { piece && cell_status.contains_piece && !cell_status.contains_objective && (show_opponent_pieces || piece.player === this_player_id) &&
         <PieceImg
@@ -91,6 +96,8 @@ export default function Cell({ location, cell_size, selected, selected_piece_act
           health={piece.current_stats.health}
           on_board={true}
           selected={selected}
+          width={cell_size * 0.95}
+          height={cell_size * 0.95}
         />
       }
     </Card>

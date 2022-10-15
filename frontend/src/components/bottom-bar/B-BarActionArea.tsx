@@ -8,18 +8,18 @@ import WaitingDots from '../misc/WaitingDots';
 // ----------------------------------------------------------------------
 
 type Props = {
-  active_player_id: number | undefined,
-  this_player_id: number,
-  color_scheme: ColorScheme,
-  current_state: GameStatus,
-  score_to_win: number,
-  this_player_ready: boolean,
-  endTurn: any,
+    bar_height: number,
+    active_player_id: number | undefined,
+    this_player_id: number,
+    color_scheme: ColorScheme,
+    current_state: GameStatus,
+    this_player_ready: boolean,
+    endTurn: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function BBarActionArea({ this_player_id, active_player_id, current_state, score_to_win, endTurn, this_player_ready }: Props) {
+export default function BBarActionArea({ bar_height, this_player_id, active_player_id, current_state, endTurn, this_player_ready }: Props) {
 
     const onKeyPress = (event: any) => {
         const key: string = ((event.key).toString());
@@ -27,7 +27,7 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
     };
     useKeyPress(['e'], onKeyPress);
 
-    const banner_height = 90;
+    const banner_height = bar_height * 0.9;
     const banner_width = banner_height * 0.8;
 
     return (
@@ -39,8 +39,8 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
                     <img
                         alt={'left'}
                         src={LeftArrow}
-                        width={70}
-                        height={70}
+                        width={bar_height * 0.65}
+                        height={bar_height * 0.65}
                     /> }
                 </Stack> 
             }
@@ -49,12 +49,12 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
                 { current_state === 'PLACING' ?
                 <Stack alignItems={'center'} justifyContent={'center'}>
                     { this_player_ready ? <WaitingDots /> :
-                    <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={this_player_ready}>
+                    <Button fullWidth variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn() }} disabled={this_player_ready}>
                         Place Pieces
                     </Button> }
                 </Stack> :
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                    <Button fullWidth variant={'contained'} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
+                    <Button fullWidth variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
                         End Turn
                     </Button>
                 </Stack> }
@@ -67,8 +67,8 @@ export default function BBarActionArea({ this_player_id, active_player_id, curre
                     <img
                         alt={'right'}
                         src={RightArrow}
-                        width={70}
-                        height={70}
+                        width={bar_height * 0.65}
+                        height={bar_height * 0.65}
                     /> }
                 </Stack> 
             }

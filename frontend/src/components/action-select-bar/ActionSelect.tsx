@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 
 type Props = {
     piece?: Piece,
+    start_position: number,
     all_pieces: Piece[] | undefined,
     selected_tile: number[],
     selected_action: PieceActions,
@@ -27,7 +28,7 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function ActionSelect({ piece, all_pieces, selected_tile, selected_action, this_player, color_scheme, all_specials, current_state, infoOpen, setActionType, handleInfoToggle }: Props) {
+export default function ActionSelect({ piece, start_position, all_pieces, selected_tile, selected_action, this_player, color_scheme, all_specials, current_state, infoOpen, setActionType, handleInfoToggle }: Props) {
 
     const theme = useTheme();
     const stat_types: string[] = ['health', 'attack', 'speed', 'special'];
@@ -35,6 +36,8 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
     const default_border_color = theme.palette.grey[700];
     const image_height = 40;
     const image_width = 40;
+
+
 
     const observed_piece: Piece | undefined = getPiece(selected_tile, all_pieces);
   
@@ -50,7 +53,7 @@ export default function ActionSelect({ piece, all_pieces, selected_tile, selecte
     useEffect(() => {}, [infoOpen]);
 
     return (
-        <Stack spacing={3} sx={{ position: 'fixed', top: '35%', right: 10 }}>
+        <Stack spacing={3} sx={{ position: 'fixed', top: start_position, right: 10, pr: 0.5 }}>
             { observed_piece ?
             <Box
                 sx={{

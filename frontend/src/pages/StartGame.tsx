@@ -7,6 +7,7 @@ import { Stack, Button, Paper, Typography, TextField, useTheme } from '@mui/mate
 import getValidUUID from '../utils/getValidUUID';
 import useKeyPress from '../utils/useKeyPress';
 import BackgroundImage from '../images/login_background.jpeg';
+import typography from '../theme/typography';
 
 export default function StartGame() {
     const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function StartGame() {
     const default_map = 2;
 
     const [gameID, setGameID] = useState<string>('');
+    const [canJoinGame, setCanJoinGame] = useState<boolean>(false);
+
     const handleChangeGameID = (event: any) => {
         setGameID(event.target.value);
     };
@@ -30,6 +33,8 @@ export default function StartGame() {
         if (!disabled && event.key === 'Enter') { navigate(PATH_DASHBOARD.general.board + gameID) };
     };
     useKeyPress(['Enter'], onKeyPress);
+
+    useEffect(() => { setCanJoinGame(checkGameID(gameID)) }, [gameID])
 
     useEffect(() => {
         if (lastJsonMessage !== null) {
@@ -66,14 +71,15 @@ export default function StartGame() {
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
                 height: '100vh',
+                display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
             }}
         >
-            <Stack spacing={2} alignItems={'center'} sx={{ pt: 4 }}>
+            <Stack spacing={3} alignItems={'center'}>
                 <Stack direction={'row'} spacing={1} justifyContent={'center'} alignItems={'center'}>
                     <Typography
-                        variant='h2'
+                        fontSize={typography.h1.fontSize}
                         fontWeight={'bold'}
                         fontFamily={'fantasy'}
                         color={theme.palette.grey[400]}
@@ -81,7 +87,7 @@ export default function StartGame() {
                         Blood
                     </Typography>
                     <Typography
-                        variant='h5'
+                        fontSize={typography.h4.fontSize}
                         fontWeight={'bold'}
                         fontFamily={'fantasy'}
                         color={theme.palette.grey[400]}
@@ -90,7 +96,7 @@ export default function StartGame() {
                         for
                     </Typography>
                     <Typography
-                        variant='h2'
+                        fontSize={typography.h1.fontSize}
                         fontWeight={'bold'}
                         fontFamily={'fantasy'}
                         color={theme.palette.grey[400]}
@@ -98,46 +104,65 @@ export default function StartGame() {
                         Glory
                     </Typography>
                 </Stack>
-                <Button
-                    variant='contained'
-                    sx={{ width: 300 }}
-                    onClick={() => { sendJsonMessage({ type: "create_game", map: default_map.toString() }) }}
-                >
-                    Create Game
-                </Button>
-                <Button
-                    variant='contained'
-                    sx={{
-                        width: 300,
-                        "&:disabled": {
-                            backgroundColor: theme.palette.grey[800],
-                            opacity: 0.85
-                        }
-                    }}
-                    disabled={checkGameID(gameID)}
-                    onClick={() => { navigate(PATH_DASHBOARD.general.board + gameID) }}
-                >
-                    Join Game
-                </Button>
-                <Button
-                    variant='contained'
-                    sx={{ width: 300 }}
-                    onClick={() => { sendJsonMessage({ type: "simulate" }) }}
-                >
-                    Simulate Game
-                </Button>
+                <Stack direction={'row'} spacing={1} width={'50vw'}>
+                    <Button
+                        variant='contained'
+                        fullWidth
+                        disabled={!canJoinGame}
+                        sx={{
+                            fontFamily: 'fantasy',
+                            fontWeight: 'bold',
+                            "&:disabled": {
+                                backgroundColor: theme.palette.grey[800],
+                                opacity: 0.5
+                            }
+                        }}
+                        onClick={() => { sendJsonMessage({ type: "create_game", map: default_map.toString() }) }}
+                    >
+                        Create Game
+                    </Button>
+                    <Button
+                        variant='contained'
+                        fullWidth
+                        disabled={!canJoinGame}
+                        sx={{
+                            fontFamily: 'fantasy',
+                            fontWeight: 'bold',
+                            "&:disabled": {
+                                backgroundColor: theme.palette.grey[800],
+                                opacity: 0.5
+                            }
+                        }}
+                        onClick={() => { sendJsonMessage({ type: "simulate" }) }}
+                    >
+                        Simulate Game
+                    </Button>
+                </Stack>
                 <TextField
                     label="Game ID"
-                    sx={{
-                        width: 600,
-                        backgroundColor: theme.palette.grey[800],
-                        opacity: 0.5
-                    }}
-                    InputLabelProps={{ style: { textAlign: 'center', justifyContent: 'center', alignItems: 'center' } }}
-                    inputProps={{ style: { textAlign: 'center' } }}
+                    sx={{ width: '50vw' }}
+                    InputLabelProps={{ style: { fontFamily: 'fantasy', fontWeight: 'bold' } }}
+                    inputProps={{ style: { fontFamily: 'fantasy', fontWeight: 'bold', textAlign: 'center' } }}
+                    InputProps={{ style: { backgroundColor: theme.palette.grey[800], opacity: 0.5 } }}
                     value={gameID}
                     onChange={handleChangeGameID}
                 />
+                <Button
+                    variant='contained'
+                    sx={{
+                        width: '50vw',
+                        fontFamily: 'fantasy',
+                        fontWeight: 'bold',
+                        "&:disabled": {
+                            backgroundColor: theme.palette.grey[800],
+                            opacity: 0.5
+                        }
+                    }}
+                    disabled={canJoinGame}
+                    onClick={() => { navigate(PATH_DASHBOARD.general.board + gameID) }}
+                >
+                    Join Game
+                </Button>                
             </Stack>
         </Paper>
     );

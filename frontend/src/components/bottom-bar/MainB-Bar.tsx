@@ -14,12 +14,13 @@ type Props = {
   current_state: GameStatus,
   score_to_win: number,
   team_scores: Score[],
+  bar_height: number,
   endTurn: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainBBar({ pieces, this_player, color_scheme, score_to_win, team_scores, active_player_id, current_state, endTurn }: Props) {
+export default function MainBBar({ pieces, this_player, color_scheme, score_to_win, team_scores, active_player_id, current_state, bar_height, endTurn }: Props) {
 
   const theme = useTheme();
 
@@ -32,24 +33,25 @@ export default function MainBBar({ pieces, this_player, color_scheme, score_to_w
             top: 'auto',
             bottom: 0,
             backgroundColor: calcHexToRGB(theme.palette.grey[900], 0.75),
-            height: 80,
+            height: bar_height,
+            maxHeight: 80,
             justifyContent: 'center',
           }}
         >
-          <Toolbar sx={{ alignItems: 'center' }}>
+          <Toolbar sx={{ justifyContent: 'center', alignItems: 'center' }}>
 
             { pieces &&
             <Box width={'100%'} sx={{ alignItems: 'center', justifyContent: 'flex-start' }}>
-              <BannerScore player_id={0} team_scores={team_scores} score_to_win={score_to_win} />
+              <BannerScore bar_height={bar_height} player_id={0} team_scores={team_scores} score_to_win={score_to_win} />
             </Box> }
 
             <Stack direction={'row'} width={'100%'} alignItems={'center'} justifyContent={'center'}>
               <BBarActionArea
+                bar_height={bar_height}
                 active_player_id={active_player_id}
                 this_player_id={this_player.number}
                 color_scheme={color_scheme}
                 current_state={current_state}
-                score_to_win={score_to_win}
                 this_player_ready={this_player.ready}
                 endTurn={endTurn}
               />
@@ -57,7 +59,7 @@ export default function MainBBar({ pieces, this_player, color_scheme, score_to_w
 
             { pieces &&
             <Stack direction={'row'} width={'100%'} alignItems={'center'} justifyContent={'flex-end'}>
-              <BannerScore player_id={1} team_scores={team_scores} score_to_win={score_to_win} />
+              <BannerScore bar_height={bar_height} player_id={1} team_scores={team_scores} score_to_win={score_to_win} />
             </Stack> }
 
           </Toolbar>
