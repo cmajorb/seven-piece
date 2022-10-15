@@ -71,6 +71,8 @@ class GameState(models.Model):
     def init_game(self):
         self.state = "PLACING"
         for piece in self.piece_set.all():
+            if piece.character.name == "Cleric":
+                piece.cast_piece().update_shields(True)
             piece.reset_stats()
             piece.health = piece.character.health
             piece.health_start = piece.character.health #plus buffer
@@ -226,6 +228,7 @@ class Piece(models.Model):
     location_x = models.IntegerField(null=True)
     location_y = models.IntegerField(null=True)
     health = models.IntegerField(default=0)
+    shield = models.BooleanField(default=False)
     speed = models.IntegerField(default=0)
     attack = models.IntegerField(default=0)
     health_start = models.IntegerField(default=0)
@@ -247,6 +250,8 @@ class Piece(models.Model):
             return Scout.objects.get(id=self.id)
         elif self.character.name == "Archer":
             return Archer.objects.get(id=self.id)
+        elif self.character.name == "Cleric":
+            return Cleric.objects.get(id=self.id)
         return self
 
     def reset_stats(self):
@@ -280,6 +285,7 @@ class Piece(models.Model):
         dictionary["image"] = piece.character.image
         dictionary["id"] = piece.id
         dictionary["state"] = piece.state
+        dictionary["shield"] = piece.shield
 
         dictionary["current_stats"]["health"] = piece.health
         dictionary["current_stats"]["speed"] = piece.speed
@@ -311,6 +317,10 @@ class Piece(models.Model):
         return dictionary
     
     def take_damage(self, damage):
+        if self.shield == True:
+            self.shield = False
+            self.save(update_fields=['shield'])
+            return self
         self.health -= damage
         if self.health < 0:
             self.health = 0
@@ -333,6 +343,7 @@ class Piece(models.Model):
             raise IllegalMoveError("The target is outside of range")
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
+            target_piece = target_piece.cast_piece()
             target_piece = target_piece.take_damage(self.attack)
             self.attack = 0
             self.save(update_fields=['attack'])
@@ -511,14 +522,12 @@ class Cleric(Piece):
     class Meta:
         proxy = True
     def take_damage(self, damage):
-        self.health -= damage
-        if self.health < 0:
-            self.health = 0
-            self.remove_shield()
-        self.save(update_fields=['health'])
-        return self
+        piece = Piece.take_damage(self, damage)
+        if piece.health == 0:
+            self.update_shields(False)
+        return piece
 
-    def remove_shield(self):
+    def update_shields(self, value):
         for piece in self.game.piece_set.all().filter(player = self.player):
-            piece.health = min(piece.health, piece.character.health)
-            piece.save(update_fields=['health'])
+            piece.shield = value
+            piece.save(update_fields=['shield'])
