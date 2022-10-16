@@ -12,7 +12,7 @@ export default function getCellStatus (objectives: string[], map: [number[]], lo
     let objective_owner: number | undefined = undefined;
     if (contains_objective) {
         const flat_map = map.flat();
-        const flat_location = (location[0] * map.length) + location[1];
+        const flat_location = (location[0] * map[0].length) + location[1];
         let objective_cells = 0;
         for (let index in flat_map) {
             if (parseInt(index) === flat_location) { break };
