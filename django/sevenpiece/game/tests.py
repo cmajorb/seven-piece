@@ -2,7 +2,7 @@ from django.test import TestCase
 from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard, MapTemplate
 import json
 from game.game_logic import create_game
-from game.exceptions import JoinGameError
+from game.exceptions import JoinGameError, IllegalMoveError
 # from django.contrib.auth.models import User
 
 class PieceTestCase(TestCase):
@@ -58,6 +58,7 @@ class PieceTestCase(TestCase):
     #         self.assertEqual(piece.health, piece.character.health - 1)
 
     def test_entire_game(self):
+        print("=====TESTING ENTIRE GAME=====")
         session0 = "123"
         session1 = "789"
         game_state = create_game(self.map.id)
@@ -74,36 +75,25 @@ class PieceTestCase(TestCase):
         self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
 
         game_state = pieces1[0].make_move([1,1])
-        print(game_state.get_game_summary())
         game_state = pieces1[1].make_move([1,0])
-        print(game_state.get_game_summary()) 
         game_state = pieces2[1].make_move([4,3])
-        print(game_state.get_game_summary())
         game_state = pieces2[0].make_move([3,3])
-        print(game_state.get_game_summary())
 
         game_state = player1.end_turn()
         game_state = player2.end_turn()
 
         game_state = pieces1[0].make_move([2,2])
-        print(game_state.get_game_summary())
         game_state = pieces1[1].make_move([2,1])
-        print(game_state.get_game_summary())
 
         game_state = player1.end_turn()
-        print(game_state.get_game_summary())
         game_state = pieces2[0].make_move([2,3])
         game_state = pieces2[1].make_move([3,2])
-        print(game_state.get_game_summary())
         game_state = pieces2[0].attack_piece([2,2])
-        print(game_state.get_game_summary())
         game_state = player2.end_turn()
-        print(game_state.get_game_summary())
-        pieces1[1].freeze_special([2,3])
-        print(game_state.get_game_summary())
-        print(game_state.get_game_state())
+        pieces1[1].freeze_special([3,2])
 
     def test_ice_wizard(self):
+        print("=====TESTING ICE WIZARD=====")
         session0 = "123"
         session1 = "789"
         game_state = create_game(self.map.id)
@@ -132,10 +122,32 @@ class PieceTestCase(TestCase):
         game_state = player1.end_turn()
         game_state = pieces2[0].make_move([2,3])
         game_state = pieces2[1].make_move([3,2])
-        game_state = pieces2[0].freeze_special([2,2])
-        print(game_state.get_game_summary())
+        game_state = pieces2[0].freeze_special([3,2])
         game_state = player2.end_turn()
-        print(game_state.get_game_summary())
-        pieces1[1].freeze_special([2,3])
-        print(game_state.get_game_summary())
-        # print(game_state.get_game_state())
+
+    def test_movement_barriers(self):
+        print("=====TESTING MOVEMENT=====")
+        session0 = "123"
+        session1 = "789"
+        game_state = create_game(self.map.id)
+
+        game_state.join_game(session0)
+        game_state.join_game(session1)
+        player1 = Player.objects.get(session=session0, game=game_state)
+        player2 = Player.objects.get(session=session1, game=game_state)
+
+        pieces = ["Scout", "Scout"]
+        pieces1 = player1.select_pieces(pieces)
+        pieces = ["Scout", "Scout"]
+        pieces2 = player2.select_pieces(pieces)
+
+        game_state = pieces1[0].make_move([1,1])
+        game_state = pieces1[1].make_move([1,0])
+        game_state = pieces2[1].make_move([4,3])
+        game_state = pieces2[0].make_move([3,3])
+
+        game_state = player1.end_turn()
+        game_state = player2.end_turn()
+
+        with self.assertRaises(IllegalMoveError):
+            game_state = pieces1[0].make_move([4,1])

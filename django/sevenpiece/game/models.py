@@ -5,6 +5,7 @@ from game.data.constants import MAP_DEFINITION
 from game.exceptions import IllegalMoveError, JoinGameError, IllegalPieceSelection
 import logging
 from django.db.models import Sum
+import math
 
 
 logging.basicConfig(level=logging.INFO)
@@ -441,17 +442,28 @@ class Piece(models.Model):
         #     self.game.start_game()
 
     def is_range_valid(self, location, range_min, range_max):
-        #This fails to check if there is an obstacle in the way
-        map_length_x = len(self.game.map.data["data"])
-        map_length_y = len(self.game.map.data["data"][0])
-        x_diff = abs(self.location_x - location[0])
-        y_diff = abs(self.location_y - location[1])
+        map = self.game.map.data["data"]
+        map_length_x = len(map)
+        map_length_y = len(map[0])
+        x_diff =  abs(location[0] - self.location_x)
+        y_diff =  abs(location[1] - self.location_y)
+        x_sign = int(math.copysign(1,location[0] - self.location_x))
+        y_sign = int(math.copysign(1,location[1] - self.location_y))
         if location[0] < map_length_x and location[1] < map_length_y and location[0] >= 0 and location[1] >= 0: 
             if self.location_x == location[0] and y_diff <= range_max and y_diff >= range_min:
+                for i in range(1,y_diff):
+                    if map[self.location_x][self.location_y + y_sign * i] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
+                        return False
                 return True
             elif self.location_y == location[1] and x_diff <= range_max and x_diff >= range_min:
+                for i in range(1,x_diff):
+                    if map[self.location_x + x_sign * i][self.location_y] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
+                        return False
                 return True
             elif x_diff == y_diff and x_diff <= range_max and x_diff >= range_min:
+                for i in range(1,x_diff):
+                    if map[self.location_x + x_sign * i][self.location_y + y_sign * i] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
+                        return False
                 return True
         return False
         

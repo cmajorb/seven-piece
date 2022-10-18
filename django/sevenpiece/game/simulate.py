@@ -66,5 +66,5 @@ def simulate(game_state):
     step(game_state)
     game_state = player2.end_turn()
     step(game_state)
-    pieces1[1].freeze_special([2,3])
+    pieces1[1].freeze_special([3,2])
     step(game_state)
