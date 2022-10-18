@@ -74,12 +74,12 @@ class GameState(models.Model):
         for piece in self.piece_set.all():
             if piece.character.name == "Cleric":
                 piece.cast_piece().update_shields(True)
-            piece.reset_stats()
             piece.health = piece.character.health
             piece.health_start = piece.character.health #plus buffer
             piece.speed_start = piece.character.speed #plus buffer
             piece.attack_start = piece.character.attack #plus buffer
             piece.save(update_fields=['health','health_start','speed_start','attack_start'])
+            piece.reset_stats()
         self.save(update_fields=['state'])
 
     def start_game(self):
@@ -253,11 +253,13 @@ class Piece(models.Model):
             return Archer.objects.get(id=self.id)
         elif self.character.name == "Cleric":
             return Cleric.objects.get(id=self.id)
+        elif self.character.name == "Werewolf":
+            return Werewolf.objects.get(id=self.id) 
         return self
 
     def reset_stats(self):
         self.speed = self.character.speed
-        self.attack = self.character.attack
+        self.attack = self.attack_start
         self.state = "normal"
         if self.character.special != "None":
             self.special = 1
@@ -328,6 +330,10 @@ class Piece(models.Model):
         self.save(update_fields=['health'])
         return self
 
+    def finish_attack(self):
+        self.attack = 0
+        self.save(update_fields=['attack'])
+
     def attack_piece(self, location):
         #check to make sure it isn't on their team
         if self.game.state != "PLAYING":
@@ -346,9 +352,6 @@ class Piece(models.Model):
         if target_piece:
             target_piece = target_piece.cast_piece()
             target_piece = target_piece.take_damage(self.attack)
-            self.attack = 0
-            self.save(update_fields=['attack'])
-            logging.info(target_piece.player.piece_set.all().aggregate(Sum('health'))['health__sum'])
             if target_piece.player.piece_set.all().aggregate(Sum('health'))['health__sum'] == 0:
                 self.game.end_game(self.player)
         else:
@@ -358,6 +361,7 @@ class Piece(models.Model):
             points = target_piece.remove_piece()
             self.player.score += points
             self.player.save(update_fields=['score'])
+        self.finish_attack()
         self.game.refresh_from_db()
         return self.game
 
@@ -543,3 +547,11 @@ class Cleric(Piece):
         for piece in self.game.piece_set.all().filter(player = self.player):
             piece.shield = value
             piece.save(update_fields=['shield'])
+
+class Werewolf(Piece):
+    class Meta:
+        proxy = True
+    def finish_attack(self):
+        self.attack = 0
+        self.attack_start += 1
+        self.save(update_fields=['attack', 'attack_start'])
