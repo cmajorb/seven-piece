@@ -22,7 +22,6 @@ type Props = {
 
 export default function MainBoard({ grid_size, pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, current_state, updateSelected }: Props) {
     
-    const show_opponent_pieces: boolean = (current_state === 'PLACING') ? false : true;
     const row_length: number = map.data.length;
     const row_nums: number[] = (Array.from(Array(row_length).keys())).sort((a, b) => b - a);
 
@@ -46,9 +45,10 @@ export default function MainBoard({ grid_size, pieces, map, objectives, selected
                                     selected_piece_actions={selected_piece_actions}
                                     cell_status={getCellStatus(objectives, map.data, [row, column])}
                                     pieces={pieces}
-                                    show_opponent_pieces={show_opponent_pieces}
+                                    current_state={current_state}
                                     color_scheme={map.color_scheme}
                                     this_player_id={this_player_id}
+                                    start_tiles={map.start_tiles}
                                     updateSelected={updateSelected}
                                 />
                             ))}

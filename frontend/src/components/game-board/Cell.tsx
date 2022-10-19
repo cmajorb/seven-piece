@@ -1,5 +1,5 @@
 import { Box, Card, useTheme } from '@mui/material';
-import { Piece, ColorScheme, CellStatus } from '../../types';
+import { Piece, ColorScheme, CellStatus, GameStatus } from '../../types';
 import checkSameLocation from '../../utils/checkSameLocation';
 import GetBorderColor from '../../utils/getBorderColor';
 import getPiece from '../../utils/getPiece';
@@ -18,13 +18,17 @@ type Props = {
   pieces: Piece[],
   color_scheme: ColorScheme,
   this_player_id: number,
-  show_opponent_pieces: boolean,
+  current_state: GameStatus,
+  start_tiles: [[number[]]],
   updateSelected: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function Cell({ location, cell_size, selected, selected_piece_actions, cell_status, pieces, color_scheme, this_player_id, show_opponent_pieces, updateSelected }: Props) {
+export default function Cell({
+  location, cell_size, selected, selected_piece_actions, cell_status, pieces,
+  color_scheme, this_player_id, current_state, start_tiles, updateSelected
+}: Props) {
   
   const theme = useTheme();
   const piece: Piece | undefined = getPiece(location, pieces);
@@ -33,12 +37,20 @@ export default function Cell({ location, cell_size, selected, selected_piece_act
   const banner_width = banner_dimensions[0];
   const banner_height = banner_dimensions[1];
 
+  const show_opponent_pieces: boolean = (current_state === 'PLACING') ? false : true;
+
   function isValidPieceMove () {
     let is_valid = false;
-    if (selected_piece_actions && selected_piece_actions.length > 0) {
-      for (let index in selected_piece_actions) {
-        if (checkSameLocation(location, selected_piece_actions[index])) { is_valid = true; break };
+    let locations: number[][] = [];
+    if (current_state === 'PLAYING') {
+      if (selected_piece_actions && selected_piece_actions.length > 0) {
+        locations = selected_piece_actions;
       }
+    } else if (current_state === 'PLACING') {
+      locations = start_tiles[this_player_id];
+    }
+    for (let index in locations) {
+      if (checkSameLocation(location, locations[index])) { is_valid = true; break };
     }
     return is_valid;
   }
