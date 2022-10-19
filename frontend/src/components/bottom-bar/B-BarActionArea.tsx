@@ -39,8 +39,8 @@ export default function BBarActionArea({ bar_height, this_player_id, active_play
                     <img
                         alt={'left'}
                         src={LeftArrow}
-                        width={bar_height * 0.65}
-                        height={bar_height * 0.65}
+                        width={bar_height * 0.85}
+                        height={bar_height * 0.85}
                     /> }
                 </Stack> 
             }
@@ -49,12 +49,12 @@ export default function BBarActionArea({ bar_height, this_player_id, active_play
                 { current_state === 'PLACING' ?
                 <Stack alignItems={'center'} justifyContent={'center'}>
                     { this_player_ready ? <WaitingDots /> :
-                    <Button fullWidth variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn() }} disabled={this_player_ready}>
+                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold', maxHeight: bar_height * 0.85 }} onClick={() => { endTurn() }} disabled={this_player_ready}>
                         Place Pieces
                     </Button> }
                 </Stack> :
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                    <Button fullWidth variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
+                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold', maxHeight: bar_height * 0.85 }} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
                         End Turn
                     </Button>
                 </Stack> }
@@ -67,8 +67,8 @@ export default function BBarActionArea({ bar_height, this_player_id, active_play
                     <img
                         alt={'right'}
                         src={RightArrow}
-                        width={bar_height * 0.65}
-                        height={bar_height * 0.65}
+                        width={bar_height * 0.85}
+                        height={bar_height * 0.85}
                     /> }
                 </Stack> 
             }

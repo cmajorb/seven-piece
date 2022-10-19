@@ -29,10 +29,10 @@ export default function MainBoard({ grid_size, pieces, map, objectives, selected
     const column_length: number = map.data[0].length;
     const column_nums: number[] = (Array.from(Array(column_length).keys()));
 
-    const cell_size: number = Math.min((grid_size/row_length), (grid_size/column_length));
+    const cell_size: number = Math.max((grid_size/row_length), (grid_size/column_length));
 
     return (
-        <>
+        <Stack spacing={3} justifyContent={'center'} alignItems={'center'} sx={{ position: 'relative', pt: '5%', pb: '15%' }}>
             { pieces &&
             <Stack spacing={20}>
                 <Stack spacing={0.25} direction={'row'}>
@@ -56,6 +56,6 @@ export default function MainBoard({ grid_size, pieces, map, objectives, selected
                     ))}
                 </Stack>
             </Stack> }
-        </>
+        </Stack>
     );
 }

@@ -47,24 +47,26 @@ export default function SelectPieces({ all_pieces, all_selected_pieces, game_sta
     useKeyPress(['Enter'], onKeyPress);
 
     const transferTeam = (piece: Piece) => {
-        let team: Piece[] = Array.from(selectedTeam);
-        if (team.includes(piece)) {
-            if (team.length === 1) { setSelectedTeam([]) }
-            else {
-                const piece_index = team.indexOf(piece);
-                team.splice(piece_index, 1);
-                setSelectedTeam(team);
-            }
-        } else {
-            if (team.length < num_allowed_pieces) { setSelectedTeam(team.concat([piece])) }
-            else { console.log("Too many pieces on team.") };
-        }
+        if (game_state !== 'WAITING') {
+            let team: Piece[] = Array.from(selectedTeam);
+            if (team.includes(piece)) {
+                if (team.length === 1) { setSelectedTeam([]) }
+                else {
+                    const piece_index = team.indexOf(piece);
+                    team.splice(piece_index, 1);
+                    setSelectedTeam(team);
+                }
+            } else {
+                if (team.length < num_allowed_pieces) { setSelectedTeam(team.concat([piece])) }
+                else { console.log("Too many pieces on team.") };
+            };
+        };
     };
 
     useEffect(() => {}, [selectedTeam]);
 
     return (
-        <Stack spacing={3} justifyContent={'center'} alignItems={'center'} sx={{ position: 'relative', top: '10%' }}>
+        <Stack spacing={3} justifyContent={'center'} alignItems={'center'} sx={{ position: 'relative', pt: '5%', pb: '10%' }}>
             { begin_game_ready ?
             <Button variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn() }}>
                 Begin Game

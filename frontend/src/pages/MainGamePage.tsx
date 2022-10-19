@@ -15,6 +15,7 @@ import { calcValidPieceMoves, calcValidPieceAttacks, calcValidPieceSpecial } fro
 import getPiece from '../utils/getPiece';
 import handleGameState from '../utils/handleGameState';
 import useWindowDimensions from '../utils/useWindowDimensions';
+import GameFinished from '../components/misc/GameFinished';
 
 // ----------------------------------------------------------------------
 
@@ -97,7 +98,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
     setSelectedPiece(undefined);
     if (gameState && thisPlayer) {
       const player: Player = thisPlayer;
-      if (gameState && gameState.state as GameStatus === 'PLACING') { player.ready = gameState.players[player.number].ready };
+      if (gameState && gameState.state as GameStatus === 'PLACING' && gameState.players[player.number]) { player.ready = gameState.players[player.number].ready };
       if ((gameState.turn_count % gameState.players.length) === player.number) { player.is_turn = true }
       else if ((gameState.turn_count % gameState.players.length) !== player.number) { player.is_turn = false };
       setThisPlayer(player);
@@ -152,81 +153,77 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        height: (height * 1.1)
+        height: '100%'
       }}
     >
-      {
-        (connectionStatus === 'Open' &&
-        gameState &&
-        thisPlayer &&
-        (gameState.state === 'WAITING' || gameState.state === 'SELECTING')) ?
-      <>
-        <TurnLine
-          start_position={height * 0.45}
-          is_turn={(gameState.state === 'WAITING' || gameState.state === 'SELECTING')}
-          bg_color={BG_COLOR}
-          middle_color={MIDDLE_COLOR}
-          edge_color={EDGE_COLOR}
-          turn_seconds={select_team_seconds}
-        />
-        { allPieces &&
-        <SelectPieces
-          all_pieces={allPieces}
-          all_selected_pieces={gameState.pieces}
-          num_allowed_pieces={gameState.allowed_pieces}
-          game_state={gameState.state}
-          map={gameState.map}
-          this_player_id={thisPlayer.number}
-          setPieces={setPieces}
-          endTurn={endTurn}
-        /> }
-      </> :
-      <>
-        { gameState && (thisPlayer !== undefined) &&
-          <Stack spacing={1} justifyContent={'center'} alignItems={'center'}>
-            <Stack direction='row'>
-              <TurnLine
-                start_position={height * 0.45}
-                is_turn={thisPlayer.is_turn}
-                bg_color={BG_COLOR}
-                middle_color={MIDDLE_COLOR}
-                edge_color={EDGE_COLOR}
-                turn_seconds={100}
-              />
-              <MainBoard
-                grid_size={height * 0.8}
-                pieces={gameState.pieces}
-                map={gameState.map}
-                objectives={gameState.objectives}
-                this_player_id={thisPlayer.number}
-                selected_tile={selectedTile}
-                selected_piece_actions={
-                  actionType === 'move' ? selectedPieceMoves : 
-                  (actionType === 'attack' ? selectedPieceAttacks :
-                  (actionType.length > 0 ? selectedPieceSpecials : undefined))
-                }
-                current_state={gameState.state as GameStatus}
-                updateSelected={updateSelected}
-              />
-              <ActionSelect
-                start_position={height * 0.2}
-                piece={selectedPiece}
-                all_pieces={gameState.pieces}
-                selected_tile={selectedTile}
-                selected_action={actionType}
-                this_player={thisPlayer}
-                color_scheme={gameState.map.color_scheme}
-                all_specials={allSpecials}
-                current_state={gameState.state as GameStatus}
-                infoOpen={infoOpen}
-                setActionType={setActionType}
-                handleInfoToggle={handleInfoToggle}
-              />              
-            </Stack>
-            { gameState && (thisPlayer !== undefined) &&
+      { connectionStatus === 'Open' && gameState && thisPlayer &&
+        <>
+          { (gameState.state === 'WAITING' || gameState.state === 'SELECTING') &&
+          <>
+            <TurnLine
+              start_position={height * 0.45}
+              is_turn={(gameState.state === 'WAITING' || gameState.state === 'SELECTING')}
+              bg_color={BG_COLOR}
+              middle_color={MIDDLE_COLOR}
+              edge_color={EDGE_COLOR}
+              turn_seconds={select_team_seconds}
+            />
+            { allPieces &&
+            <SelectPieces
+              all_pieces={allPieces}
+              all_selected_pieces={gameState.pieces}
+              num_allowed_pieces={gameState.allowed_pieces}
+              game_state={gameState.state}
+              map={gameState.map}
+              this_player_id={thisPlayer.number}
+              setPieces={setPieces}
+              endTurn={endTurn}
+            /> }
+          </> }
+          <>
+            { (gameState.state === 'PLAYING' || gameState.state === 'PLACING') &&
+              <Stack direction='row'>
+                <TurnLine
+                  start_position={height * 0.45}
+                  is_turn={thisPlayer.is_turn}
+                  bg_color={BG_COLOR}
+                  middle_color={MIDDLE_COLOR}
+                  edge_color={EDGE_COLOR}
+                  turn_seconds={100}
+                />
+                <MainBoard
+                  grid_size={height * 0.8}
+                  pieces={gameState.pieces}
+                  map={gameState.map}
+                  objectives={gameState.objectives}
+                  this_player_id={thisPlayer.number}
+                  selected_tile={selectedTile}
+                  selected_piece_actions={
+                    actionType === 'move' ? selectedPieceMoves : 
+                    (actionType === 'attack' ? selectedPieceAttacks :
+                    (actionType.length > 0 ? selectedPieceSpecials : undefined))
+                  }
+                  current_state={gameState.state as GameStatus}
+                  updateSelected={updateSelected}
+                />
+                <ActionSelect
+                  start_position={height * 0.2}
+                  piece={selectedPiece}
+                  all_pieces={gameState.pieces}
+                  selected_tile={selectedTile}
+                  selected_action={actionType}
+                  this_player={thisPlayer}
+                  color_scheme={gameState.map.color_scheme}
+                  all_specials={allSpecials}
+                  current_state={gameState.state as GameStatus}
+                  infoOpen={infoOpen}
+                  setActionType={setActionType}
+                  handleInfoToggle={handleInfoToggle}
+                />
               <MainBBar
                 pieces={gameState.pieces}
                 team_scores={getTeamScores(gameState.players)}
@@ -238,10 +235,20 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                 bar_height={height * 0.15}
                 endTurn={endTurn}
               />
+            </Stack>
             }
-          </Stack>
-        }
-      </> }
+          </>
+          <>
+            { gameState.state === 'FINISHED' &&
+              <GameFinished
+                height={height}
+                winner={gameState.winner}
+                team_scores={getTeamScores(gameState.players)}
+                score_to_win={gameState.score_to_win}
+              />
+            }
+          </>
+        </> }
     </Paper>
   );
 };
