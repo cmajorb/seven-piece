@@ -7,6 +7,7 @@ import PieceMeleeAttack from '../../images/attack_icon.png';
 import PieceRangeAttack from '../../images/arrow_icon.png';
 import PieceFreeze from '../../images/magic_icon.png';
 import PieceSpeed from '../../images/speed_icon.png';
+import PieceShield from '../../images/defense_icon.png';
 import NeutralBanner from '../../images/banner_gold.png';
 import NeutralKillBanner from '../../images/banner_black.png';
 import Team1Banner from '../../images/banner_purple.png';
@@ -48,6 +49,7 @@ type BottomProps = {
     type: string,
     height: number,
     width: number,
+    has_buff?: boolean,
 };
 
 type ObjectiveAndPieceProps = {
@@ -158,7 +160,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, selected, h
     );
 }
 
-export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: BottomProps) {
+export function BottomBarImgs ({ current_stat, max_stat, type, height, width, has_buff }: BottomProps) {
     const current_stat_nums = (Array.from(Array(current_stat).keys()));
     const max_stat_nums = (Array.from(Array(max_stat - current_stat).keys()));
     let piece_img = '';
@@ -167,6 +169,9 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: 
     else if (type === 'freeze') { piece_img = PieceFreeze }
     else if (type === 'speed') { piece_img = PieceSpeed }
     else if (type === 'health') { piece_img = PieceHealth };
+
+    let buff_img = '';
+    if (type === 'health') { buff_img = PieceShield };
 
     return (
         <Stack direction={'row'} spacing={0.05}>
@@ -182,6 +187,11 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width }: 
                         <img alt='testing' src={piece_img} height={height} width={width} style={{ filter: 'grayscale(100%)' }} />
                     </Box>
                 )) }
+                { has_buff &&
+                    <Box height={height} width={width} sx={{ display: "flex" }}>
+                        <img alt='testing' src={buff_img} height={height} width={width} />
+                    </Box>
+                }
             </> :
             <Box height={height} width={width} sx={{ display: "flex", backgroundColor: 'gray', opacity: '0.2' }}/> }
             { current_stat_nums.length === 0 && max_stat_nums.length === 0 &&

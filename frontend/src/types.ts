@@ -9,6 +9,7 @@ export type Piece = {
     start_stats: Stats;
     default_stats: Stats;
     state: "normal" | "frozen";
+    shield: boolean;
   };  
 
   export type Score = {

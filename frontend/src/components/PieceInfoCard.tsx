@@ -74,6 +74,7 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
                                     max_stat={observed_piece.start_stats[getStatType(index) as keyof Stats] as number}
                                     height={30}
                                     width={30}
+                                    has_buff={stat === 'health' && observed_piece.shield}
                                 />
                                 ))}
                             </Stack>
