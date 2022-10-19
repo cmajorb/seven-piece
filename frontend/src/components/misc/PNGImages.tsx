@@ -1,5 +1,5 @@
 import { Box, Stack, Avatar, Badge, SxProps } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { keyframes, styled } from '@mui/material/styles';
 import WallImage from '../../images/rock.png';
 import SkullImage from '../../images/skull.png';
 import PieceHealth from '../../images/health_icon.png';
@@ -12,8 +12,8 @@ import NeutralBanner from '../../images/banner_gold.png';
 import NeutralKillBanner from '../../images/banner_black.png';
 import Team1Banner from '../../images/banner_purple.png';
 import Team2Banner from '../../images/banner_green.png';
-import getPieceImg from '../../utils/getPieceImg';
 import PieceBackground from '../../images/avatar-frame_silver.png';
+import { Piece } from '../../types';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ type ObjectiveProps = {
 
 type PieceProps = {
     player_id?: number,
-    piece_name: string,
+    piece: Piece,
     health?: number,
     on_board: boolean,
     selected?: boolean,
@@ -54,12 +54,16 @@ type BottomProps = {
 
 type ObjectiveAndPieceProps = {
     player_id: number,
-    piece_name: string,
+    piece: Piece,
     selected: boolean,
     size: number,
 };
 
 // ----------------------------------------------------------------------
+
+const animation_speed = '0.5s';
+const piece_increase = (keyframes`from { padding-top: 0%; } to { padding-top: 10%; }`);
+const piece_decrease = (keyframes`from { padding-top: 1%; } to { padding-top: 0%; }`);
 
 const OutlinedAvatar = styled(Avatar)`border: 2px solid black; background-color: black;`;
 
@@ -106,8 +110,7 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
     );
 }
 
-export function PieceImg ({ player_id, piece_name, health, on_board, selected, height, width, sx }: PieceProps) {
-    const piece_img = getPieceImg(piece_name);
+export function PieceImg ({ player_id, piece, health, on_board, selected, height, width, sx }: PieceProps) {
     // const heart_nums = (Array.from(Array(health).keys()));
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -116,7 +119,7 @@ export function PieceImg ({ player_id, piece_name, health, on_board, selected, h
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { pt: 0.8 }), ...(sx && { sx }), ...(on_board && selected && { position: "absolute" }) }}>
+        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { animation: `${piece_increase} ${animation_speed} forwards linear` }), ...(sx && { sx }), ...(on_board && selected && { position: "absolute", animation: `${piece_decrease} ${animation_speed} forwards linear` }) }}>
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                 <Box
                     height={height ? height : default_piece_container_size}
@@ -129,17 +132,17 @@ export function PieceImg ({ player_id, piece_name, health, on_board, selected, h
                         width={width ? width : default_piece_container_size}
                         style={{
                             filter: `${on_board ? filter_string : 'brightness(70%)'}`,
-                            transition: 'scale 0.25s',
+                            transition: animation_speed,
                             scale: (on_board && selected) ? '1.5' : '1',
                         }}
                     />
                 </Box>
                 <OutlinedAvatar
-                    src={piece_img}
+                    src={piece.image}
                     sx={{
                         width: (width ? (width * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
                         height: (height ? (height * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
-                        transition: 'scale 0.25s',
+                        transition: animation_speed,
                         scale: (on_board && selected) ? '1.5' : '1',
                     }}
                 />
@@ -201,24 +204,24 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width, ha
     );
 }
 
-export function ObjectiveAndPieceImg ({ player_id, piece_name, selected, size }: ObjectiveAndPieceProps) {
-    const piece_img = getPieceImg(piece_name);
+export function ObjectiveAndPieceImg ({ player_id, piece, selected, size }: ObjectiveAndPieceProps) {
     let objective_img = NeutralBanner;
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
+
     if (player_id === 0) { objective_img = Team1Banner }
     else if (player_id === 1) { objective_img = Team2Banner };
     const ObjectiveAvatar = styled(Avatar)(() => ({
         backgroundColor: 'transparent',
         width: (size / 3),
         height: (size / 2.72),
-        imgProps: { sx: { width: 1, height: 1, transition: 'scale 0.25s', scale: selected ? '1.5' : '1' } }
+        imgProps: { sx: { width: 1, height: 1, transition: animation_speed, scale: selected ? '1.5' : '1' } }
     }));
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ pt: 0.6, ...(selected && { position: "absolute" }) }}>
+        <Stack alignItems="center" justifyContent="center" sx={{ animation: `${piece_increase} ${animation_speed} forwards linear`, ...(selected && { position: "absolute", animation: `${piece_decrease} ${animation_speed} forwards linear` }) }}>
             <Badge
                 overlap="circular"
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -236,17 +239,17 @@ export function ObjectiveAndPieceImg ({ player_id, piece_name, selected, size }:
                             width={size}
                             style={{
                                 filter: `${filter_string}`,
-                                transition: 'scale 0.25s',
+                                transition: animation_speed,
                                 scale: selected ? '1.5' : '1',
                             }}
                         />
                     </Box>
                     <OutlinedAvatar
-                        src={piece_img}
+                        src={piece.image}
                         sx={{
                             width: (size ? (size * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
                             height: (size ? (size * (default_piece_image_size/default_piece_container_size)) : default_piece_image_size),
-                            transition: 'scale 0.25s',
+                            transition: animation_speed,
                             scale: selected ? '1.5' : '1',
                         }}
                     />

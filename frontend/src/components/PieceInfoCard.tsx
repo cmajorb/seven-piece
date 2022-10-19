@@ -59,7 +59,7 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
                         </Stack>
                         <Stack direction={'row'} spacing={4} justifyContent={'center'} alignItems={'center'} sx={{ pl: 2.5 }}>
                             <PieceImg
-                                piece_name={observed_piece.name}
+                                piece={observed_piece}
                                 health={0}
                                 on_board={false}
                                 height={120}

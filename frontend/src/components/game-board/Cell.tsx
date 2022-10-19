@@ -93,7 +93,7 @@ export default function Cell({
       { piece && cell_status.contains_objective && cell_status.contains_piece &&
         <ObjectiveAndPieceImg
           player_id={piece.player}
-          piece_name={piece.name}
+          piece={piece}
           selected={selected}
           size={cell_size * 0.95}
         />
@@ -104,7 +104,7 @@ export default function Cell({
       { piece && cell_status.contains_piece && !cell_status.contains_objective && (show_opponent_pieces || piece.player === this_player_id) &&
         <PieceImg
           player_id={piece.player}
-          piece_name={getPiece(location, pieces) ? getPiece(location, pieces)!.name : ''}
+          piece={piece}
           health={piece.current_stats.health}
           on_board={true}
           selected={selected}
