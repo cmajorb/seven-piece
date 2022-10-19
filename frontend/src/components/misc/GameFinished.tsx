@@ -30,7 +30,7 @@ export default function GameFinished({ height, winner, team_scores, score_to_win
     return (
         <Stack
             sx={{
-                height: (height * 0.85),
+                height: height,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',

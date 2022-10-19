@@ -24,15 +24,15 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
     return (
         <Card
             sx={{
-                p: 1,
+                pr: 1, pl: 1, pb: 1, pt: 1,
                 background: `rgba(0, 0, 0, 0.6) url("https://img.freepik.com/free-photo/metallic-textured-background_53876-89540.jpg?w=1480&t=st=1664334488~exp=1664335088~hmac=d736d5e5e231f4c3de626d7dabe6759613ea143055e0e689c192aa95e3bfdc1f")`,
                 backgroundBlendMode: 'darken',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'bottom',
                 backgroundSize: 'cover',
                 border: 2,
-                width: 300,
-                height: 210,
+                width: 340,
+                height: 240,
                 borderColor: default_border_color,
                 transition: '0.5s',
                 boxShadow: `0px 0px 50px 10px #${team_picked ? MIDDLE_COLOR : BLACK_COLOR}`,
