@@ -17,7 +17,7 @@ class PieceTestCase(TestCase):
 
         #Maps
         maps_data = (open('sevenpiece/game/data/test_maps.json')).read()
-        self.map = MapTemplate.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=3)
+        self.map = MapTemplate.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=5)
         
         #Characters
         self.soldier = Character.objects.get_or_create(name="Soldier", health=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has a lot of health")
@@ -71,7 +71,7 @@ class PieceTestCase(TestCase):
 
         pieces = ["Berserker", "Ice Wizard"]
         pieces1 = player1.select_pieces(pieces)
-        pieces = ["Berserker", "Soldier"]
+        pieces = ["Cleric", "Soldier"]
         pieces2 = player2.select_pieces(pieces)
         self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
 
@@ -92,6 +92,18 @@ class PieceTestCase(TestCase):
         game_state = pieces2[0].attack_piece([2,2])
         game_state = player2.end_turn()
         pieces1[1].freeze_special([3,2])
+
+        game_state = pieces1[0].attack_piece([2,3])
+        game_state = player1.end_turn()
+        print(game_state.get_game_state())
+        game_state = pieces2[0].attack_piece([2,2])
+        game_state = pieces2[0].make_move([2,2])
+        game_state = player2.end_turn()
+        game_state = pieces1[1].freeze_special([2,2])
+        game_state = pieces1[1].make_move([2,0])
+        game_state = player1.end_turn()
+        game_state = pieces2[1].make_move([2,1])
+        game_state = pieces2[1].attack_piece([2,0])
 
     def test_ice_wizard(self):
         print("=====TESTING ICE WIZARD=====")

@@ -336,6 +336,7 @@ class Piece(models.Model):
 
     def attack_piece(self, location):
         #check to make sure it isn't on their team
+        self.refresh_from_db()
         if self.game.state != "PLAYING":
             raise IllegalMoveError("Must be in the PLAYING game state")
         print("Attack: {}/{}".format(self.attack, self.character.attack))
@@ -511,6 +512,7 @@ class IceWizard(Piece):
     class Meta:
         proxy = True
     def freeze_special(self, location):
+        self.refresh_from_db()
         print("Running freeze move")
         if self.game.state != "PLAYING":
             raise IllegalMoveError
