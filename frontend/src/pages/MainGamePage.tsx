@@ -48,7 +48,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   const { height } = useWindowDimensions();
 
   const path_str = "game/" + game_id;
-  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://127.0.0.1:8080/' + path_str);
+  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + path_str);
 
   const setPieces = (piece_array: string) => { sendJsonMessage({ type: "select_pieces", pieces: piece_array }) };
   const endTurn = () => { sendJsonMessage({ type: "end_turn" }) };
