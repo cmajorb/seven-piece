@@ -400,6 +400,9 @@ class Piece(models.Model):
             if val & MAP_DEFINITION['objective'] == MAP_DEFINITION['objective']:
                 score_location += 1
         current_scores[score_location] = str(self.player.number)
+        if self.player.score + current_scores.count(str(self.player.number)) == self.game.map.score_to_win:
+            self.game.end_game(self.player)
+
         self.game.objectives = ",".join(current_scores)
         self.game.save(update_fields=['objectives'])
 

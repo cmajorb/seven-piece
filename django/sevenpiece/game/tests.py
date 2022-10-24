@@ -18,7 +18,8 @@ class PieceTestCase(TestCase):
         #Maps
         maps_data = (open('sevenpiece/game/data/test_maps.json')).read()
         self.map = MapTemplate.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=5)
-        
+        self.map2 = MapTemplate.objects.create(name="Test Map", data=json.loads(maps_data), player_size=2, num_characters=2, color_scheme=scheme, score_to_win=2)
+
         #Characters
         self.soldier = Character.objects.get_or_create(name="Soldier", health=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Has a lot of health")
         self.scout = Character.objects.get_or_create(name="Scout", health=2, speed=3, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Can move quickly")
@@ -58,6 +59,35 @@ class PieceTestCase(TestCase):
     #     for piece in game_state.piece_set.all():
     #         self.assertEqual(piece.health, piece.character.health - 1)
 
+    def test_win_by_objectives(self):
+        print("=====TESTING WIN BY OBJECTIVES=====")
+        session0 = "123"
+        session1 = "789"
+        game_state = create_game(self.map2.id)
+
+        game_state.join_game(session0)
+        game_state.join_game(session1)
+        player1 = Player.objects.get(session=session0, game=game_state)
+        player2 = Player.objects.get(session=session1, game=game_state)
+
+        pieces = ["Berserker", "Ice Wizard"]
+        pieces1 = player1.select_pieces(pieces)
+        pieces = ["Cleric", "Soldier"]
+        pieces2 = player2.select_pieces(pieces)
+        self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
+
+        game_state = pieces1[0].make_move([1,1])
+        game_state = pieces1[1].make_move([1,0])
+        game_state = pieces2[1].make_move([4,3])
+        game_state = pieces2[0].make_move([3,3])
+
+        game_state = player1.end_turn()
+        game_state = player2.end_turn()
+
+        game_state = pieces1[0].make_move([2,2])
+        game_state = pieces1[1].make_move([2,1])
+        self.assertEqual(game_state.winner, 0)
+
     def test_entire_game(self):
         print("=====TESTING ENTIRE GAME=====")
         session0 = "123"
@@ -95,7 +125,6 @@ class PieceTestCase(TestCase):
 
         game_state = pieces1[0].attack_piece([2,3])
         game_state = player1.end_turn()
-        print(game_state.get_game_state())
         game_state = pieces2[0].attack_piece([2,2])
         game_state = pieces2[0].make_move([2,2])
         game_state = player2.end_turn()
@@ -104,6 +133,7 @@ class PieceTestCase(TestCase):
         game_state = player1.end_turn()
         game_state = pieces2[1].make_move([2,1])
         game_state = pieces2[1].attack_piece([2,0])
+        self.assertEqual(game_state.winner, 1)
 
     def test_ice_wizard(self):
         print("=====TESTING ICE WIZARD=====")
