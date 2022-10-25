@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 from django.db import models
 import json
@@ -62,6 +63,8 @@ class GameState(models.Model):
     turn_count = models.IntegerField(default=0)
     objectives = models.CharField(max_length=50, default="")
     winner  = models.IntegerField(default=-1)
+    created = models.DateTimeField(default=datetime.now)
+    ended = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return str(self.session)
@@ -109,8 +112,8 @@ class GameState(models.Model):
         logging.info("The winner is player {}".format(winner.number))
         self.state = "FINISHED"
         self.winner = winner.number
-        self.save(update_fields=['state','winner'])
-        #Delete the game_state?
+        self.ended = datetime.now()
+        self.save(update_fields=['state','winner','ended'])
         
     def get_game_state(state):
         if state == None:
