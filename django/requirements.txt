@@ -10,3 +10,4 @@ drf-jwt~=1.19.2
 dj-rest-auth
 django-allauth
 mysqlclient
+daphne

@@ -5,17 +5,45 @@
 </head>
 <body>
 
-  <canvas id="myChart" width="800" height="400"></canvas>
+  <div style="width:240px;height:240px">
+    <canvas id="totalGames" width="200" height="200"></canvas>
+  </div>
+    <div style="width:240px;height:240px">
+      <canvas id="teams" width="200" height="200"></canvas>
+    </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-  const ctx = document.getElementById('myChart').getContext('2d');
-  const myChart = new Chart(ctx, {
+  const ctx = document.getElementById('totalGames').getContext('2d');
+  const totalGames = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels : [{% for item in labels %}"{{ item }}",{% endfor %}],
+        labels : [{% for item in total_games_labels %}"{{ item }}",{% endfor %}],
           datasets: [{
             label: "Games per day",
-            data : [{% for item in values %}{{ item }},{% endfor %}],
+            data : [{% for item in total_games_values %}{{ item }},{% endfor %}],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+
+  const ctx2 = document.getElementById('teams').getContext('2d');
+  const teams = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels : [{% for item in teams_labels %}"{{ item }}",{% endfor %}],
+          datasets: [{
+            label: "Number of teams",
+            data : [{% for item in teams_values %}{{ item }},{% endfor %}],
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
