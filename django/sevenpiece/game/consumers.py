@@ -17,6 +17,7 @@ class GameConsumer(JsonWebsocketConsumer):
         self.room_name = None
         self.current_game_state = None
         self.player = None
+        self.ai_player = None
 
     def connect(self):
         logging.info("Connected!")
@@ -82,6 +83,10 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state, self.player = game.join_game(self.session_id)
+                if self.current_game_state.single_player:
+                    self.current_game_state, self.ai_player = game.join_game("123")
+                    self.ai_player.select_pieces(["Soldier","Scout","Berserker"])
+
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
 
                 logging.info(f"Joined game: {self.session_id}")
@@ -100,6 +105,9 @@ class GameConsumer(JsonWebsocketConsumer):
             logging.info("End turn")
             try:
                 self.player.end_turn()
+                if self.current_game_state.single_player:
+                    #execute ai move
+                    self.ai_player.end_turn()
             except:
                 error = "Failed to end turn"
         elif message_type == "select_pieces":

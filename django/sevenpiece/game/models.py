@@ -65,6 +65,7 @@ class GameState(models.Model):
     winner  = models.IntegerField(default=-1)
     created = models.DateTimeField(default=datetime.now)
     ended = models.DateTimeField(blank=True, null=True)
+    single_player = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.session)
