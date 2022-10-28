@@ -345,13 +345,13 @@ class Piece(models.Model):
             raise IllegalMoveError("Must be in the PLAYING game state")
         print("Attack: {}/{}".format(self.attack, self.character.attack))
         if not self.player.is_current_turn():
-            print("Not your turn")
+            logging.error("Not your turn to attack")
             raise IllegalMoveError("It is not the player's turn")
         if self.attack == 0:
-            print("No available attack")
+            logging.error("No available attack")
             raise IllegalMoveError("The piece has no available attack")
         if not self.is_range_valid(location, self.character.attack_range_min, self.character.attack_range_max):
-            print("Out of range")
+            logging.error("Out of range to attack")
             raise IllegalMoveError("The target is outside of range")
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
@@ -360,7 +360,7 @@ class Piece(models.Model):
             if target_piece.player.piece_set.all().aggregate(Sum('health'))['health__sum'] == 0:
                 self.game.end_game(self.player)
         else:
-            print("No piece there")
+            logging.error("No piece there to attack")
             raise IllegalMoveError("No piece could be found at that location")
         if target_piece.health <= 0:
             points = target_piece.remove_piece()
@@ -380,14 +380,14 @@ class Piece(models.Model):
         if self.game.state != "PLAYING":
             raise IllegalMoveError
         if not self.player.is_current_turn():
-            print("Not your turn")
+            logging.error("Not your turn to move")
             raise IllegalMoveError
         print("Speed: {}".format(self.speed))
         if not self.is_range_valid(location, 0, self.speed):
-            print("Out of range")
+            logging.error("Move out of range")
             raise IllegalMoveError
         if self.game.map.data["data"][location[0]][location[1]] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
-            print("Not a valid tile")
+            logging.error("Not a valid tile for move")
             raise IllegalMoveError
         self.move_piece(location)
         self.game.refresh_from_db()

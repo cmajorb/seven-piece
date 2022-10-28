@@ -4,6 +4,7 @@ from game.simulate import simulation_setup, simulate
 from game.models import GameState, Player, Piece, MapTemplate, Character
 from game.game_logic import create_game
 from game.serializers import MapSerializer, CharacterSerializer
+from game.single_player import execute_turn
 import json
 import logging
 from channels.consumer import SyncConsumer
@@ -106,9 +107,10 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 self.player.end_turn()
                 if self.current_game_state.single_player:
-                    #execute ai move
+                    execute_turn(self.ai_player)
                     self.ai_player.end_turn()
-            except:
+            except Exception as e:
+                logging.error(e)
                 error = "Failed to end turn"
         elif message_type == "select_pieces":
             logging.info("selecting pieces")
