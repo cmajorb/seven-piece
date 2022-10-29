@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { GameState, Piece } from '../types';
+import { GameState, Piece, PieceActions } from '../types';
 
 // ----------------------------------------------------------------------
 
@@ -11,13 +11,14 @@ export function PathStr () {
 
 export function endTurn (sendJsonMessage: any) { sendJsonMessage({ type: "end_turn" }) };
 
-export function submitPieceAction (piece_id: number, new_location: number[], action_type: string, sendJsonMessage: any) {
+export function submitPieceAction (piece_id: number, new_location: number[], action_type: PieceActions, sendJsonMessage: any) {
+    const action = (action_type === 'melee attack' || action_type === 'range attack') ? 'attack' : action_type;
     sendJsonMessage({
         type: "action",
         piece: piece_id,
         location_x: new_location[0],
         location_y: new_location[1],
-        action_type: action_type
+        action_type: action
     })
   };
 

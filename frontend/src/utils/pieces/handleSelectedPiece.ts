@@ -13,7 +13,7 @@ export default function handleSelectedPiece (gameState: GameState, action_type: 
         if (action_type === 'move') {
             const valid_piece_range: number[][] = calcValidPieceMoves(current_piece, gameState.map, selected_tile, gameState.objectives);
             setSelectedPieceMoves(valid_piece_range);
-        } else if (action_type === 'attack') {
+        } else if (action_type === 'melee attack' || action_type === 'range attack') {
             const valid_piece_range: number[][] = calcValidPieceAttacks(current_piece, gameState.pieces, gameState.map, selected_tile, gameState.objectives);
             setSelectedPieceAttacks(valid_piece_range);
         } else if (action_type === 'freeze') {

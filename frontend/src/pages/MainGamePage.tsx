@@ -17,6 +17,7 @@ import GameFinished from '../components/misc/GameFinished';
 import { getStartingInfo, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
 import { useParams } from 'react-router-dom';
 import handleSelectedPiece from '../utils/pieces/handleSelectedPiece';
+import { getActionLocations } from '../utils/pieces/calcValidPieceActions';
 
 // ----------------------------------------------------------------------
 
@@ -168,11 +169,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                   objectives={gameState.objectives}
                   this_player_id={thisPlayer.number}
                   selected_tile={selectedTile}
-                  selected_piece_actions={
-                    actionType === 'move' ? selectedPieceMoves : 
-                    (actionType === 'attack' ? selectedPieceAttacks :
-                    (actionType.length > 0 ? selectedPieceSpecials : undefined))
-                  }
+                  selected_piece_actions={getActionLocations(actionType, selectedPieceMoves, selectedPieceAttacks, selectedPieceSpecials)}
                   current_state={gameState.state as GameStatus}
                   updateSelected={updateSelected}
                 />
