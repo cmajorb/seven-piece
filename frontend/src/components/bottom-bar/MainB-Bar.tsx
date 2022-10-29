@@ -15,12 +15,11 @@ type Props = {
   score_to_win: number,
   team_scores: Score[],
   bar_height: number,
-  endTurn: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainBBar({ pieces, this_player, color_scheme, score_to_win, team_scores, active_player_id, current_state, bar_height, endTurn }: Props) {
+export default function MainBBar({ pieces, this_player, color_scheme, score_to_win, team_scores, active_player_id, current_state, bar_height }: Props) {
 
   const theme = useTheme();
   const max_height = 80;
@@ -54,7 +53,6 @@ export default function MainBBar({ pieces, this_player, color_scheme, score_to_w
                 color_scheme={color_scheme}
                 current_state={current_state}
                 this_player_ready={this_player.ready}
-                endTurn={endTurn}
               />
             </Stack>
 

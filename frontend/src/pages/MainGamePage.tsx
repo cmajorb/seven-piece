@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { useParams } from 'react-router-dom';
 import MainBoard from '../components/game-board/MainBoard';
 import { GameState, GameStatus, Piece, PieceActions, Player, SpecialAbility } from '../types';
 import getTeamScores from '../utils/getTeamScores';
@@ -11,11 +10,13 @@ import ActionSelect from '../components/action-select-bar/ActionSelect';
 import { TurnLine } from '../components/misc/DynamicLines';
 import SelectPieces from '../components/SelectPieces';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
-import { calcValidPieceMoves, calcValidPieceAttacks, calcValidPieceSpecial } from '../utils/calcValidPieceActions';
 import getPiece from '../utils/getPiece';
 import handleGameState from '../utils/handleGameState';
 import useWindowDimensions from '../utils/useWindowDimensions';
 import GameFinished from '../components/misc/GameFinished';
+import { getStartingInfo, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
+import { useParams } from 'react-router-dom';
+import handleSelectedPiece from '../utils/handleSelectedPiece';
 
 // ----------------------------------------------------------------------
 
@@ -43,43 +44,20 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   const [infoOpen, setInfoOpen] = useState<boolean>(false);
   const handleInfoToggle = () => { setInfoOpen((prev) => !prev) };
 
-  const { game_id } = useParams();
   const select_team_seconds = 100;
   const { height } = useWindowDimensions();
 
-  const path_str = "game/" + game_id;
-  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + path_str);
+  const { game_id } = useParams();
+  const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + PathStr(), {share: true});
 
   const setPieces = (piece_array: string) => { sendJsonMessage({ type: "select_pieces", pieces: piece_array }) };
-  const endTurn = () => { sendJsonMessage({ type: "end_turn" }) };
-  const submitPieceAction = (piece_id: number, new_location: number[], action_type: string) => {
-    sendJsonMessage({
-      type: "action",
-      piece: piece_id,
-      location_x: new_location[0],
-      location_y: new_location[1],
-      action_type: action_type
-    })
-  };
 
-  useEffect(() => {
-    console.log("Joining:");
-    sendJsonMessage({ type: "join_game", session: game_id });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (lastJsonMessage !== null) {
-      handleGameState(lastJsonMessage, setGameState, setThisPlayer, setAllPieces, setAllSpecials)
-    }
-  }, [lastJsonMessage]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { joinGame(game_id, sendJsonMessage) }, []);
+  useEffect(() => { if (lastJsonMessage !== null) { handleGameState(lastJsonMessage, setGameState, setThisPlayer, setAllPieces, setAllSpecials) } }, [lastJsonMessage]);
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
-    if (gameState && (gameState.state === 'WAITING' || gameState.state === 'SELECTING') && !allPieces) {
-      sendJsonMessage({ type: "get_characters" });
-      sendJsonMessage({ type: "get_specials" });
-    };
+    getStartingInfo(gameState, allPieces, sendJsonMessage);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState]);
 
@@ -93,48 +71,37 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setConnectionStatus(connectionStatus) }, [connectionStatus]);
-  useEffect(() => {
-    setSelectedTile([]);
-    setSelectedPiece(undefined);
-    if (gameState && thisPlayer) {
-      const player: Player = thisPlayer;
-      if (gameState && gameState.state as GameStatus === 'PLACING' && gameState.players[player.number]) { player.ready = gameState.players[player.number].ready };
-      if ((gameState.turn_count % gameState.players.length) === player.number) { player.is_turn = true }
-      else if ((gameState.turn_count % gameState.players.length) !== player.number) { player.is_turn = false };
-      setThisPlayer(player);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState]);
+  useEffect(() => { setActionType('move') }, [selectedPiece]);
 
   useEffect(() => {
     if (gameState) {
-      const current_piece: Piece | undefined = getPiece(selectedTile, gameState.pieces);
-      setSelectedPieceMoves([]);
-      setSelectedPieceAttacks([]);
-      setSelectedPieceSpecials([]);
-      if (current_piece) {
-        if (actionType === 'move') {
-          const valid_piece_range: number[][] = calcValidPieceMoves(current_piece, gameState.map, selectedTile, gameState.objectives);
-          setSelectedPieceMoves(valid_piece_range);
-        } else if (actionType === 'attack') {
-          const valid_piece_range: number[][] = calcValidPieceAttacks(current_piece, gameState.pieces, gameState.map, selectedTile, gameState.objectives);
-          setSelectedPieceAttacks(valid_piece_range);
-        } else if (actionType === 'freeze') {
-          const valid_piece_range: number[][] = calcValidPieceSpecial(current_piece, gameState.pieces, gameState.map, selectedTile, gameState.objectives);
-          setSelectedPieceSpecials(valid_piece_range);
-        }
-      }
+      handleSelectedPiece(gameState, actionType, selectedTile, setSelectedPieceMoves, setSelectedPieceAttacks, setSelectedPieceSpecials);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTile, actionType, gameState]);
-  
-  useEffect(() => { setActionType('move') }, [selectedPiece]);
+
+  const handleTurnChange = () => {
+    setSelectedTile([]);
+    setSelectedPiece(undefined);
+    if (gameState && thisPlayer) {
+      if (gameState && gameState.state as GameStatus === 'PLACING' && gameState.players[thisPlayer.number]) { thisPlayer.ready = gameState.players[thisPlayer.number].ready };
+      if ((gameState.turn_count % gameState.players.length) === thisPlayer.number) { thisPlayer.is_turn = true }
+      else if ((gameState.turn_count % gameState.players.length) !== thisPlayer.number) { thisPlayer.is_turn = false };
+      setThisPlayer(thisPlayer);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { handleTurnChange() }, [gameState]);
 
   const updateSelected = (location: number[], piece: Piece | undefined, show_opponent_pieces: boolean, click: string) => {
     const same_location = checkSameLocation(location, selectedTile);
     if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
     else {
-      if (selectedPiece && click === 'left') { submitPieceAction(selectedPiece.id, location, actionType) };
+      if (selectedPiece && click === 'left') {
+        // Set piece animation state
+        submitPieceAction(selectedPiece.id, location, actionType, sendJsonMessage);
+      };
       setSelectedTile(location);
       if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
       else if (piece && piece.player !== thisPlayer?.number && show_opponent_pieces) { console.log("CLICKED ON ANOTHER PIECE") }
@@ -181,7 +148,6 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
               map={gameState.map}
               this_player_id={thisPlayer.number}
               setPieces={setPieces}
-              endTurn={endTurn}
             /> }
           </> }
           <>
@@ -233,7 +199,6 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                 current_state={gameState.state as GameStatus}
                 score_to_win={gameState.score_to_win}
                 bar_height={height * 0.15}
-                endTurn={endTurn}
               />
             </Stack>
             }
