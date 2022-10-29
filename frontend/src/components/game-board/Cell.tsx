@@ -90,7 +90,7 @@ export default function Cell({
       { cell_status.contains_wall &&
         <WallImg size={cell_size}/>
       }
-      { piece && cell_status.contains_objective && cell_status.contains_piece &&
+      { piece && cell_status.contains_objective && cell_status.contains_piece && (show_opponent_pieces || piece.player === this_player_id) &&
         <ObjectiveAndPieceImg
           player_id={piece.player}
           piece={piece}
