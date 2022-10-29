@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Piece, Map, GameStatus } from '../types';
 import { Button, Grid, Stack, Typography, useTheme } from '@mui/material';
 import PieceInfoCard from './PieceInfoCard';
-import getPieceNames from '../utils/getPieceNames';
+import getPieceNames from '../utils/pieces/getPieceNames';
 import checkIfTeamSubmitted from '../utils/checkIfTeamSubmitted';
 import useKeyPress from '../utils/useKeyPress';
 import WaitingDots from './misc/WaitingDots';

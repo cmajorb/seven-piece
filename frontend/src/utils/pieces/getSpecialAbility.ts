@@ -1,4 +1,4 @@
-import { Piece, SpecialAbility } from "../types";
+import { Piece, SpecialAbility } from "../../types";
 
 // ----------------------------------------------------------------------
 

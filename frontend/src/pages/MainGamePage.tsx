@@ -10,13 +10,13 @@ import ActionSelect from '../components/action-select-bar/ActionSelect';
 import { TurnLine } from '../components/misc/DynamicLines';
 import SelectPieces from '../components/SelectPieces';
 import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
-import getPiece from '../utils/getPiece';
+import getPiece from '../utils/pieces/getPiece';
 import handleGameState from '../utils/handleGameState';
 import useWindowDimensions from '../utils/useWindowDimensions';
 import GameFinished from '../components/misc/GameFinished';
 import { getStartingInfo, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
 import { useParams } from 'react-router-dom';
-import handleSelectedPiece from '../utils/handleSelectedPiece';
+import handleSelectedPiece from '../utils/pieces/handleSelectedPiece';
 
 // ----------------------------------------------------------------------
 

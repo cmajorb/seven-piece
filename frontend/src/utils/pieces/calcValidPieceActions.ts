@@ -1,5 +1,5 @@
-import { Piece, Map, CellStatus } from "../types";
-import getCellStatus from "./getCellStatus";
+import { Piece, Map, CellStatus } from "../../types";
+import getCellStatus from "../getCellStatus";
 import getPiece from "./getPiece";
 
 // ----------------------------------------------------------------------

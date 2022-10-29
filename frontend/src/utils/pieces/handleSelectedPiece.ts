@@ -1,4 +1,4 @@
-import { GameState, Piece, PieceActions } from "../types";
+import { GameState, Piece, PieceActions } from "../../types";
 import { calcValidPieceAttacks, calcValidPieceMoves, calcValidPieceSpecial } from "./calcValidPieceActions";
 import getPiece from "./getPiece";
 

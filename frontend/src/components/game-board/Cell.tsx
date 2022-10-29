@@ -2,7 +2,7 @@ import { Box, Card, useTheme } from '@mui/material';
 import { Piece, ColorScheme, CellStatus, GameStatus } from '../../types';
 import checkSameLocation from '../../utils/checkSameLocation';
 import GetBorderColor from '../../utils/getBorderColor';
-import getPiece from '../../utils/getPiece';
+import getPiece from '../../utils/pieces/getPiece';
 import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/PNGImages';
 import Ice from '../../images/ice_layer.png';
 import getBannerDimensions from '../../utils/getBannerDimensions';

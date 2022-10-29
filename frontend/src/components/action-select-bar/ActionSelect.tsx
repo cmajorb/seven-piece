@@ -4,9 +4,9 @@ import GetBorderColor from '../../utils/getBorderColor';
 import checkSameLocation from '../../utils/checkSameLocation';
 import { BottomBarImgs } from '../misc/PNGImages';
 import useKeyPress from '../../utils/useKeyPress';
-import getPiece from '../../utils/getPiece';
+import getPiece from '../../utils/pieces/getPiece';
 import PieceDetails from './PieceDetails';
-import getSpecialAbility from '../../utils/getSpecialAbility';
+import getSpecialAbility from '../../utils/pieces/getSpecialAbility';
 import { useEffect } from 'react';
 
 // ----------------------------------------------------------------------
