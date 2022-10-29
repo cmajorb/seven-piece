@@ -100,8 +100,8 @@ class GameConsumer(JsonWebsocketConsumer):
             logging.info("End turn")
             try:
                 self.player.end_turn()
-            except:
-                error = "Failed to end turn"
+            except Exception as e:
+                error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
             logging.info("selecting pieces")
             try:
