@@ -41,6 +41,7 @@ type PieceProps = {
     height?: number,
     width?: number,
     sx?: SxProps,
+    animation?: any,
 };
 
 type BottomProps = {
@@ -57,14 +58,14 @@ type ObjectiveAndPieceProps = {
     piece: Piece,
     selected: boolean,
     size: number,
+    animation?: any,
 };
 
 // ----------------------------------------------------------------------
 
 const animation_speed = '0.5s';
-const piece_increase = (keyframes`from { padding-top: 0%; } to { padding-top: 10%; }`);
+const attack_animation_speed = '1s';
 const piece_decrease = (keyframes`from { padding-top: 1%; } to { padding-top: 0%; }`);
-
 const OutlinedAvatar = styled(Avatar)`border: 2px solid black; background-color: black;`;
 
 export function WallImg ({ size }: WallProps) {
@@ -110,7 +111,7 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
     );
 }
 
-export function PieceImg ({ player_id, piece, health, on_board, selected, height, width, sx }: PieceProps) {
+export function PieceImg ({ player_id, piece, health, on_board, selected, height, width, sx, animation }: PieceProps) {
     // const heart_nums = (Array.from(Array(health).keys()));
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -119,7 +120,16 @@ export function PieceImg ({ player_id, piece, health, on_board, selected, height
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ ...(on_board && { animation: `${piece_increase} ${animation_speed} forwards linear` }), ...(sx && { sx }), ...(on_board && selected && { position: "absolute", animation: `${piece_decrease} ${animation_speed} forwards linear` }) }}>
+        <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} 0.25s ease-in-out forwards` }),
+                ...(on_board && { position: "absolute", paddingTop: '0.75%' }),
+                ...(sx && { sx }),
+                ...(on_board && selected && { animation: `${piece_decrease} ${animation_speed} forwards linear` }),
+            }}
+        >
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
                 <Box
                     height={height ? height : default_piece_container_size}
@@ -204,7 +214,7 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width, ha
     );
 }
 
-export function ObjectiveAndPieceImg ({ player_id, piece, selected, size }: ObjectiveAndPieceProps) {
+export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animation }: ObjectiveAndPieceProps) {
     let objective_img = NeutralBanner;
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -221,7 +231,16 @@ export function ObjectiveAndPieceImg ({ player_id, piece, selected, size }: Obje
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
     return (
-        <Stack alignItems="center" justifyContent="center" sx={{ animation: `${piece_increase} ${animation_speed} forwards linear`, ...(selected && { position: "absolute", animation: `${piece_decrease} ${animation_speed} forwards linear` }) }}>
+        <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                position: "absolute",
+                paddingTop: '0.75%',
+                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} 0.25s ease-in-out forwards` }),
+                ...(selected && { animation: `${piece_decrease} ${animation_speed} forwards linear` })
+            }}
+        >
             <Badge
                 overlap="circular"
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}

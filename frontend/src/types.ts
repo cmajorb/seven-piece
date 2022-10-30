@@ -96,4 +96,5 @@ export type SpecialAbility = {
 export type PieceActions = 'move' | 'melee attack' | 'range attack' | 'freeze';
 export type WebSocketStatus = 'Connecting' | 'Open' | 'Closing' | 'Closed' | 'Uninstantiated';
 export type GameStatus = 'WAITING' | 'SELECTING' | 'PLACING' | 'PLAYING' | 'FINISHED';
-export type AnimationDirection = 'up-left' | 'up' | 'up-rght' | 'left' | 'center' | 'right' | 'down-left' | 'down' | 'down-right';
+export type AnimationDirection = 'up-left' | 'up' | 'up-right' | 'left' | 'center' | 'right' | 'down-left' | 'down' | 'down-right';
+export type AnimationType = 'move' | 'take damage' | 'melee attack' | 'range attack';

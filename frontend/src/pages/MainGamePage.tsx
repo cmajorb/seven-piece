@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import MainBoard from '../components/game-board/MainBoard';
-import { GameState, GameStatus, Piece, PieceActions, Player, SpecialAbility } from '../types';
+import { AnimationDirection, AnimationType, GameState, GameStatus, Piece, PieceActions, Player, SpecialAbility } from '../types';
 import getTeamScores from '../utils/getTeamScores';
 import { Paper, Stack } from '@mui/material';
 import MainBBar from '../components/bottom-bar/MainB-Bar';
@@ -18,6 +18,7 @@ import { getStartingInfo, joinGame, PathStr, submitPieceAction } from '../utils/
 import { useParams } from 'react-router-dom';
 import handleSelectedPiece from '../utils/pieces/handleSelectedPiece';
 import { getActionLocations } from '../utils/pieces/calcValidPieceActions';
+import calcAttackDirection from '../utils/pieces/calcAttackDirection';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,12 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   const [selectedPieceAttacks, setSelectedPieceAttacks] = useState<number[][]>([]);
   const [selectedPieceSpecials, setSelectedPieceSpecials] = useState<number[][]>([]);
   const [actionType, setActionType] = useState<PieceActions>('move');
+
+  const [animationInitiator, setAnimationInitiator] = useState<Piece | undefined>();
+  const [animationRecipient, setAnimationRecipient] = useState<Piece | undefined>();
+  const [animationType, setAnimationType] = useState<AnimationType>('move');
+  const [animationDirection, setAnimationDirection] = useState<AnimationDirection>('center');
+
 
   const [infoOpen, setInfoOpen] = useState<boolean>(false);
   const handleInfoToggle = () => { setInfoOpen((prev) => !prev) };
@@ -97,16 +104,23 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
 
   const updateSelected = (location: number[], piece: Piece | undefined, show_opponent_pieces: boolean, click: string) => {
     const same_location = checkSameLocation(location, selectedTile);
-    if (same_location) { setSelectedTile([]); setSelectedPiece(undefined) }
+    if (same_location) { setSelectedTile([]); setSelectedPiece(undefined); setAnimationInitiator(undefined) }
     else {
       if (selectedPiece && click === 'left') {
-        // Set piece animation state
+        setAnimationInitiator(selectedPiece);
+        setAnimationRecipient(piece);
+        if (piece && (actionType === 'melee attack' || actionType === 'range attack')) {
+          setAnimationDirection(calcAttackDirection(selectedPiece, piece));
+          if (actionType === 'range attack') { setAnimationType('range attack') }
+          else { setAnimationType('melee attack') };
+        } else if (piece && actionType === 'freeze') { setAnimationType('range attack') };
+
         submitPieceAction(selectedPiece.id, location, actionType, sendJsonMessage);
       };
       setSelectedTile(location);
-      if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece) }
+      if (piece && piece.player === thisPlayer?.number) { setSelectedPiece(piece); setAnimationDirection('center'); setAnimationType('move') }
       else if (piece && piece.player !== thisPlayer?.number && show_opponent_pieces) { console.log("CLICKED ON ANOTHER PIECE") }
-      else { setSelectedPiece(undefined) };
+      else { setSelectedPiece(undefined); setAnimationDirection('center'); setAnimationType('move') };
     }
     if (click === 'right') {
       if (gameState && getPiece(location, gameState.pieces)) { setSelectedTile(location); setInfoOpen(true) };
@@ -172,6 +186,12 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                   selected_piece_actions={getActionLocations(actionType, selectedPieceMoves, selectedPieceAttacks, selectedPieceSpecials)}
                   current_state={gameState.state as GameStatus}
                   updateSelected={updateSelected}
+
+                  is_turn={thisPlayer.is_turn}
+                  animation_initiator={animationInitiator}
+                  animation_recipient={animationRecipient}
+                  animation_type={animationType}
+                  animation_direction={animationDirection}
                 />
                 <ActionSelect
                   start_position={height * 0.2}

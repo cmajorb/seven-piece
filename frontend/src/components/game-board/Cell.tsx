@@ -1,11 +1,12 @@
-import { Box, Card, useTheme } from '@mui/material';
-import { Piece, ColorScheme, CellStatus, GameStatus } from '../../types';
+import { Card, useTheme } from '@mui/material';
+import { Piece, ColorScheme, CellStatus, GameStatus, AnimationType, AnimationDirection } from '../../types';
 import checkSameLocation from '../../utils/checkSameLocation';
 import GetBorderColor from '../../utils/getBorderColor';
 import getPiece from '../../utils/pieces/getPiece';
 import { ObjectiveImg, PieceImg, WallImg, ObjectiveAndPieceImg } from '../misc/PNGImages';
-import Ice from '../../images/ice_layer.png';
 import getBannerDimensions from '../../utils/getBannerDimensions';
+import FrozenBox from './FrozenBox';
+import getPieceAnimation from '../../utils/pieces/getPieceAnimation';
 
 // ----------------------------------------------------------------------
 
@@ -21,13 +22,20 @@ type Props = {
   current_state: GameStatus,
   start_tiles: [[number[]]],
   updateSelected: any,
+
+  is_turn: boolean,
+  animation_initiator: Piece | undefined,
+  animation_recipient: Piece | undefined,
+  animation_type: AnimationType,
+  animation_direction: AnimationDirection,
 };
 
 // ----------------------------------------------------------------------
 
 export default function Cell({
   location, cell_size, selected, selected_piece_actions, cell_status, pieces,
-  color_scheme, this_player_id, current_state, start_tiles, updateSelected
+  color_scheme, this_player_id, current_state, start_tiles, updateSelected,
+  animation_initiator, animation_type, animation_direction, animation_recipient, is_turn
 }: Props) {
   
   const theme = useTheme();
@@ -39,7 +47,7 @@ export default function Cell({
 
   const show_opponent_pieces: boolean = (current_state === 'PLACING') ? false : true;
 
-  function isValidPieceMove () {
+  function isValidPieceMove() {
     let is_valid = false;
     let locations: number[][] = [];
     if (current_state === 'PLAYING') {
@@ -53,7 +61,7 @@ export default function Cell({
       if (checkSameLocation(location, locations[index])) { is_valid = true; break };
     }
     return is_valid;
-  }
+  };
 
   return (
     <Card
@@ -71,21 +79,7 @@ export default function Cell({
       onContextMenu={() => { updateSelected(location, piece, show_opponent_pieces, 'right') }}
     >
       
-      {piece && piece.state === 'frozen' &&
-      <>
-        <Box height={cell_size * 0.2} width={cell_size * 0.9} sx={{ display: "flex", position: 'absolute', zIndex: 90 }}>
-            <img alt='testing' src={Ice} height={cell_size * 0.2} width={cell_size * 0.9} />
-        </Box>
-        <Box height={cell_size * 0.9} width={cell_size * 0.2} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", position: 'absolute', zIndex: 90 }}>
-            <img alt='testing' src={Ice} height={cell_size * 0.2} width={cell_size * 0.9} style={{ transform: `translate(80%, 0%) rotate(90deg)` }} />
-        </Box>
-        <Box height={cell_size * 0.2} width={cell_size * 0.9} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", position: 'absolute', zIndex: 90 }}>
-            <img alt='testing' src={Ice} height={cell_size * 0.2} width={cell_size * 0.9} style={{ transform: `translate(0%, 380%) rotate(180deg)` }} />
-        </Box>
-        <Box height={cell_size * 0.9} width={cell_size * 0.2} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", position: 'absolute', zIndex: 90 }}>
-            <img alt='testing' src={Ice} height={cell_size * 0.2} width={cell_size * 0.9} style={{ transform: `translate(-2%, 30%) rotate(270deg)` }} />
-        </Box>
-      </> }
+      { piece && piece.state === 'frozen' && <FrozenBox cell_size={cell_size}/> }
 
       { cell_status.contains_wall &&
         <WallImg size={cell_size}/>
@@ -96,6 +90,7 @@ export default function Cell({
           piece={piece}
           selected={selected}
           size={cell_size * 0.95}
+          animation={getPieceAnimation(piece, animation_initiator, animation_recipient, animation_direction, animation_type, is_turn)}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
@@ -110,6 +105,7 @@ export default function Cell({
           selected={selected}
           width={cell_size * 0.95}
           height={cell_size * 0.95}
+          animation={getPieceAnimation(piece, animation_initiator, animation_recipient, animation_direction, animation_type, is_turn)}
         />
       }
     </Card>
