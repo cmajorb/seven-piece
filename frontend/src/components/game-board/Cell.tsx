@@ -91,6 +91,7 @@ export default function Cell({
           selected={selected}
           size={cell_size * 0.95}
           animation={getPieceAnimation(piece, animation_initiator, animation_recipient, animation_direction, animation_type, is_turn)}
+          animation_delay={(animation_type === 'take damage') ? '1.25s' : '0.25s'}
         />
       }
       { cell_status.contains_objective && !cell_status.contains_piece &&
@@ -106,6 +107,7 @@ export default function Cell({
           width={cell_size * 0.95}
           height={cell_size * 0.95}
           animation={getPieceAnimation(piece, animation_initiator, animation_recipient, animation_direction, animation_type, is_turn)}
+          animation_delay={(animation_type === 'take damage') ? '1.25s' : '0.25s'}
         />
       }
     </Card>

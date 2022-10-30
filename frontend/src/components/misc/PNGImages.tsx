@@ -42,6 +42,7 @@ type PieceProps = {
     width?: number,
     sx?: SxProps,
     animation?: any,
+    animation_delay?: string,
 };
 
 type BottomProps = {
@@ -58,7 +59,8 @@ type ObjectiveAndPieceProps = {
     piece: Piece,
     selected: boolean,
     size: number,
-    animation?: any,
+    animation: any,
+    animation_delay: string,
 };
 
 // ----------------------------------------------------------------------
@@ -111,7 +113,7 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
     );
 }
 
-export function PieceImg ({ player_id, piece, health, on_board, selected, height, width, sx, animation }: PieceProps) {
+export function PieceImg ({ player_id, piece, health, on_board, selected, height, width, sx, animation, animation_delay }: PieceProps) {
     // const heart_nums = (Array.from(Array(health).keys()));
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -124,7 +126,7 @@ export function PieceImg ({ player_id, piece, health, on_board, selected, height
             alignItems="center"
             justifyContent="center"
             sx={{
-                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} 0.25s ease-in-out forwards` }),
+                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} ${animation_delay} ease-in-out forwards` }),
                 ...(on_board && { position: "absolute", paddingTop: '0.75%' }),
                 ...(sx && { sx }),
                 ...(on_board && selected && { animation: `${piece_decrease} ${animation_speed} forwards linear` }),
@@ -214,7 +216,7 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width, ha
     );
 }
 
-export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animation }: ObjectiveAndPieceProps) {
+export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animation, animation_delay }: ObjectiveAndPieceProps) {
     let objective_img = NeutralBanner;
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -237,7 +239,7 @@ export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animat
             sx={{
                 position: "absolute",
                 paddingTop: '0.75%',
-                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} 0.25s ease-in-out forwards` }),
+                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} ${animation_delay} ease-in-out forwards` }),
                 ...(selected && { animation: `${piece_decrease} ${animation_speed} forwards linear` })
             }}
         >
