@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from django.db import models
 import json
@@ -65,6 +65,7 @@ class GameState(models.Model):
     winner  = models.IntegerField(default=-1)
     created = models.DateTimeField(default=datetime.now)
     ended = models.DateTimeField(blank=True, null=True)
+    start_turn_time = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
         return str(self.session)
@@ -92,7 +93,8 @@ class GameState(models.Model):
             if val == MAP_DEFINITION['objective']:
                 objectives.append("-1")
         self.objectives = ",".join(objectives)
-        self.save(update_fields=['objectives','state'])
+        self.start_turn_time = datetime.now(timezone.utc)
+        self.save(update_fields=['objectives','state','start_turn_time'])
 
     def join_game(self, session):
         num_of_players = len(self.player_set.all())
@@ -112,7 +114,7 @@ class GameState(models.Model):
         logging.info("The winner is player {}".format(winner.number))
         self.state = "FINISHED"
         self.winner = winner.number
-        self.ended = datetime.now()
+        self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
         
     def get_game_state(state):
@@ -211,13 +213,14 @@ class Player(models.Model):
             print("Not in the right game state")
             raise IllegalMoveError
         if self.is_current_turn():
+            self.game.start_turn_time = datetime.now(timezone.utc)
             current_scores = self.game.objectives.split(",")
             for player in self.game.player_set.all():
                 print("Player {} score: {}".format(player.number, player.score + current_scores.count(str(player.number))))
                 if player.score + current_scores.count(str(player.number)) >= self.game.map.score_to_win:
                     self.game.end_game(player)
             self.game.turn_count = self.game.turn_count + 1
-            self.game.save(update_fields=['turn_count'])
+            self.game.save(update_fields=['turn_count','start_turn_time'])
             for piece in self.game.piece_set.all().filter(player = self):
                 piece.reset_stats()
         else:
@@ -379,14 +382,13 @@ class Piece(models.Model):
         if self.game.state != "PLAYING":
             raise IllegalMoveError
         if not self.player.is_current_turn():
-            print("Not your turn")
+            logging.error("Not your turn")
             raise IllegalMoveError
-        print("Speed: {}".format(self.speed))
         if not self.is_range_valid(location, 0, self.speed):
-            print("Out of range")
+            logging.error("Out of range")
             raise IllegalMoveError
         if self.game.map.data["data"][location[0]][location[1]] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
-            print("Not a valid tile")
+            logging.error("Not a valid tile")
             raise IllegalMoveError
         self.move_piece(location)
         self.game.refresh_from_db()

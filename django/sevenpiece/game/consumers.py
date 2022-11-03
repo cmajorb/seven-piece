@@ -8,6 +8,9 @@ import json
 import logging
 from channels.consumer import SyncConsumer
 
+from datetime import datetime, timezone
+from game.data.constants import TURN_LENGTH
+
 logging.basicConfig(level=logging.INFO)
 
 class GameConsumer(JsonWebsocketConsumer):
@@ -111,12 +114,17 @@ class GameConsumer(JsonWebsocketConsumer):
                 logging.error(e)
         elif message_type == "action":
             #Make sure it belongs to the user
+            self.current_game_state.refresh_from_db()
             try:
                 piece = Piece.objects.get(player=self.player, id=content["piece"])
                 piece = piece.cast_piece()
             except:
                 error = "Piece does not exist"
-            if content["action_type"] == "move":
+            if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
+                error = "Timer has expired"
+                self.player.end_turn()
+
+            elif content["action_type"] == "move":
                 try:
                     piece.make_move([content["location_x"], content["location_y"]])
                 except Exception as e:
@@ -133,16 +141,7 @@ class GameConsumer(JsonWebsocketConsumer):
                     error = f"Failed to attack piece: {e}"
         else:
             error = "Unknown command"
-        if error == "":
-            self.current_game_state.refresh_from_db()
-            async_to_sync(self.channel_layer.group_send)(
-                    self.room_name,
-                    {
-                        "type": "game_state",
-                        "state": self.current_game_state.get_game_state(),
-                    },
-                )
-        else:
+        if error != "":
             logging.error(error)
             async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
@@ -151,6 +150,15 @@ class GameConsumer(JsonWebsocketConsumer):
                         "message": error,
                     },
                 )
+        self.current_game_state.refresh_from_db()
+        async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "game_state",
+                    "state": self.current_game_state.get_game_state(),
+                },
+            )
+
         return super().receive_json(content, **kwargs)
 
 

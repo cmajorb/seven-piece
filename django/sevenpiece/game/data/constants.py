@@ -6,3 +6,5 @@ MAP_DEFINITION = {
     "objective" : 8,
     "player" : 16
 }
+
+TURN_LENGTH = 100
