@@ -1,16 +1,28 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from game.models import GameState, Player
+from game.models import GameState, Player, Character, MapTemplate
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from game.serializers import UserSerializer
+from game.serializers import UserSerializer, MapSerializer, CharacterSerializer
 
 from collections import Counter
 
 @api_view(['GET'])
 def current_user(request):
     serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_maps(request):
+    maps = MapTemplate.objects.all()
+    serializer = MapSerializer(maps, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_characters(request):
+    characters = Character.objects.all()
+    serializer = CharacterSerializer(characters, many=True)
     return Response(serializer.data)
 
 def index(request):
