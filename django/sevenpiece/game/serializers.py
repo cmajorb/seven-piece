@@ -22,3 +22,5 @@ class CharacterSerializer(serializers.Serializer):
     special_range_min = serializers.IntegerField()
     special_range_max = serializers.IntegerField()
 
+class UserSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
