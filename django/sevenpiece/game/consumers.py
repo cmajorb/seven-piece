@@ -57,10 +57,17 @@ class GameConsumer(JsonWebsocketConsumer):
         
     def receive_json(self, content, **kwargs):
         if self.player:
-            self.player.refresh_from_db()
+            self.player.refresh_from_db() 
         message_type = content["type"]
         error = ""
-        if message_type == "get_characters":
+        if message_type == "check_timer":
+            if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
+                error = "Timer has expired"
+                try:
+                    self.player.end_turn()
+                except Exception as e:
+                    error += f", Failed to end turn: {e}"
+        elif message_type == "get_characters":
             logging.info("Getting characters")
             characters = Character.objects.all()
             serializer = CharacterSerializer(characters, many=True)
@@ -122,7 +129,10 @@ class GameConsumer(JsonWebsocketConsumer):
                 error = "Piece does not exist"
             if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
                 error = "Timer has expired"
-                self.player.end_turn()
+                try:
+                    self.player.end_turn()
+                except Exception as e:
+                    error += f", Failed to end turn: {e}"
 
             elif content["action_type"] == "move":
                 try:
