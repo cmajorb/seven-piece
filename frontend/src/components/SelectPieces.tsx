@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Piece, Map, GameStatus } from '../types';
 import { Button, Grid, Stack, Typography, useTheme } from '@mui/material';
 import PieceInfoCard from './PieceInfoCard';
-import getPieceNames from '../utils/getPieceNames';
+import getPieceNames from '../utils/pieces/getPieceNames';
 import checkIfTeamSubmitted from '../utils/checkIfTeamSubmitted';
 import useKeyPress from '../utils/useKeyPress';
 import WaitingDots from './misc/WaitingDots';
+import useWebSocket from 'react-use-websocket';
+import { PathStr, endTurn } from '../utils/sendJsonMessages';
 
 // ----------------------------------------------------------------------
 
@@ -17,12 +19,13 @@ type Props = {
     map: Map,
     this_player_id: number,
     setPieces: any,
-    endTurn: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function SelectPieces({ all_pieces, all_selected_pieces, game_state, num_allowed_pieces, map, this_player_id, setPieces, endTurn }: Props) {
+export default function SelectPieces({ all_pieces, all_selected_pieces, game_state, num_allowed_pieces, map, this_player_id, setPieces }: Props) {
+
+    const { sendJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + PathStr(), {share: true});
 
     const theme = useTheme();
     const [selectedTeam, setSelectedTeam] = useState<Piece[]>([]);
@@ -40,7 +43,7 @@ export default function SelectPieces({ all_pieces, all_selected_pieces, game_sta
             if (submit_team_ready) {
                 setPieces(JSON.stringify(getPieceNames(selectedTeam)));
             } else if (begin_game_ready) {
-                endTurn();
+                endTurn(sendJsonMessage);
             }
         };
     };
@@ -68,7 +71,7 @@ export default function SelectPieces({ all_pieces, all_selected_pieces, game_sta
     return (
         <Stack spacing={3} justifyContent={'center'} alignItems={'center'} sx={{ position: 'relative', pt: '5%', pb: '10%' }}>
             { begin_game_ready ?
-            <Button variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn() }}>
+            <Button variant={'contained'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { endTurn(sendJsonMessage) }}>
                 Begin Game
             </Button> :
             <Stack spacing={2} justifyContent={'center'}>

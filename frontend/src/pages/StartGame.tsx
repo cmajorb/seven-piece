@@ -14,7 +14,7 @@ export default function StartGame() {
 
     const theme = useTheme();
     const path_str = "menu";
-    const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + path_str);
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + path_str, {share: true});
     const default_map = 5;
 
     const [gameID, setGameID] = useState<string>('');

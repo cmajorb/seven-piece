@@ -4,9 +4,9 @@ import GetBorderColor from '../../utils/getBorderColor';
 import checkSameLocation from '../../utils/checkSameLocation';
 import { BottomBarImgs } from '../misc/PNGImages';
 import useKeyPress from '../../utils/useKeyPress';
-import getPiece from '../../utils/getPiece';
+import getPiece from '../../utils/pieces/getPiece';
 import PieceDetails from './PieceDetails';
-import getSpecialAbility from '../../utils/getSpecialAbility';
+import getSpecialAbility from '../../utils/pieces/getSpecialAbility';
 import { useEffect } from 'react';
 
 // ----------------------------------------------------------------------
@@ -45,7 +45,10 @@ export default function ActionSelect({ piece, start_position, all_pieces, select
     const onKeyPress = (event: any) => {
         const key: string = ((event.key).toString());
         if (key === '1') { setActionType('move') };
-        if (key === '2') { setActionType('attack') };
+        if (key === '2' && observed_piece) {
+            if (observed_piece.default_stats.attack_range_max > 1) { setActionType('range attack') }
+            else { setActionType('melee attack') };
+        };
         if (key === '3' && special_ability) { setActionType(special_ability) };
     };
     useKeyPress(['1', '2', '3'], onKeyPress);
@@ -107,12 +110,12 @@ export default function ActionSelect({ piece, start_position, all_pieces, select
                         borderColor: default_border_color,
                         borderRadius: '5px',
                         '&:hover': { cursor: 'pointer' },
-                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'attack') && (piece.player === this_player.number) && {
+                        ...((checkSameLocation(piece.location, selected_tile)) && (selected_action === 'melee attack' || selected_action === 'range attack') && (piece.player === this_player.number) && {
                             borderColor: (GetBorderColor(color_scheme, this_player.number, true))
                         }),
                         ...(piece.current_stats.health <= 0 && { filter: 'grayscale(100%)' })
                     }}
-                    onClick={() => { ((piece.player === this_player.number && piece.start_stats['attack'] > 0) && setActionType('attack')) }}
+                    onClick={() => { ((piece.player === this_player.number && piece.start_stats['attack'] > 0) && (piece.default_stats.attack_range_max > 1 ? setActionType('range attack') : setActionType('melee attack'))) }}
                 >
                     <BottomBarImgs
                         type={

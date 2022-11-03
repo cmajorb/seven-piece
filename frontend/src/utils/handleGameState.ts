@@ -1,6 +1,6 @@
 import { JsonValue } from "react-use-websocket/dist/lib/types";
 import { GameState } from "../types";
-import createAllPieces from "./createAllPieces";
+import createAllPieces from "./pieces/createAllPieces";
   
 // ----------------------------------------------------------------------
 

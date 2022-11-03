@@ -1,5 +1,5 @@
-import { Piece, Map, CellStatus } from "../types";
-import getCellStatus from "./getCellStatus";
+import { Piece, Map, CellStatus, PieceActions } from "../../types";
+import getCellStatus from "../getCellStatus";
 import getPiece from "./getPiece";
 
 // ----------------------------------------------------------------------
@@ -75,8 +75,6 @@ export function calcValidPieceSpecial (piece: Piece, pieces: Piece[], map: Map, 
     let possible_special_locations: number[][] = [];
     const row_length = (map.data[0]).length;
     const column_length = (map.data).length;
-    console.log(map.data);
-    console.log("Current location:", location);
 
     const current_column_location: number = location[0];
     const current_row_location: number = location[1];
@@ -93,14 +91,11 @@ export function calcValidPieceSpecial (piece: Piece, pieces: Piece[], map: Map, 
                 const cell_status: CellStatus = getCellStatus(objectives, map.data, new_location);
                 if (cell_status.contains_piece) {
                     const piece_target: Piece | undefined = getPiece(new_location, pieces);
-                    console.log(piece_target && piece_target.name, new_location);
                     if (piece_target && piece_target.player !== piece.player && (piece.current_stats.special > 0)) {
                         possible_special_locations.push(new_location);
                     };
                 }
-                else { console.log(new_location, 'no piece'); };
-                // else { console.log('no piece found at', new_location); possible_special_locations.push(new_location); };
-            } else { console.log(new_location, 'not on board'); break };
+            } else { break };
         }
     }
 
@@ -109,3 +104,11 @@ export function calcValidPieceSpecial (piece: Piece, pieces: Piece[], map: Map, 
     }
     return possible_special_locations;
 };
+
+
+export function getActionLocations (action_type: PieceActions, move_locations: number[][], attack_locations: number[][], special_locations: number[][]) {
+    if (action_type === 'move') { return move_locations }
+    else if (action_type === 'melee attack' || action_type === 'range attack') { return attack_locations }
+    else if (action_type.length > 0) { return special_locations }
+    else { return undefined };
+  };

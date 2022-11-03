@@ -11,8 +11,8 @@ interface Props extends BoxProps {
 export default function Logo({ disabledLink = false, sx }: Props) {
 
   const logo = (
-    <Box sx={{ width: 80, height: 40, ...sx }}>
-      <img src="https://d36mxiodymuqjm.cloudfront.net/website/icons/icon-element-neutral-2.svg" alt="Blood for Glory" width="200%" height="200%"/>
+    <Box sx={{ width: 70, height: 70, ...sx }}>
+      <img src="https://d36mxiodymuqjm.cloudfront.net/website/icons/icon-element-neutral-2.svg" alt="Blood for Glory" width={70} height={70}/>
     </Box>
   );
 
