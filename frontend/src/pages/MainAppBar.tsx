@@ -82,19 +82,19 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
                   <Stack justifyContent={'center'} alignItems={'center'} sx={{ pr: 1, pb: 0.5, animation: `${ripple} 0.85s infinite alternate ease-in-out` }}>
                     <div style={{ backgroundColor: getConnectionColor(connection_status, theme), borderRadius: '50%', width: '10px', height: '10px', justifyContent: 'center', alignItems: 'center' }}/>
                   </Stack>
-                  <Typography variant="button" sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }}>Session:</Typography>
-                  <Button sx={{ pl: 1 }} size='large' color="inherit" style={{ textTransform: 'lowercase', fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
+                  <Typography variant="button">Session:</Typography>
+                  <Button sx={{ pl: 1 }} size='large' color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
                 </Stack> }
               </Stack>
               { current_state && current_state !== 'None' && (pathname.includes(PATH_DASHBOARD.general.board)) &&
-                <Typography variant='body2' sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }}>Game State: {current_state}</Typography>
+                <Typography variant='body2'>Game State: {current_state}</Typography>
               }
             </Stack>
             <Stack direction={'row'} spacing={2} justifyContent={'center'} alignItems={'center'}>
               <IconButton onClick={setSoundPrefs} sx={{ color: theme.palette.grey[700] }}>
                 <Iconify icon={musicOn ? 'eva:volume-up-outline' : 'eva:volume-off-outline'} width={24} height={24} />
               </IconButton>
-              <Button color="inherit" sx={{ fontFamily: 'fantasy', fontWeight: 'bold' }} onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
+              <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
             </Stack>
           </Toolbar>
         </AppBar>

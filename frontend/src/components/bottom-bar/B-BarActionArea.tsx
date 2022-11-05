@@ -52,12 +52,12 @@ export default function BBarActionArea({ bar_height, this_player_id, active_play
                 { current_state === 'PLACING' ?
                 <Stack alignItems={'center'} justifyContent={'center'}>
                     { this_player_ready ? <WaitingDots /> :
-                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold', maxHeight: bar_height * 0.85 }} onClick={() => { endTurn(sendJsonMessage) }} disabled={this_player_ready}>
+                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ maxHeight: bar_height * 0.85 }} onClick={() => { endTurn(sendJsonMessage) }} disabled={this_player_ready}>
                         Place Pieces
                     </Button> }
                 </Stack> :
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold', maxHeight: bar_height * 0.85 }} onClick={() => { endTurn(sendJsonMessage) }} disabled={(this_player_id !== active_player_id)}>
+                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ maxHeight: bar_height * 0.85 }} onClick={() => { endTurn(sendJsonMessage) }} disabled={(this_player_id !== active_player_id)}>
                         End Turn
                     </Button>
                 </Stack> }
