@@ -7,6 +7,7 @@ import { PATH_DASHBOARD } from '../../pages/routes/paths';
 import { WaitingLine } from './DynamicLines';
 import AndrewTest from '../music/AndrewTest.mp3';
 import { useEffect, useState } from 'react';
+import delay from '../../utils/delay';
 
 // ----------------------------------------------------------------------
 
@@ -36,9 +37,13 @@ export default function WaitingScreen({ wait_time, bg_color, middle_color, edge_
     const navigate = useNavigate();
 
     const [musicPlaying, setMusicPlaying] = useState<boolean>(true);
+    const [playerNotFound, setPlayerNotFound] = useState<boolean>(false);
     function resetMusic() { if (!musicPlaying) { setMusicPlaying(true) }; if (musicPlaying) { setMusicPlaying(false) } };
 
     useEffect(() => {}, [musicPlaying]);
+
+    delay(wait_time * 1000).then(() => { setPlayerNotFound(true) });
+    delay((wait_time * 1000) + 2000).then(() => { navigate(PATH_DASHBOARD.general.start) });
 
     useEffect(() => { 
         let prefs = localStorage.getItem('musicPref');
@@ -57,7 +62,7 @@ export default function WaitingScreen({ wait_time, bg_color, middle_color, edge_
             />
             <Stack spacing={6} sx={{ height: '100vh', justifyContent: 'space-around' }}>
                 <Stack spacing={4}>
-                    <Typography variant='h5'>Looking for Opponent...</Typography>
+                    { playerNotFound ? <Typography variant='h5'>No Opponent Found</Typography> : <Typography variant='h5'>Looking for a Worthy Opponent...</Typography> }
                     <WaitingLine wait_time={wait_time} bg_color={bg_color} middle_color={middle_color} edge_color={edge_color} />
                 </Stack>
                 <Stack sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', animation: `${animation} 2s infinite linear alternate` }}>
@@ -85,6 +90,7 @@ export default function WaitingScreen({ wait_time, bg_color, middle_color, edge_
                 <Button
                     variant='contained'
                     fullWidth
+                    disabled={playerNotFound}
                     onClick={() => { navigate(PATH_DASHBOARD.general.start) }}
                 >
                     Cancel
