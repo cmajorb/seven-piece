@@ -1,11 +1,11 @@
 import { JsonValue } from "react-use-websocket/dist/lib/types";
 import { GameState } from "../types";
-import createAllPieces from "./createAllPieces";
+import createAllPieces from "./pieces/createAllPieces";
   
 // ----------------------------------------------------------------------
 
 export default function handleGameState
-    (lastJsonMessage: JsonValue | null, setGameState: any, setThisPlayer: any, setAllPieces: any, setAllSpecials: any) {
+    (lastJsonMessage: JsonValue | null, setGameState: any, setThisPlayer: any, setAllPieces: any, setAllSpecials: any, setRemainingTime: any) {
     const message_str = JSON.stringify(lastJsonMessage);
     const message = JSON.parse(message_str);
     switch (message.type) {
@@ -28,6 +28,10 @@ export default function handleGameState
         case 'get_specials':
           setAllSpecials(message.specials);
           console.log("Specials", message.specials);
+          break;
+        case 'timer':
+          console.log("Check Timer", message.time);
+          setRemainingTime(message.time);
           break;
         default:
           console.error('Unknown message type!');

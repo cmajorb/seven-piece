@@ -38,7 +38,7 @@ const refreshAccessToken = async (refreshToken: string | null) => {
   await axios.post(`${BASE_API.url}/token_refresh/`, { refresh: refreshToken }).then((response) => {
     const { access, refresh } = response.data;
     setSession(access, refresh);
-    credentials = { ...response.data };
+    credentials = { access: access, refresh: refresh };
   }).catch(err => {
     console.error(err);
   });
@@ -50,21 +50,9 @@ const reValidateToken = async (refreshToken: string | null) => {
   return { access, refresh };
 }
 
-const getAdminToken = async () => {
-  let credentials = { access: '', refresh: '' };
-  await axios.get(`${BASE_API.url}/get_admin_tokens/`).then((response) => {
-    const { access, refresh } = response.data;
-    console.log('got tokens')
-    setSession(access, refresh);
-    credentials = { ...response.data };
-  }).catch(err => {
-    console.error(err);
-  });
-  return { ...credentials };
-}
-
 const logout = async () => {
   setSession(null, null);
+  window.location.href = '/auth/login';
 };
 
 const processTokens = async (functions: Function) => {
@@ -123,14 +111,13 @@ const login = async (username: string, password: string) => {
   return res;
 };
 
-const register = async (email: string, username: string, password: string, firstName: string, lastName: string, discord: string) => {
+const register = async (email: string, username: string, password: string, firstName: string, lastName: string) => {
   const response = await axios.post(BASE_API.url + '/register/', {
     email,
     username,
     password,
     firstName,
     lastName,
-    discord,
   });
   const { token } = response.data;
 
@@ -144,7 +131,6 @@ export {
   getUser,
   setSession,
   isValidToken,
-  getAdminToken,
   processTokens,
   refreshAccessToken,
 };

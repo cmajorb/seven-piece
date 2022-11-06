@@ -14,7 +14,55 @@ type TurnLineProps = {
     turn_seconds: number,
 };
 
+type WaitingLineProps = {
+    wait_time: number,
+    bg_color: string,
+    middle_color: string,
+    edge_color: string,
+};
+
 // ----------------------------------------------------------------------
+
+export function WaitingLine({ wait_time, bg_color, middle_color, edge_color }: WaitingLineProps) {
+    
+    const theme = useTheme();
+    const bg_rgb = calcHexToRGB(bg_color, 0);
+    const background_img: string = `linear-gradient(1turn, rgba(255, 255, 255, 0) 0%, ${bg_rgb} 35%, #${middle_color} 75%, #${edge_color} 100%), linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, ${bg_rgb} 35%, #${middle_color} 75%, #${edge_color} 100%)`;
+    
+    const wait_animation = (
+        keyframes`
+        from {
+            width: 60%;
+        }
+        to {
+            width: 0%;
+        }`
+    );
+
+    return (
+        <Stack justifyContent={'center'} alignItems={'center'}>
+            <Divider
+                sx={{
+                    position: 'absolute',
+                    borderRadius: '10px',
+                    height: 20,
+                    width: '60%',
+                    animation: `${wait_animation} ${wait_time}s forwards linear`, backgroundImage: background_img
+                }}
+            />                
+            <Divider
+                sx={{
+                    position: 'absolute',
+                    borderRadius: '10px',
+                    height: 20,
+                    width: '60%',
+                    border: 2,
+                    borderColor: theme.palette.grey[700],
+                }}
+            />
+        </Stack>
+    );
+};
 
 export function TurnLine({ start_position, is_turn, bg_color, middle_color, edge_color, turn_seconds }: TurnLineProps) {
 

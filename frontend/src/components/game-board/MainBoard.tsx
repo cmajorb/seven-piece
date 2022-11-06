@@ -1,6 +1,6 @@
 import { Stack } from '@mui/material';
 import Cell from './Cell';
-import { Piece, Map, GameStatus } from '../../types';
+import { Piece, Map, GameStatus, AnimationType, AnimationDirection } from '../../types';
 import calcSelectedTile from '../../utils/calcSelectedTile';
 import getCellStatus from '../../utils/getCellStatus';
 
@@ -16,11 +16,20 @@ type Props = {
     selected_piece_actions: number[][] | undefined,
     current_state: GameStatus,
     updateSelected: any,
+
+    is_turn: boolean,
+    animation_initiator: Piece | undefined,
+    animation_recipient: Piece | undefined,
+    animation_type: AnimationType,
+    animation_direction: AnimationDirection,
 };
 
 // ----------------------------------------------------------------------
 
-export default function MainBoard({ grid_size, pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, current_state, updateSelected }: Props) {
+export default function MainBoard({
+    grid_size, pieces, map, objectives, selected_tile, this_player_id, selected_piece_actions, current_state, updateSelected,
+    animation_initiator, animation_type, animation_direction, animation_recipient, is_turn
+    }: Props) {
     
     const row_length: number = map.data.length;
     const row_nums: number[] = (Array.from(Array(row_length).keys())).sort((a, b) => b - a);
@@ -50,6 +59,12 @@ export default function MainBoard({ grid_size, pieces, map, objectives, selected
                                     this_player_id={this_player_id}
                                     start_tiles={map.start_tiles}
                                     updateSelected={updateSelected}
+
+                                    is_turn={is_turn}
+                                    animation_initiator={animation_initiator}
+                                    animation_recipient={animation_recipient}
+                                    animation_type={animation_type}
+                                    animation_direction={animation_direction}
                                 />
                             ))}
                         </Stack>

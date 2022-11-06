@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 // form
 import { useForm } from 'react-hook-form';
 // @mui
-import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
+import { Stack, Alert, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-// routes
-import { PATH_AUTH } from '../../pages/routes/paths';
 // hooks
-import { login } from '../../utils/jwt';
+import { getUser, login } from '../../utils/jwt';
 import useIsMountedRef from '../../utils/useIsMountedRef';
 // components
 import FormProvider from './FormProvider&Fields';
 import { RHFTextField, RHFCheckbox } from './FormProvider&Fields';
 import Iconify from '../misc/Iconify';
+import { PATH_DASHBOARD } from '../../pages/routes/paths';
 
 
 // ----------------------------------------------------------------------
@@ -28,6 +27,7 @@ type FormValuesProps = {
 export default function LoginForm() {
   const [loginError, setLoginError] = useState({ error: null });
   const isMountedRef = useIsMountedRef();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,6 +42,7 @@ export default function LoginForm() {
   });
 
   const {
+    // reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -49,7 +50,16 @@ export default function LoginForm() {
   const onSubmit = async (data: FormValuesProps) => {
     setLoginError({ error: null });
     try {
-      await login(data.username, data.password);
+      await login(data.username, data.password).then(() => {
+        const token = localStorage.getItem('accessToken');
+        getUser(token ? token : '').then((response) => {
+          if (response) {
+            if (response.username === data.username) {
+              navigate(PATH_DASHBOARD.general.start)
+            };
+          };
+        });
+      });
     } catch (error) {
       if (isMountedRef.current) {
         var message = null;
@@ -89,9 +99,10 @@ export default function LoginForm() {
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
         <RHFCheckbox name="remember" label="Remember me" />
-        <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.resetPassword}>
+
+        {/* <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.resetPassword}>
           Forgot password?
-        </Link>
+        </Link> */}
       </Stack>
 
       <LoadingButton

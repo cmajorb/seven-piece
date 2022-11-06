@@ -4,6 +4,8 @@ import useKeyPress from '../../utils/useKeyPress';
 import LeftArrow from '../../images/backward-arrow.svg';
 import RightArrow from '../../images/forward-arrow.svg';
 import WaitingDots from '../misc/WaitingDots';
+import useWebSocket from 'react-use-websocket';
+import { endTurn, PathStr } from '../../utils/sendJsonMessages';
 
 // ----------------------------------------------------------------------
 
@@ -14,16 +16,17 @@ type Props = {
     color_scheme: ColorScheme,
     current_state: GameStatus,
     this_player_ready: boolean,
-    endTurn: any,
 };
 
 // ----------------------------------------------------------------------
 
-export default function BBarActionArea({ bar_height, this_player_id, active_player_id, current_state, endTurn, this_player_ready }: Props) {
+export default function BBarActionArea({ bar_height, this_player_id, active_player_id, current_state, this_player_ready }: Props) {
+
+    const { sendJsonMessage } = useWebSocket('ws://' + process.env.REACT_APP_DJANGO_URL + PathStr(), {share: true});
 
     const onKeyPress = (event: any) => {
         const key: string = ((event.key).toString());
-        if (key === 'e') { endTurn() };
+        if (key === 'e') { endTurn(sendJsonMessage) };
     };
     useKeyPress(['e'], onKeyPress);
 
@@ -49,12 +52,12 @@ export default function BBarActionArea({ bar_height, this_player_id, active_play
                 { current_state === 'PLACING' ?
                 <Stack alignItems={'center'} justifyContent={'center'}>
                     { this_player_ready ? <WaitingDots /> :
-                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold', maxHeight: bar_height * 0.85 }} onClick={() => { endTurn() }} disabled={this_player_ready}>
+                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ maxHeight: bar_height * 0.85 }} onClick={() => { endTurn(sendJsonMessage) }} disabled={this_player_ready}>
                         Place Pieces
                     </Button> }
                 </Stack> :
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ fontFamily: 'fantasy', fontWeight: 'bold', maxHeight: bar_height * 0.85 }} onClick={() => { endTurn() }} disabled={(this_player_id !== active_player_id)}>
+                    <Button variant={'contained'} size={bar_height < 80 ? 'small' : 'medium'} sx={{ maxHeight: bar_height * 0.85 }} onClick={() => { endTurn(sendJsonMessage) }} disabled={(this_player_id !== active_player_id)}>
                         End Turn
                     </Button>
                 </Stack> }

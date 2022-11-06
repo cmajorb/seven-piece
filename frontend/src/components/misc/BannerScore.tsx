@@ -30,7 +30,7 @@ export default function BannerScore({ bar_height, player_id, team_scores, score_
                     <>
                         { banner_value === 0 &&
                             <ObjectiveImg
-                                key={banner_value}
+                                key={`${banner_value}+${player_id}`}
                                 player_id={-2}
                                 width={banner_width}
                                 height={banner_height}
@@ -38,7 +38,7 @@ export default function BannerScore({ bar_height, player_id, team_scores, score_
                         }
                         { banner_value === 1 &&
                             <ObjectiveImg
-                                key={banner_value}
+                                key={`${banner_value}+${player_id}`}
                                 player_id={player_id}
                                 width={banner_width}
                                 height={banner_height}
@@ -46,7 +46,7 @@ export default function BannerScore({ bar_height, player_id, team_scores, score_
                         }
                         { banner_value === 2 &&
                             <KillObjectiveImg
-                                key={banner_value}
+                                key={`${banner_value}+${player_id}`}
                                 player_id={player_id}
                                 width={banner_width}
                                 height={banner_height}

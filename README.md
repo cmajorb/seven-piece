@@ -40,11 +40,6 @@ Use the following command to run tests:
 docker compose run web python sevenpiece/manage.py test game
 ```
 
-Use the following to run a simulation in the shell:
-```
-exec(open('sevenpiece/game/simulate.py').read())
-```
-
 ## Front End
 
 Use the following to start the frontend:

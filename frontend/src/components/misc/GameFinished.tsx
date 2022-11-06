@@ -1,4 +1,4 @@
-import { keyframes, Stack, Typography, useTheme } from '@mui/material';
+import { keyframes, Stack, Typography } from '@mui/material';
 import { Score } from '../../types';
 import BannerScore from './BannerScore';
 
@@ -14,8 +14,6 @@ type Props = {
 // ----------------------------------------------------------------------
 
 export default function GameFinished({ height, winner, team_scores, score_to_win }: Props) {
-
-    const theme = useTheme();
 
     const fade_in = (
         keyframes`
@@ -39,9 +37,6 @@ export default function GameFinished({ height, winner, team_scores, score_to_win
         >
             <Typography
                 variant='h5'
-                fontFamily={'fantasy'}
-                fontWeight={'bold'}
-                color={theme.palette.grey[300]}
             >
                 Congratulations on Your Victory, Player {winner + 1}!
             </Typography>

@@ -1,8 +1,11 @@
 import { Suspense, lazy, ElementType, useState } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
+import AuthGuard from '../../components/guards/AuthGuard';
 import { WebSocketStatus } from '../../types';
 // components
 import LoadingScreen from '../LoadingScreen';
+import Login from '../Login';
+import Register from '../Register';
 import { PATH_DASHBOARD } from './paths';
 // ----------------------------------------------------------------------
 
@@ -20,21 +23,25 @@ export default function Router() {
   const [currentState, setCurrentState] = useState<string>('');
 
   return useRoutes([
-    // {
-    //   path: 'auth',
-    //   children: [
-    //     {
-    //       path: 'login',
-    //       element: (
-    //         <Login />
-    //       ),
-    //     },
-    //     { path: 'register', element: <Register /> },
-    //   ],
-    // },
+    {
+      path: 'auth',
+      children: [
+        {
+          path: 'login',
+          element: (
+            <Login />
+          ),
+        },
+        { path: 'register', element: <Register /> },
+      ],
+    },
     {
       path: 'dashboard',
-      element: <MainAppBar connection_status={connectionStatus} current_state={currentState} />,
+      element: (
+        <AuthGuard>
+          <MainAppBar connection_status={connectionStatus} current_state={currentState} />
+        </AuthGuard>
+      ),
       children: [
         { element: <Navigate to={PATH_DASHBOARD.general.start} replace />, index: true },
         {
@@ -49,7 +56,7 @@ export default function Router() {
     {
       path: '/',
       children: [
-        { element: <Navigate to={PATH_DASHBOARD.general.start} replace />, index: true },
+          { element: <Navigate to="/auth/login" replace />, index: true },
       ],
     },
     // {

@@ -55,7 +55,7 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
                 <Stack spacing={2} alignItems={'flex-start'} justifyContent={'center'}>
                     <Stack alignItems={'flex-start'} justifyContent={'center'} width={'100%'}>
                         <Stack alignItems={'center'} justifyContent={'center'} width={'100%'} display={'flex'}>
-                            <Typography sx={{ marginBottom: 0 }} fontFamily={'fantasy'} fontWeight={'bold'} color={theme.palette.grey[400]} paragraph variant='h5'>{observed_piece.name}</Typography>
+                            <Typography sx={{ marginBottom: 0 }} paragraph variant='h5'>{observed_piece.name}</Typography>
                         </Stack>
                         <Stack direction={'row'} spacing={4} justifyContent={'center'} alignItems={'center'} sx={{ pl: 2.5 }}>
                             <PieceImg
@@ -80,7 +80,7 @@ export default function PieceInfoCard ({ observed_piece, team_pick_option, team_
                             </Stack>
                         </Stack>
                     </Stack>
-                    <Typography fontFamily={'fantasy'} fontWeight={'bold'} color={theme.palette.grey[400]} paragraph variant='body2'>{observed_piece.description}</Typography>
+                    <Typography paragraph variant='body2'>{observed_piece.description}</Typography>
                 </Stack> }
         </Card>
     );

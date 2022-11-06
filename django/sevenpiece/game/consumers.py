@@ -8,6 +8,9 @@ import json
 import logging
 from channels.consumer import SyncConsumer
 
+from datetime import datetime, timezone
+from game.data.constants import TURN_LENGTH
+
 logging.basicConfig(level=logging.INFO)
 
 class GameConsumer(JsonWebsocketConsumer):
@@ -51,13 +54,32 @@ class GameConsumer(JsonWebsocketConsumer):
 
     def error(self, event):
         self.send_json(event)
+
+    def timer(self, event):
+        self.send_json(event)
         
     def receive_json(self, content, **kwargs):
         if self.player:
-            self.player.refresh_from_db()
+            self.player.refresh_from_db() 
         message_type = content["type"]
         error = ""
-        if message_type == "get_characters":
+        if message_type == "check_timer":
+            if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
+                error = "Timer has expired"
+                try:
+                    self.player.end_turn()
+                except Exception as e:
+                    error += f", Failed to end turn: {e}"
+            else:
+                async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "timer",
+                    "time": TURN_LENGTH - (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds,
+                },
+                )
+                return
+        elif message_type == "get_characters":
             logging.info("Getting characters")
             characters = Character.objects.all()
             serializer = CharacterSerializer(characters, many=True)
@@ -100,8 +122,8 @@ class GameConsumer(JsonWebsocketConsumer):
             logging.info("End turn")
             try:
                 self.player.end_turn()
-            except:
-                error = "Failed to end turn"
+            except Exception as e:
+                error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
             logging.info("selecting pieces")
             try:
@@ -111,12 +133,20 @@ class GameConsumer(JsonWebsocketConsumer):
                 logging.error(e)
         elif message_type == "action":
             #Make sure it belongs to the user
+            self.current_game_state.refresh_from_db()
             try:
                 piece = Piece.objects.get(player=self.player, id=content["piece"])
                 piece = piece.cast_piece()
             except:
                 error = "Piece does not exist"
-            if content["action_type"] == "move":
+            if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
+                error = "Timer has expired"
+                try:
+                    self.player.end_turn()
+                except Exception as e:
+                    error += f", Failed to end turn: {e}"
+
+            elif content["action_type"] == "move":
                 try:
                     piece.make_move([content["location_x"], content["location_y"]])
                 except Exception as e:
@@ -133,16 +163,7 @@ class GameConsumer(JsonWebsocketConsumer):
                     error = f"Failed to attack piece: {e}"
         else:
             error = "Unknown command"
-        if error == "":
-            self.current_game_state.refresh_from_db()
-            async_to_sync(self.channel_layer.group_send)(
-                    self.room_name,
-                    {
-                        "type": "game_state",
-                        "state": self.current_game_state.get_game_state(),
-                    },
-                )
-        else:
+        if error != "":
             logging.error(error)
             async_to_sync(self.channel_layer.group_send)(
                     self.room_name,
@@ -151,6 +172,15 @@ class GameConsumer(JsonWebsocketConsumer):
                         "message": error,
                     },
                 )
+        self.current_game_state.refresh_from_db()
+        async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "game_state",
+                    "state": self.current_game_state.get_game_state(),
+                },
+            )
+
         return super().receive_json(content, **kwargs)
 
 

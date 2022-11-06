@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 // form
 import { useForm } from 'react-hook-form';
 // @mui
 import { Stack, IconButton, InputAdornment, Alert } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // hooks
-import { register, getAdminToken } from '../../utils/jwt';
+import { register } from '../../utils/jwt';
 import useIsMountedRef from '../../utils/useIsMountedRef';
 // components
 import FormProvider from './FormProvider&Fields';
@@ -39,17 +39,12 @@ export default function RegisterForm() {
     password: '',
     firstName: '',
     lastName: '',
-    discord: '',
     confirmPassword: '',
   };
 
   const methods = useForm<FormValuesProps>({
     defaultValues,
   });
-
-  useEffect(() => {
-    getAdminToken();
-  }, []);
 
   const {
     reset,
@@ -60,8 +55,7 @@ export default function RegisterForm() {
   const onSubmit = async (data: FormValuesProps) => {
     setRegisterError({ error: '' });
     try {
-      console.log(data.discord);
-      await register(data.email, data.username, data.password, data.firstName, data.lastName, data.discord);
+      await register(data.email, data.username, data.password, data.firstName, data.lastName);
       reset();
       window.location.href = '/auth/login';
     } catch (error) {
@@ -83,7 +77,6 @@ export default function RegisterForm() {
 
         <RHFTextField name="username" label="Username" />
         <RHFTextField name="email" label="Email address" />
-        <RHFTextField name="discord" label="Discord Name (ie. username#1111)" />
         <RHFTextField
           name="password"
           label="Password"

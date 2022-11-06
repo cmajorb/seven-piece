@@ -11,6 +11,7 @@ import {
 import palette from './palette';
 import breakpoints from './breakpoints';
 import shadows, { customShadows } from './shadows';
+import typography from './typography';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ export default function ThemeProvider({ children }: Props) {
     () => ({
       palette: palette.dark,
       breakpoints,
+      typography,
       shape: { borderRadius: 8 },
       direction: 'ltr',
       shadows: shadows.dark,
