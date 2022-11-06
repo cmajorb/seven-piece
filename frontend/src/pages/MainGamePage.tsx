@@ -147,7 +147,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
         <>
           { gameState.state === 'WAITING' &&
             <WaitingScreen
-              wait_time={600}
+              wait_time={120}
               bg_color={BG_COLOR}
               middle_color={MIDDLE_COLOR}
               edge_color={EDGE_COLOR}
