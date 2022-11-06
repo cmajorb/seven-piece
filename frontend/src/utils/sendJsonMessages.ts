@@ -32,3 +32,7 @@ export function getStartingInfo (gameState: GameState | undefined, all_pieces: P
 export function joinGame (game_id: string | undefined, sendJsonMessage: any) {
     sendJsonMessage({ type: "join_game", session: game_id });
 };
+
+export function getTime (sendJsonMessage: any) {
+    sendJsonMessage({ type: "check_timer" });
+};

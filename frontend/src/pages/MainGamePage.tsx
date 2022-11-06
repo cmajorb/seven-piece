@@ -14,12 +14,13 @@ import getPiece from '../utils/pieces/getPiece';
 import handleGameState from '../utils/handleGameState';
 import useWindowDimensions from '../utils/useWindowDimensions';
 import GameFinished from '../components/misc/GameFinished';
-import { getStartingInfo, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
+import { getStartingInfo, getTime, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
 import { useParams } from 'react-router-dom';
 import handleSelectedPiece from '../utils/pieces/handleSelectedPiece';
 import { getActionLocations } from '../utils/pieces/calcValidPieceActions';
 import calcAttackDirection from '../utils/pieces/calcAttackDirection';
 import WaitingScreen from '../components/misc/WaitingScreen';
+import delay from '../utils/delay';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +37,8 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   const [thisPlayer, setThisPlayer] = useState<Player>();
   const [allPieces, setAllPieces] = useState<Piece[]>();
   const [allSpecials, setAllSpecials] = useState<SpecialAbility[]>();
+
+  const [remainingTime, setRemainingTime] = useState<number>(0);
 
   const [selectedTile, setSelectedTile] = useState<number[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>();
@@ -63,7 +66,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { joinGame(game_id, sendJsonMessage) }, []);
-  useEffect(() => { if (lastJsonMessage !== null) { handleGameState(lastJsonMessage, setGameState, setThisPlayer, setAllPieces, setAllSpecials) } }, [lastJsonMessage]);
+  useEffect(() => { if (lastJsonMessage !== null) { handleGameState(lastJsonMessage, setGameState, setThisPlayer, setAllPieces, setAllSpecials, setRemainingTime) } }, [lastJsonMessage]);
   useEffect(() => {
     setCurrentState((gameState ? gameState.state : "None"));
     getStartingInfo(gameState, allPieces, sendJsonMessage);
@@ -88,6 +91,16 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTile, actionType, gameState]);
+
+  useEffect(() => {
+    if (thisPlayer && thisPlayer.is_turn) {
+      delay(1000).then(() => { getTime(sendJsonMessage) } );
+    } else if (thisPlayer && !thisPlayer.is_turn) {
+      setRemainingTime(0);
+    }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remainingTime, thisPlayer]);
 
   const handleTurnChange = () => {
     setSelectedTile([]);
@@ -182,7 +195,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
                   bg_color={BG_COLOR}
                   middle_color={MIDDLE_COLOR}
                   edge_color={EDGE_COLOR}
-                  turn_seconds={100}
+                  turn_seconds={remainingTime}
                 />
                 <MainBoard
                   grid_size={height * 0.8}
