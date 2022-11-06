@@ -1,6 +1,6 @@
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
-import { Link, Paper, Typography, Stack } from '@mui/material';
+import { Button, Paper, Typography, Stack } from '@mui/material';
 // routes
 import { PATH_AUTH } from './routes/paths';
 // sections
@@ -43,9 +43,9 @@ export default function Login() {
 
       <Typography variant="body2" align="center" sx={{ mt: 3 }}>
         Don’t have an account?{' '}
-        <Link variant="subtitle2" component={RouterLink} to={PATH_AUTH.register}>
+        <Button variant={'text'} size={'small'} component={RouterLink} to={PATH_AUTH.register}>
           Get started
-        </Link>
+        </Button>
       </Typography>
     </Stack>
     </Paper>
