@@ -7,7 +7,6 @@ import { Stack, Button, Paper, Typography, TextField, useTheme } from '@mui/mate
 import getValidUUID from '../utils/getValidUUID';
 import useKeyPress from '../utils/useKeyPress';
 import BackgroundImage from '../images/login_background.jpeg';
-import typography from '../theme/typography';
 
 export default function StartGame() {
     const navigate = useNavigate();
@@ -78,29 +77,13 @@ export default function StartGame() {
         >
             <Stack spacing={3} alignItems={'center'}>
                 <Stack direction={'row'} spacing={1} justifyContent={'center'} alignItems={'center'}>
-                    <Typography
-                        fontSize={typography.h1.fontSize}
-                        fontWeight={'bold'}
-                        fontFamily={'fantasy'}
-                        color={theme.palette.grey[400]}
-                    >
+                    <Typography variant={'h2'}>
                         Blood
                     </Typography>
-                    <Typography
-                        fontSize={typography.h4.fontSize}
-                        fontWeight={'bold'}
-                        fontFamily={'fantasy'}
-                        color={theme.palette.grey[400]}
-                        sx={{ pl: 0.5 }}
-                    >
+                    <Typography variant={'h4'} sx={{ pl: 0.5 }}>
                         for
                     </Typography>
-                    <Typography
-                        fontSize={typography.h1.fontSize}
-                        fontWeight={'bold'}
-                        fontFamily={'fantasy'}
-                        color={theme.palette.grey[400]}
-                    >
+                    <Typography variant={'h2'}>
                         Glory
                     </Typography>
                 </Stack>
@@ -110,8 +93,6 @@ export default function StartGame() {
                         fullWidth
                         disabled={!canJoinGame}
                         sx={{
-                            fontFamily: 'fantasy',
-                            fontWeight: 'bold',
                             "&:disabled": {
                                 backgroundColor: theme.palette.grey[800],
                                 opacity: 0.5
@@ -126,8 +107,6 @@ export default function StartGame() {
                         fullWidth
                         disabled={!canJoinGame}
                         sx={{
-                            fontFamily: 'fantasy',
-                            fontWeight: 'bold',
                             "&:disabled": {
                                 backgroundColor: theme.palette.grey[800],
                                 opacity: 0.5
@@ -141,8 +120,7 @@ export default function StartGame() {
                 <TextField
                     label="Game ID"
                     sx={{ width: '50vw' }}
-                    InputLabelProps={{ style: { fontFamily: 'fantasy', fontWeight: 'bold' } }}
-                    inputProps={{ style: { fontFamily: 'fantasy', fontWeight: 'bold', textAlign: 'center' } }}
+                    inputProps={{ style: { textAlign: 'center' } }}
                     InputProps={{ style: { backgroundColor: theme.palette.grey[800], opacity: 0.5 } }}
                     value={gameID}
                     onChange={handleChangeGameID}
@@ -151,8 +129,6 @@ export default function StartGame() {
                     variant='contained'
                     sx={{
                         width: '50vw',
-                        fontFamily: 'fantasy',
-                        fontWeight: 'bold',
                         "&:disabled": {
                             backgroundColor: theme.palette.grey[800],
                             opacity: 0.5
@@ -162,7 +138,7 @@ export default function StartGame() {
                     onClick={() => { navigate(PATH_DASHBOARD.general.board + gameID) }}
                 >
                     Join Game
-                </Button>                
+                </Button>
             </Stack>
         </Paper>
     );
