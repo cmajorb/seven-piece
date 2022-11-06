@@ -19,6 +19,7 @@ import { useParams } from 'react-router-dom';
 import handleSelectedPiece from '../utils/pieces/handleSelectedPiece';
 import { getActionLocations } from '../utils/pieces/calcValidPieceActions';
 import calcAttackDirection from '../utils/pieces/calcAttackDirection';
+import WaitingScreen from '../components/misc/WaitingScreen';
 
 // ----------------------------------------------------------------------
 
@@ -129,7 +130,7 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   };
 
   return (
-    <Paper square elevation={0} onContextMenu={(e)=> e.preventDefault()} onMouseDown={(e)=> e.preventDefault()}
+    <Paper square elevation={0} onContextMenu={(e) => e.preventDefault()} onMouseDown={(e) => e.preventDefault()}
       sx={{
         backgroundImage: `url("https://d36mxiodymuqjm.cloudfront.net/website/battle/backgrounds/bg_stone-floor.png")`,
         backgroundPosition: 'center',
@@ -144,11 +145,19 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
     >
       { connectionStatus === 'Open' && gameState && thisPlayer &&
         <>
-          { (gameState.state === 'WAITING' || gameState.state === 'SELECTING') &&
+          { gameState.state === 'WAITING' &&
+            <WaitingScreen
+              wait_time={600}
+              bg_color={BG_COLOR}
+              middle_color={MIDDLE_COLOR}
+              edge_color={EDGE_COLOR}
+            />
+          }
+          { gameState.state === 'SELECTING' &&
           <>
             <TurnLine
               start_position={height * 0.45}
-              is_turn={(gameState.state === 'WAITING' || gameState.state === 'SELECTING')}
+              is_turn={true}
               bg_color={BG_COLOR}
               middle_color={MIDDLE_COLOR}
               edge_color={EDGE_COLOR}
@@ -159,7 +168,6 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
               all_pieces={allPieces}
               all_selected_pieces={gameState.pieces}
               num_allowed_pieces={gameState.allowed_pieces}
-              game_state={gameState.state}
               map={gameState.map}
               this_player_id={thisPlayer.number}
               setPieces={setPieces}

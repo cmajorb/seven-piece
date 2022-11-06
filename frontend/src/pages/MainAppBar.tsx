@@ -14,6 +14,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Iconify from '../components/misc/Iconify';
 import { WebSocketStatus } from '../types';
 import getConnectionColor from '../utils/getConnectionColor';
+import { getUser, logout, refreshAccessToken, setSession } from '../utils/jwt';
 import { PATH_DASHBOARD } from './routes/paths';
 
 // ----------------------------------------------------------------------
@@ -45,6 +46,7 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [currentSession, setCurrentSession] = useState<string | undefined>();
+  const [username, setUsername] = useState<string>('UNKNOWN');
   const [musicOn, setMusicOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -70,6 +72,17 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
 
   useEffect(() => {}, [musicOn]);
 
+  useEffect(() => {
+    let refresh = localStorage.getItem('refreshToken');
+    refreshAccessToken(refresh).then((res) => { setSession(res.access, res.refresh) });
+
+    let token = localStorage.getItem('accessToken');
+    getUser(token ? token : '').then((response) => {
+      if (response) { setUsername(response.username) };
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
@@ -77,14 +90,12 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
           <Toolbar sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
             <Stack>
               <Stack direction={'row'} alignItems={'center'}>
-                { currentSession &&
                 <Stack direction={'row'} alignItems={'center'}>
                   <Stack justifyContent={'center'} alignItems={'center'} sx={{ pr: 1, pb: 0.5, animation: `${ripple} 0.85s infinite alternate ease-in-out` }}>
                     <div style={{ backgroundColor: getConnectionColor(connection_status, theme), borderRadius: '50%', width: '10px', height: '10px', justifyContent: 'center', alignItems: 'center' }}/>
                   </Stack>
-                  <Typography variant="button">Session:</Typography>
-                  <Button sx={{ pl: 1 }} size='large' color="inherit" style={{ textTransform: 'lowercase' }} onClick={() => { copy(currentSession) }}>{currentSession}</Button>
-                </Stack> }
+                  <Button sx={{ pl: 0.5 }} color="inherit" onClick={() => { copy(currentSession) }}>{username}</Button>
+                </Stack>
               </Stack>
               { current_state && current_state !== 'None' && (pathname.includes(PATH_DASHBOARD.general.board)) &&
                 <Typography variant='body2'>Game State: {current_state}</Typography>
@@ -94,7 +105,8 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
               <IconButton onClick={setSoundPrefs} sx={{ color: theme.palette.grey[700] }}>
                 <Iconify icon={musicOn ? 'eva:volume-up-outline' : 'eva:volume-off-outline'} width={24} height={24} />
               </IconButton>
-              <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Login</Button>
+              <Button color="inherit" onClick={() => { logout() }}>Logout</Button>
+              <Button color="inherit" onClick={() => { navigate(PATH_DASHBOARD.general.start) }}>Home</Button>
             </Stack>
           </Toolbar>
         </AppBar>
