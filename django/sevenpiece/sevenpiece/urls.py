@@ -13,6 +13,7 @@ urlpatterns = [
     # path('get_admin_tokens/', views.get_admin_tokens),
     # path('register/', views.register),
     path('current_user/', views.current_user),
+    path('register/', views.register),
     path('get_maps/', views.get_maps),
     path('get_characters/', views.get_characters),
     path('token_obtain/', jwt_views.TokenObtainPairView.as_view()),
