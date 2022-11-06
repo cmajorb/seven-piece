@@ -1,3 +1,3 @@
 export const BASE_API = {
-    url: "http://localhost:8080"
+    url: 'http://' + process.env.REACT_APP_DJANGO_URL
 }

@@ -59,6 +59,9 @@ You need to have the following environment variables:
     - DATABASE_HOST=db
     - REDIS_HOST=redis
     - REDIS_PORT=6379
+    - BASE_URL=http://localhost
+- ./frontend/.env
+    - REACT_APP_DJANGO_URL=localhost:8080
 
 ## Activate venv
 

@@ -87,8 +87,8 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-     'http://localhost',
-     'http://localhost:3000',
+     env('BASE_URL') + ':8080',
+     env('BASE_URL') + ':3000',
 ]
 
 ROOT_URLCONF = 'sevenpiece.urls'
