@@ -54,6 +54,9 @@ class GameConsumer(JsonWebsocketConsumer):
 
     def error(self, event):
         self.send_json(event)
+
+    def timer(self, event):
+        self.send_json(event)
         
     def receive_json(self, content, **kwargs):
         if self.player:
@@ -67,6 +70,15 @@ class GameConsumer(JsonWebsocketConsumer):
                     self.player.end_turn()
                 except Exception as e:
                     error += f", Failed to end turn: {e}"
+            else:
+                async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "timer",
+                    "time": TURN_LENGTH - (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds,
+                },
+                )
+                return
         elif message_type == "get_characters":
             logging.info("Getting characters")
             characters = Character.objects.all()
