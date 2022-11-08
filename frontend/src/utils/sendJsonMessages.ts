@@ -5,7 +5,7 @@ import { GameState, Piece, PieceActions } from '../types';
 
 export function PathStr () {
     const { game_id } = useParams();
-    const path_str = "game/" + game_id;
+    const path_str = "/game/" + game_id;
     return path_str;
 };
 
