@@ -43,7 +43,7 @@ export default function WaitingScreen({ wait_time, bg_color, middle_color, edge_
     useEffect(() => {}, [musicPlaying]);
 
     delay(wait_time * 1000).then(() => { setPlayerNotFound(true) });
-    delay((wait_time * 1000) + 2000).then(() => { navigate(PATH_DASHBOARD.general.start) });
+    // delay((wait_time * 1000) + 2000).then(() => { navigate(PATH_DASHBOARD.general.start) });
 
     useEffect(() => { 
         let prefs = localStorage.getItem('musicPref');
