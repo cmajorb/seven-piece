@@ -7,6 +7,7 @@ from game.exceptions import IllegalMoveError, JoinGameError, IllegalPieceSelecti
 import logging
 from django.db.models import Sum
 import math
+from django.contrib.auth.models import User
 
 
 logging.basicConfig(level=logging.INFO)
@@ -96,14 +97,15 @@ class GameState(models.Model):
         self.start_turn_time = datetime.now(timezone.utc)
         self.save(update_fields=['objectives','state','start_turn_time'])
 
-    def join_game(self, session):
+    def join_game(self, user_id):
+        current_user = User.objects.get(id=user_id)
         num_of_players = len(self.player_set.all())
         if num_of_players >= self.map.player_size:
             logging.info("New spectator")
-            spectator = Player.objects.create(session=session, game=None, number=-1)
+            spectator = Player.objects.create(user=current_user, game=None, number=-1)
             return [self, spectator]
             # raise JoinGameError
-        player = Player.objects.create(session=session, game=self, number=num_of_players)
+        player = Player.objects.create(user=current_user, game=self, number=num_of_players)
         if num_of_players + 1 == self.map.player_size:
             self.state = "SELECTING"
             self.save(update_fields=['state'])
@@ -146,14 +148,14 @@ class GameState(models.Model):
         dictionary["score"] = ""
         pieces = []
         for piece in state.piece_set.all():
-            pieces.append("Name: {}({}:{}), Speed: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.session, piece.id, piece.speed, piece.attack, piece.health, piece.location_x, piece.location_y))
+            pieces.append("Name: {}({}:{}), Speed: {}, Attack: {}, Health: {}, Location: ({}, {})".format(piece.character.name, piece.player.user.id, piece.id, piece.speed, piece.attack, piece.health, piece.location_x, piece.location_y))
         dictionary["pieces"] = pieces
         for player in state.player_set.all():
             dictionary["score"] += "{} ({}), ".format(player.id, player.score)
         return dictionary
 
 class Player(models.Model):
-    session = models.CharField(max_length=50, null=False, default="")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     score = models.IntegerField(default=0)
     number = models.IntegerField()
@@ -172,7 +174,7 @@ class Player(models.Model):
             dictionary["is_turn"] = False
 
         dictionary["number"] = self.number
-        dictionary["session"] = self.session
+        dictionary["user"] = self.user.username
         dictionary["ready"] = self.ready
         return dictionary
 

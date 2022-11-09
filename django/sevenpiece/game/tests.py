@@ -3,7 +3,7 @@ from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard, M
 import json
 from game.game_logic import create_game
 from game.exceptions import JoinGameError, IllegalMoveError
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 class PieceTestCase(TestCase):
     # def resetGame(self):
@@ -29,11 +29,13 @@ class PieceTestCase(TestCase):
         self.cleric = Character.objects.get_or_create(name="Cleric", image="https://www.svgrepo.com/show/153027/warrior.svg", description="Gives a shield to other pieces while alive")
         self.werewolf = Character.objects.get_or_create(name="Werewolf", speed=2, image="https://www.svgrepo.com/show/153027/warrior.svg", description="Gains an attack every time it deals damage")
 
+
             #Game
         # self.game_state = GameState.objects.create(map=self.map, state=self.game_state_data)
         # self.piece = Piece.objects.create(character=self.soldier, location_x=0, location_y=0, health=self.soldier.health, game=self.game_state, range=2)
 
-        # self.user = User.objects.create_user(username='user1', password='12345')
+        self.user1 = User.objects.create_user(username='user1', password='12345')
+        self.user2 = User.objects.create_user(username='user2', password='54321')
 
 
     # def test_movement(self):
@@ -61,20 +63,16 @@ class PieceTestCase(TestCase):
 
     def test_win_by_objectives(self):
         print("=====TESTING WIN BY OBJECTIVES=====")
-        session0 = "123"
-        session1 = "789"
         game_state = create_game(self.map2.id)
 
-        game_state.join_game(session0)
-        game_state.join_game(session1)
-        player1 = Player.objects.get(session=session0, game=game_state)
-        player2 = Player.objects.get(session=session1, game=game_state)
+        player1 = game_state.join_game(self.user1.id)[1]
+        player2 = game_state.join_game(self.user2.id)[1]
 
         pieces = ["Berserker", "Ice Wizard"]
         pieces1 = player1.select_pieces(pieces)
         pieces = ["Cleric", "Soldier"]
         pieces2 = player2.select_pieces(pieces)
-        self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
+        self.assertEqual(len(Player.objects.get(user=self.user1.id).piece_set.all()), len(pieces))
 
         game_state = pieces1[0].make_move([1,1])
         game_state = pieces1[1].make_move([1,0])
@@ -90,20 +88,16 @@ class PieceTestCase(TestCase):
 
     def test_entire_game(self):
         print("=====TESTING ENTIRE GAME=====")
-        session0 = "123"
-        session1 = "789"
         game_state = create_game(self.map.id)
 
-        game_state.join_game(session0)
-        game_state.join_game(session1)
-        player1 = Player.objects.get(session=session0, game=game_state)
-        player2 = Player.objects.get(session=session1, game=game_state)
+        player1 = game_state.join_game(self.user1.id)[1]
+        player2 = game_state.join_game(self.user2.id)[1]
 
         pieces = ["Berserker", "Ice Wizard"]
         pieces1 = player1.select_pieces(pieces)
         pieces = ["Cleric", "Soldier"]
         pieces2 = player2.select_pieces(pieces)
-        self.assertEqual(len(Player.objects.get(session=session1).piece_set.all()), len(pieces))
+        self.assertEqual(len(Player.objects.get(user=self.user1.id).piece_set.all()), len(pieces))
 
         game_state = pieces1[0].make_move([1,1])
         game_state = pieces1[1].make_move([1,0])
@@ -137,14 +131,10 @@ class PieceTestCase(TestCase):
 
     def test_ice_wizard(self):
         print("=====TESTING ICE WIZARD=====")
-        session0 = "123"
-        session1 = "789"
         game_state = create_game(self.map.id)
 
-        game_state.join_game(session0)
-        game_state.join_game(session1)
-        player1 = Player.objects.get(session=session0, game=game_state)
-        player2 = Player.objects.get(session=session1, game=game_state)
+        player1 = game_state.join_game(self.user1.id)[1]
+        player2 = game_state.join_game(self.user2.id)[1]
 
         pieces = ["Berserker", "Ice Wizard"]
         pieces1 = player1.select_pieces(pieces)
@@ -170,14 +160,10 @@ class PieceTestCase(TestCase):
 
     def test_movement_barriers(self):
         print("=====TESTING MOVEMENT=====")
-        session0 = "123"
-        session1 = "789"
         game_state = create_game(self.map.id)
 
-        game_state.join_game(session0)
-        game_state.join_game(session1)
-        player1 = Player.objects.get(session=session0, game=game_state)
-        player2 = Player.objects.get(session=session1, game=game_state)
+        player1 = game_state.join_game(self.user1.id)[1]
+        player2 = game_state.join_game(self.user2.id)[1]
 
         pieces = ["Scout", "Scout"]
         pieces1 = player1.select_pieces(pieces)

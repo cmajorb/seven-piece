@@ -27,11 +27,8 @@ class GameConsumer(JsonWebsocketConsumer):
         # self.room_name = "test_room"
         logging.info(self.room_name)
         self.accept()
-        logging.info(self.scope)
-        self.user = self.scope["user"]
         self.scope["session"].save()
         self.session_id = self.scope["session"].session_key
-        
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
             self.channel_name,
@@ -103,7 +100,7 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
-                self.current_game_state, self.player = game.join_game(self.session_id)
+                self.current_game_state, self.player = game.join_game(self.scope["user_id"])
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
 
                 logging.info(f"Joined game: {self.session_id}")

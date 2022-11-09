@@ -15,6 +15,7 @@ const isValidToken = (accessToken: string) => {
 };
 
 const setSession = (accessToken: string | null, refresh: string | null) => {
+  document.cookie = "jwt_key=" + accessToken + ";path=/";
   if (accessToken && refresh) {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refresh);

@@ -16,6 +16,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 from game import consumers
+from game.middleware import TokenAuthMiddlewareStack
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sevenpiece.settings')
 
@@ -28,7 +29,7 @@ application = ProtocolTypeRouter({
     }),
     "http": get_asgi_application(),
     "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
+        TokenAuthMiddlewareStack(
             URLRouter([
                 re_path(r"^game/(?P<game_id>.+)$", consumers.GameConsumer.as_asgi()),
                 re_path(r"^menu$", consumers.MenuConsumer.as_asgi()),
