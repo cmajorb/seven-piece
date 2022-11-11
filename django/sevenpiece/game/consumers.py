@@ -1,3 +1,4 @@
+import random
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync, sync_to_async
 from game.simulate import simulation_setup, simulate
@@ -7,7 +8,7 @@ from game.serializers import MapSerializer, CharacterSerializer
 import json
 import logging
 from channels.consumer import SyncConsumer
-
+from django.contrib.auth.models import User
 from datetime import datetime, timezone
 from game.data.constants import TURN_LENGTH
 
@@ -194,6 +195,11 @@ class MenuConsumer(JsonWebsocketConsumer):
         logging.info(self.room_name)
         self.accept()
         
+        self.player, created = Player.objects.get_or_create(user=User.objects.get(id=self.scope['user_id']))
+        self.player.state = "IDLE"
+        self.player.session = self.room_name
+        self.player.save(update_fields=['session','state'])
+
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
             self.channel_name,
@@ -218,17 +224,33 @@ class MenuConsumer(JsonWebsocketConsumer):
         
     def receive_json(self, content, **kwargs):
         message_type = content["type"]
-        if message_type == "create_game":            
+        if message_type == "find_match":
             try:
-                current_game_state = create_game(content["map"])
-                logging.info(str(current_game_state.session))
-                async_to_sync(self.channel_layer.group_send)(
-                    self.room_name,
-                    {
-                        "type": "start_game",
-                        "session_id": str(current_game_state.session),
-                    },
-                )
+                opponent = Player.objects.filter(state="MATCHING").first()
+                if opponent:
+                    opponent.state = "PLAYING"
+                    opponent.save(update_fields=['state'])
+                    self.player.state = "PLAYING"
+                    self.player.save(update_fields=['state'])
+                    current_game_state = create_game(random.choice(MapTemplate.objects.all()).id)
+                    async_to_sync(self.channel_layer.group_send)(
+                        self.room_name,
+                        {
+                            "type": "start_game",
+                            "session_id": str(current_game_state.session),
+                        },
+                    )
+                    async_to_sync(self.channel_layer.group_send)(
+                        opponent.session,
+                        {
+                            "type": "start_game",
+                            "session_id": str(current_game_state.session),
+                        },
+                    )
+                else:
+                    logging.info("NO OPPONENTS")
+                    self.player.state = "MATCHING"
+                    self.player.save(update_fields=['state'])
             except Exception as e:
                 logging.error("Failed to create game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(

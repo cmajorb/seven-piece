@@ -98,26 +98,40 @@ class GameState(models.Model):
         self.save(update_fields=['objectives','state','start_turn_time'])
 
     def join_game(self, user_id):
-        current_user = User.objects.get(id=user_id)
+        current_player, created = Player.objects.get_or_create(user=User.objects.get(id=user_id))
+        if current_player.game == self:
+            return [self, current_player]
         num_of_players = len(self.player_set.all())
         if num_of_players >= self.map.player_size:
             logging.info("New spectator")
-            spectator = Player.objects.create(user=current_user, game=None, number=-1)
-            return [self, spectator]
+            return [self, current_player]
             # raise JoinGameError
-        player = Player.objects.create(user=current_user, game=self, number=num_of_players)
+        current_player.game = self
+        current_player.number = num_of_players
+        current_player.save(update_fields=['game','number'])
         if num_of_players + 1 == self.map.player_size:
             self.state = "SELECTING"
             self.save(update_fields=['state'])
-        return [self, player]
+            self.reset_players()
+        return [self, current_player]
+
+    def reset_players(self):
+        for player in self.player_set.all():
+            player.ready = False
+            player.save(update_fields=['ready'])
+            for piece in player.piece_set.all():
+                piece.game = None
+                piece.location_x = None
+                piece.location_y = None
+                piece.save(update_fields=['game','location_x','location_y'])
 
     def end_game(self, winner):
-
         logging.info("The winner is player {}".format(winner.number))
         self.state = "FINISHED"
         self.winner = winner.number
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
+        self.reset_players()
         
     def get_game_state(state):
         if state == None:
@@ -156,9 +170,11 @@ class GameState(models.Model):
 
 class Player(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    session = models.CharField(max_length=50, null=False, default="")
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     score = models.IntegerField(default=0)
-    number = models.IntegerField()
+    number = models.IntegerField(default=-1)
+    state = models.CharField(max_length=50, default='IDLE', choices=[('IDLE', 'Not playing'), ('MATCHING', 'Waiting to join a match'), ('PLAYING', 'Currently playing a game')])
     ready = models.BooleanField(default=False)
 
     def get_info(self):
@@ -187,14 +203,16 @@ class Player(models.Model):
             raise IllegalPieceSelection
         if len(pieces) != self.game.map.num_characters:
             raise IllegalPieceSelection
-        if len(self.piece_set.all()) != 0:
+        if len(self.piece_set.all().filter(game=self.game)) != 0:
             logging.error("You already have pieces")
             raise IllegalPieceSelection
         logging.info("Selecting for {}".format(self.number))
         for i, piece in enumerate(pieces):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
-            new_piece = Piece.objects.create(character=character, game=self.game, player=self)
+            new_piece, created = Piece.objects.get_or_create(character=character, player=self)
+            new_piece.game =self.game
+            new_piece.save(update_fields=['game'])
             new_piece = new_piece.cast_piece()
             new_piece.make_move([start_tile[0],start_tile[1]])
             all_pieces.append(new_piece)
@@ -243,7 +261,7 @@ class Piece(models.Model):
     health_start = models.IntegerField(default=0)
     speed_start = models.IntegerField(default=0)
     attack_start = models.IntegerField(default=0)
-    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=False)
+    game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     special = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
     point_value = models.IntegerField(default=1)

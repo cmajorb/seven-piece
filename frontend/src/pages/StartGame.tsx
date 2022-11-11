@@ -98,9 +98,9 @@ export default function StartGame() {
                                 opacity: 0.5
                             }
                         }}
-                        onClick={() => { sendJsonMessage({ type: "create_game", map: default_map.toString() }) }}
+                        onClick={() => { sendJsonMessage({ type: "find_match" }) }}
                     >
-                        Create Game
+                        Start Game
                     </Button>
                     <Button
                         variant='contained'
