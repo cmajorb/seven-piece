@@ -165,16 +165,16 @@ class PieceTestCase(TestCase):
         player1 = game_state.join_game(self.user1.id)[1]
         player2 = game_state.join_game(self.user2.id)[1]
 
-        pieces = ["Scout", "Scout"]
+        pieces = ["Scout", "Soldier"]
         pieces1 = player1.select_pieces(pieces)
-        pieces = ["Scout", "Scout"]
+        pieces = ["Scout", "Soldier"]
         pieces2 = player2.select_pieces(pieces)
 
         game_state = pieces1[0].make_move([1,1])
         game_state = pieces1[1].make_move([1,0])
         game_state = pieces2[1].make_move([4,3])
         game_state = pieces2[0].make_move([3,3])
-
+        
         game_state = player1.end_turn()
         game_state = player2.end_turn()
 

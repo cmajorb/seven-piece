@@ -101,7 +101,7 @@ class GameState(models.Model):
         current_player, created = Player.objects.get_or_create(user=User.objects.get(id=user_id))
         if current_player.game == self:
             return [self, current_player]
-        num_of_players = len(self.player_set.all())
+        num_of_players = self.player_set.all().count()
         if num_of_players >= self.map.player_size:
             logging.info("New spectator")
             return [self, current_player]
@@ -203,7 +203,7 @@ class Player(models.Model):
             raise IllegalPieceSelection
         if len(pieces) != self.game.map.num_characters:
             raise IllegalPieceSelection
-        if len(self.piece_set.all().filter(game=self.game)) != 0:
+        if self.piece_set.all().filter(game=self.game).count() != 0:
             logging.error("You already have pieces")
             raise IllegalPieceSelection
         logging.info("Selecting for {}".format(self.number))
@@ -211,12 +211,12 @@ class Player(models.Model):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
             new_piece, created = Piece.objects.get_or_create(character=character, player=self)
-            new_piece.game =self.game
+            new_piece.game = self.game
             new_piece.save(update_fields=['game'])
             new_piece = new_piece.cast_piece()
             new_piece.make_move([start_tile[0],start_tile[1]])
             all_pieces.append(new_piece)
-        if len(self.game.piece_set.all()) == self.game.map.num_characters * self.game.map.player_size:
+        if self.game.piece_set.all().count() == self.game.map.num_characters * self.game.map.player_size:
             self.game.init_game()
         return all_pieces
 
@@ -226,7 +226,7 @@ class Player(models.Model):
         if self.game.state == "PLACING":
             self.ready = True
             self.save(update_fields=['ready'])
-            if len(self.game.player_set.filter(ready=True)) == self.game.map.player_size:
+            if self.game.player_set.filter(ready=True).count() == self.game.map.player_size:
                 self.game.start_game()
             return self.game
         if self.game.state != "PLAYING":
