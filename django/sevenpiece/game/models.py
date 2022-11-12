@@ -126,12 +126,25 @@ class GameState(models.Model):
                 piece.location_y = None
                 piece.save(update_fields=['game','location_x','location_y'])
 
+    def calculate_stats(self, winner):
+        for player in self.player_set.all():
+            player.stats_games_played += 1
+            if player == winner:
+                player.stats_wins += 1
+            player.save(update_fields=['stats_games_played','stats_wins'])
+            for piece in player.piece_set.all().filter(game=self):
+                piece.stats_games_played += 1
+                if player == winner:
+                    piece.stats_wins += 1
+                piece.save(update_fields=['stats_games_played','stats_wins'])
+
     def end_game(self, winner):
         logging.info("The winner is player {}".format(winner.number))
         self.state = "FINISHED"
         self.winner = winner.number
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
+        self.calculate_stats(winner)
         
     def get_game_state(state):
         if state == None:
@@ -176,6 +189,9 @@ class Player(models.Model):
     number = models.IntegerField(default=-1)
     state = models.CharField(max_length=50, default='IDLE', choices=[('IDLE', 'Not playing'), ('MATCHING', 'Waiting to join a match'), ('PLAYING', 'Currently playing a game')])
     ready = models.BooleanField(default=False)
+
+    stats_wins = models.IntegerField(default=0)
+    stats_games_played = models.IntegerField(default=0)
 
     def get_info(self):
         dictionary = {}
@@ -267,6 +283,15 @@ class Piece(models.Model):
     point_value = models.IntegerField(default=1)
     state = models.CharField(max_length=50, default='normal')
 
+    stats_movements = models.IntegerField(default=0)
+    stats_damage_dealt = models.IntegerField(default=0)
+    stats_damage_taken = models.IntegerField(default=0)
+    stats_wins = models.IntegerField(default=0)
+    stats_games_played = models.IntegerField(default=0)
+    stats_kills = models.IntegerField(default=0)
+    stats_objectives_captured = models.IntegerField(default=0)
+    stats_deaths = models.IntegerField(default=0)
+
     def __str__(self):
         return self.character.name
 
@@ -351,9 +376,11 @@ class Piece(models.Model):
             self.save(update_fields=['shield'])
             return self
         self.health -= damage
+        self.stats_damage_taken += damage
         if self.health < 0:
+            self.stats_deaths += 1
             self.health = 0
-        self.save(update_fields=['health'])
+        self.save(update_fields=['health','stats_damage_taken','stats_deaths'])
         return self
 
     def finish_attack(self):
@@ -379,6 +406,10 @@ class Piece(models.Model):
         if target_piece:
             target_piece = target_piece.cast_piece()
             target_piece = target_piece.take_damage(self.attack)
+            if target_piece.health == 0:
+                self.stats_kills += 1
+            self.stats_damage_dealt += self.attack
+            self.save(update_fields=['stats_damage_dealt','stats_kills'])
             if target_piece.player.piece_set.all().filter(game=self.game).aggregate(Sum('health'))['health__sum'] == 0:
                 self.game.end_game(self.player)
         else:
@@ -415,6 +446,8 @@ class Piece(models.Model):
         return self.game
 
     def capture_objective(self, location):
+        self.stats_objectives_captured += 1
+        self.save(update_fields=['stats_objectives_captured'])
         flat_board = sum(self.game.map.data["data"], [])
         current_scores = self.game.objectives.split(",")
         flat_location = location[0] * len(self.game.map.data["data"][0]) + location[1]
@@ -438,7 +471,8 @@ class Piece(models.Model):
         self.location_x = location[0]
         self.location_y = location[1]
         self.speed = 0
-        self.save(update_fields=['location_x','location_y','speed'])
+        self.stats_movements += max(abs(previous_x - self.location_x), abs(previous_y - self.location_y))
+        self.save(update_fields=['location_x','location_y','speed','stats_movements'])
         board = self.game.map.data["data"]
         if board[location[0]][location[1]] == MAP_DEFINITION['objective']:
             self.capture_objective(location)
