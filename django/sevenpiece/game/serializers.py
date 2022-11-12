@@ -24,3 +24,4 @@ class CharacterSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)
+    email = serializers.EmailField(required=True)

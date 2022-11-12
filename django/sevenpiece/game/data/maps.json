@@ -3,7 +3,7 @@
         {
             "name" : "Default Map",
             "player_size" : 2, 
-            "num_characters" :2, 
+            "num_characters" :3, 
             "score_to_win" : 5,
             "db" : {
                 "start_tiles" : [

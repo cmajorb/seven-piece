@@ -118,7 +118,8 @@ class GameState(models.Model):
     def reset_players(self):
         for player in self.player_set.all():
             player.ready = False
-            player.save(update_fields=['ready'])
+            player.score = 0
+            player.save(update_fields=['ready','score'])
             for piece in player.piece_set.all():
                 piece.game = None
                 piece.location_x = None
