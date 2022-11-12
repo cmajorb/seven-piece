@@ -132,7 +132,6 @@ class GameState(models.Model):
         self.winner = winner.number
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
-        self.reset_players()
         
     def get_game_state(state):
         if state == None:
@@ -380,7 +379,7 @@ class Piece(models.Model):
         if target_piece:
             target_piece = target_piece.cast_piece()
             target_piece = target_piece.take_damage(self.attack)
-            if target_piece.player.piece_set.all().aggregate(Sum('health'))['health__sum'] == 0:
+            if target_piece.player.piece_set.all().filter(game=self.game).aggregate(Sum('health'))['health__sum'] == 0:
                 self.game.end_game(self.player)
         else:
             print("No piece there")
