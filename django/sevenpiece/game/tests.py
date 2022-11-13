@@ -1,8 +1,8 @@
 from django.test import TestCase
-from game.models import Character, Map, ColorScheme, Player, Piece, IceWizard, MapTemplate
+from game.models import Character, ColorScheme, Player, MapTemplate
 import json
 from game.game_logic import create_game
-from game.exceptions import JoinGameError, IllegalMoveError
+from game.exceptions import IllegalMoveError
 from django.contrib.auth.models import User
 
 class PieceTestCase(TestCase):
@@ -174,7 +174,7 @@ class PieceTestCase(TestCase):
         game_state = pieces1[1].make_move([1,0])
         game_state = pieces2[1].make_move([4,3])
         game_state = pieces2[0].make_move([3,3])
-        
+
         game_state = player1.end_turn()
         game_state = player2.end_turn()
 

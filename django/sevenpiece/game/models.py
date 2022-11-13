@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 import json
 from game.data.constants import MAP_DEFINITION
-from game.exceptions import IllegalMoveError, JoinGameError, IllegalPieceSelection
+from game.exceptions import IllegalMoveError, IllegalPieceSelection
 import logging
 from django.db.models import Sum
 import math
@@ -224,12 +224,11 @@ class Player(models.Model):
     def select_pieces(self, pieces):
         all_pieces = []
         if self.game.state != "SELECTING":
-            raise IllegalPieceSelection
+            raise IllegalPieceSelection("Must be in the SELECTING state to select pieces")
         if len(pieces) != self.game.map.num_characters:
-            raise IllegalPieceSelection
+            raise IllegalPieceSelection("Must select {} pieces".format(len(pieces)))
         if self.piece_set.all().filter(game=self.game).count() != 0:
-            logging.error("You already have pieces")
-            raise IllegalPieceSelection
+            raise IllegalPieceSelection("Pieces have already been selected")
         logging.info("[{}] {} has selected {}".format(self.game, self, ", ".join(pieces)))
         for i, piece in enumerate(pieces):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
@@ -255,8 +254,7 @@ class Player(models.Model):
                 self.game.start_game()
             return self.game
         if self.game.state != "PLAYING":
-            print("Not in the right game state")
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be in the PLAYING state to end turn")
         if self.is_current_turn():
             self.game.start_turn_time = datetime.now(timezone.utc)
             current_scores = self.game.objectives.split(",")
@@ -269,8 +267,7 @@ class Player(models.Model):
             for piece in self.game.piece_set.all().filter(player = self):
                 piece.reset_stats()
         else:
-            print("Not your turn")
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be current turn to end turn")
         self.game.refresh_from_db()
         return self.game
 
@@ -400,15 +397,12 @@ class Piece(models.Model):
         #check to make sure it isn't on their team
         self.refresh_from_db()
         if self.game.state != "PLAYING":
-            raise IllegalMoveError("Must be in the PLAYING game state")
+            raise IllegalMoveError("Must be in the PLAYING state to attack")
         if not self.player.is_current_turn():
-            print("Not your turn")
-            raise IllegalMoveError("It is not the player's turn")
+            raise IllegalMoveError("Must be current turn to attack")
         if self.attack == 0:
-            print("No available attack")
-            raise IllegalMoveError("The piece has no available attack")
+            raise IllegalMoveError("{} has no available attack".format(self))
         if not self.is_range_valid(location, self.character.attack_range_min, self.character.attack_range_max):
-            print("Out of range")
             raise IllegalMoveError("The target is outside of range")
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
@@ -423,7 +417,6 @@ class Piece(models.Model):
                 logging.info("[{}] All of the pieces of {} have been killed".format(self.game, target_piece.player))
                 self.game.end_game(self.player)
         else:
-            print("No piece there")
             raise IllegalMoveError("No piece could be found at that location")
         if target_piece.health <= 0:
             points = target_piece.remove_piece()
@@ -443,16 +436,13 @@ class Piece(models.Model):
             self.game.refresh_from_db()
             return self.game
         if self.game.state != "PLAYING":
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be in the PLAYING state to move")
         if not self.player.is_current_turn():
-            logging.error("Not your turn")
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be current turn to move")
         if not self.is_range_valid(location, 0, self.speed):
-            logging.error("Out of range")
-            raise IllegalMoveError
+            raise IllegalMoveError("The movement is outside of range")
         if self.game.map.data["data"][location[0]][location[1]] not in [MAP_DEFINITION['normal'],MAP_DEFINITION['objective']]:
-            logging.error("Not a valid tile")
-            raise IllegalMoveError
+            raise IllegalMoveError("This tile is not free")
         self.move_piece(location)
         self.game.refresh_from_db()
         return self.game
@@ -514,8 +504,7 @@ class Piece(models.Model):
         if location in valid_tiles and self.game.map.data["data"][location[0]][location[1]] == MAP_DEFINITION['normal']:
             self.move_placed_piece(location)
         else:
-            print("Not a valid start tile")
-            raise IllegalMoveError
+            raise IllegalMoveError("Location must be a start tile")
 
     def is_range_valid(self, location, range_min, range_max):
         map = self.game.map.data["data"]
@@ -558,7 +547,6 @@ class Archer(Piece):
     class Meta:
         proxy = True
     def move_piece(self, location):
-        print("Archer move")
         self.attack = 0
         self.save(update_fields=['attack'])
         Piece.move_piece(self, location)
@@ -567,7 +555,6 @@ class Scout(Piece):
     class Meta:
         proxy = True
     def move_piece(self, location):
-        print("Scout move")
         if max(abs(self.location_x - location[0]), abs(self.location_y - location[1])) == 3:
             self.attack = 0
             self.save(update_fields=['attack'])
@@ -585,16 +572,13 @@ class IceWizard(Piece):
     def freeze_special(self, location):
         self.refresh_from_db()
         if self.game.state != "PLAYING":
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be in the PLAYING state to freeze")
         if not self.player.is_current_turn():
-            print("Not your turn")
-            raise IllegalMoveError
+            raise IllegalMoveError("Must be current turn to freeze")
         if self.special == 0:
-            print("No available special")
-            raise IllegalMoveError
+            raise IllegalMoveError("{} has no available freeze".format(self))
         if not self.is_range_valid(location, self.character.special_range_min, self.character.special_range_max):
-            print("Out of range")
-            raise IllegalMoveError
+            raise IllegalMoveError("The target is outside of range to freeze")
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
             target_piece = target_piece.freeze()
@@ -602,8 +586,7 @@ class IceWizard(Piece):
             self.special = 0
             self.save(update_fields=['special'])
         else:
-            print("No piece there")
-            raise IllegalMoveError
+            raise IllegalMoveError("There is no target to freeze at this location")
         self.game.refresh_from_db()
         return self.game
 

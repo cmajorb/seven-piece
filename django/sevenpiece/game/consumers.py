@@ -1,6 +1,6 @@
 import random
 from channels.generic.websocket import JsonWebsocketConsumer
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from game.simulate import simulation_setup, simulate
 from game.models import GameState, Player, Piece, MapTemplate, Character
 from game.game_logic import create_game
@@ -78,7 +78,6 @@ class GameConsumer(JsonWebsocketConsumer):
                 )
                 return
         elif message_type == "get_characters":
-            logging.info("Getting characters")
             characters = Character.objects.all()
             serializer = CharacterSerializer(characters, many=True)
             async_to_sync(self.channel_layer.group_send)(
@@ -89,7 +88,6 @@ class GameConsumer(JsonWebsocketConsumer):
                 },
             )
         elif message_type == "get_specials":
-            logging.info("Getting specials")
             specials = json.loads((open('sevenpiece/game/data/specials.json')).read())
             async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
@@ -103,32 +101,28 @@ class GameConsumer(JsonWebsocketConsumer):
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state, self.player = game.join_game(self.scope["user_id"])
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
-
-                logging.info(f"Joined game: {self.session_id}")
             except Exception as e:
-                logging.info("Failed to join game: {}".format(e))
+                error = "Failed to join game: {}".format(e)
+                logging.info(error)
                 async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
                 {
                     "type": "error",
-                    "message": "Could not join game",
+                    "message": error,
                 },
                 )
                 return
 
         elif message_type == "end_turn":
-            logging.info("End turn")
             try:
                 self.player.end_turn()
             except Exception as e:
                 error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
-            logging.info("selecting pieces")
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
             except Exception as e:
-                error = "Failed to select pieces"
-                logging.error(e)
+                error = f"Failed to select pieces: {e}"
         elif message_type == "action":
             #Make sure it belongs to the user
             self.current_game_state.refresh_from_db()
@@ -158,7 +152,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 try:
                     piece.freeze_special([content["location_x"], content["location_y"]])
                 except Exception as e:
-                    error = f"Failed to attack piece: {e}"
+                    error = f"Failed to freeze piece: {e}"
         else:
             error = "Unknown command"
         if error != "":
@@ -248,7 +242,6 @@ class MenuConsumer(JsonWebsocketConsumer):
                         },
                     )
                 else:
-                    logging.info("NO OPPONENTS")
                     self.player.state = "MATCHING"
                     self.player.save(update_fields=['state'])
             except Exception as e:
