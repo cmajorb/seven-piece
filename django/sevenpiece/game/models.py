@@ -75,6 +75,7 @@ class GameState(models.Model):
         return self.piece_set.all().filter(location_x=location[0], location_y=location[1]).first()
 
     def init_game(self):
+        logging.info("[{}] Starting PLACING phase".format(self))
         self.state = "PLACING"
         for piece in self.piece_set.all():
             if piece.character.name == "Cleric":
@@ -88,6 +89,7 @@ class GameState(models.Model):
         self.save(update_fields=['state'])
 
     def start_game(self):
+        logging.info("[{}] Starting PLAYING phase".format(self))
         self.state = "PLAYING"
         objectives = []
         for val in sum(self.map.data["data"], []):
@@ -100,16 +102,18 @@ class GameState(models.Model):
     def join_game(self, user_id):
         current_player, created = Player.objects.get_or_create(user=User.objects.get(id=user_id))
         if current_player.game == self:
+            logging.info("[{}] {} has rejoined the game".format(self, current_player))
             return [self, current_player]
         num_of_players = self.player_set.all().count()
         if num_of_players >= self.map.player_size:
-            logging.info("New spectator")
+            logging.info("[{}] {} has joined as a spectator".format(self, current_player))
             return [self, current_player]
-            # raise JoinGameError
         current_player.game = self
         current_player.number = num_of_players
         current_player.save(update_fields=['game','number'])
+        logging.info("[{}] {} has joined the game ({}/{} players)".format(self, current_player, num_of_players + 1, self.map.player_size))
         if num_of_players + 1 == self.map.player_size:
+            logging.info("[{}] Starting SELECTING phase".format(self))
             self.state = "SELECTING"
             self.save(update_fields=['state'])
             self.reset_players()
@@ -139,7 +143,7 @@ class GameState(models.Model):
                 piece.save(update_fields=['stats_games_played','stats_wins'])
 
     def end_game(self, winner):
-        logging.info("The winner is player {}".format(winner.number))
+        logging.info("[{}] {} has won the game".format(self, winner))
         self.state = "FINISHED"
         self.winner = winner.number
         self.ended = datetime.now(timezone.utc)
@@ -193,6 +197,10 @@ class Player(models.Model):
     stats_wins = models.IntegerField(default=0)
     stats_games_played = models.IntegerField(default=0)
 
+    def __str__(self):
+        return "Player {} [{}]".format(self.number, self.user.username)
+    
+    
     def get_info(self):
         dictionary = {}
         if self.game is not None: 
@@ -222,7 +230,7 @@ class Player(models.Model):
         if self.piece_set.all().filter(game=self.game).count() != 0:
             logging.error("You already have pieces")
             raise IllegalPieceSelection
-        logging.info("Selecting for {}".format(self.number))
+        logging.info("[{}] {} has selected {}".format(self.game, self, ", ".join(pieces)))
         for i, piece in enumerate(pieces):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
@@ -240,6 +248,7 @@ class Player(models.Model):
         #Check to make sure all pieces have moved
         self.game.refresh_from_db()
         if self.game.state == "PLACING":
+            logging.info("[{}] {} is ready to play".format(self.game, self))
             self.ready = True
             self.save(update_fields=['ready'])
             if self.game.player_set.filter(ready=True).count() == self.game.map.player_size:
@@ -252,10 +261,10 @@ class Player(models.Model):
             self.game.start_turn_time = datetime.now(timezone.utc)
             current_scores = self.game.objectives.split(",")
             for player in self.game.player_set.all():
-                print("Player {} score: {}".format(player.number, player.score + current_scores.count(str(player.number))))
                 if player.score + current_scores.count(str(player.number)) >= self.game.map.score_to_win:
                     self.game.end_game(player)
             self.game.turn_count = self.game.turn_count + 1
+            logging.info("[{}] {} has ended their turn".format(self.game, self))
             self.game.save(update_fields=['turn_count','start_turn_time'])
             for piece in self.game.piece_set.all().filter(player = self):
                 piece.reset_stats()
@@ -293,7 +302,7 @@ class Piece(models.Model):
     stats_deaths = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.character.name
+        return "{} ({})".format(self.character.name, self.id)
 
     def cast_piece(self):
         if self.character.name == "Ice Wizard":
@@ -392,7 +401,6 @@ class Piece(models.Model):
         self.refresh_from_db()
         if self.game.state != "PLAYING":
             raise IllegalMoveError("Must be in the PLAYING game state")
-        print("Attack: {}/{}".format(self.attack, self.character.attack))
         if not self.player.is_current_turn():
             print("Not your turn")
             raise IllegalMoveError("It is not the player's turn")
@@ -404,13 +412,15 @@ class Piece(models.Model):
             raise IllegalMoveError("The target is outside of range")
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
+            health_before = target_piece.health
             target_piece = target_piece.cast_piece()
             target_piece = target_piece.take_damage(self.attack)
-            if target_piece.health == 0:
-                self.stats_kills += 1
+            health_after = target_piece.health
+            logging.info("[{}] {} attacked {} with {} and dealt {} damage".format(self.game, self.player, target_piece, self, health_before - health_after))
             self.stats_damage_dealt += self.attack
             self.save(update_fields=['stats_damage_dealt','stats_kills'])
             if target_piece.player.piece_set.all().filter(game=self.game).aggregate(Sum('health'))['health__sum'] == 0:
+                logging.info("[{}] All of the pieces of {} have been killed".format(self.game, target_piece.player))
                 self.game.end_game(self.player)
         else:
             print("No piece there")
@@ -419,6 +429,8 @@ class Piece(models.Model):
             points = target_piece.remove_piece()
             self.player.score += points
             self.player.save(update_fields=['score'])
+            self.stats_kills += 1
+            logging.info("[{}] {} killed {} with {}".format(self.game, self.player, target_piece, self))
         self.finish_attack()
         self.game.refresh_from_db()
         return self.game
@@ -452,6 +464,7 @@ class Piece(models.Model):
         current_scores = self.game.objectives.split(",")
         flat_location = location[0] * len(self.game.map.data["data"][0]) + location[1]
         score_location = 0
+        logging.info("[{}] {} captured an objective at [{},{}] with {}".format(self.game, self.player, location[0], location[1], self))
         for i, val in enumerate(flat_board):
             if i == flat_location:
                 break
@@ -465,7 +478,6 @@ class Piece(models.Model):
         self.game.save(update_fields=['objectives'])
 
     def move_piece(self, location):
-        print("Player {} moved {} to ({}, {})".format(self.player.number, self.character.name, location[0], location[1]))
         previous_x = self.location_x
         previous_y = self.location_y
         self.location_x = location[0]
@@ -474,9 +486,9 @@ class Piece(models.Model):
         self.stats_movements += max(abs(previous_x - self.location_x), abs(previous_y - self.location_y))
         self.save(update_fields=['location_x','location_y','speed','stats_movements'])
         board = self.game.map.data["data"]
+        logging.info("[{}] {} moved {} from [{},{}] to [{},{}]".format(self.game, self.player, self, previous_x, previous_y, location[0], location[1]))
         if board[location[0]][location[1]] == MAP_DEFINITION['objective']:
             self.capture_objective(location)
-            print("Captured Objective!")
         board[previous_x][previous_y] &=  ~MAP_DEFINITION['player']
         board[location[0]][location[1]] |=  MAP_DEFINITION['player']
         self.game.map.data["data"] = board
@@ -497,16 +509,13 @@ class Piece(models.Model):
         self.game.map.save(update_fields=['data'])
 
     def place_piece(self, location):
+        logging.info("[{}] {} placed {} at {}".format(self.game, self.player, self, location))
         valid_tiles = self.game.map.data["start_tiles"][self.player.number]
         if location in valid_tiles and self.game.map.data["data"][location[0]][location[1]] == MAP_DEFINITION['normal']:
             self.move_placed_piece(location)
         else:
             print("Not a valid start tile")
             raise IllegalMoveError
-
-        #Check to see if all pieces are placed
-        # if len(self.game.piece_set.all().filter(location_x__isnull=False)) == self.game.map.num_characters * self.game.map.player_size:
-        #     self.game.start_game()
 
     def is_range_valid(self, location, range_min, range_max):
         map = self.game.map.data["data"]
@@ -575,7 +584,6 @@ class IceWizard(Piece):
         proxy = True
     def freeze_special(self, location):
         self.refresh_from_db()
-        print("Running freeze move")
         if self.game.state != "PLAYING":
             raise IllegalMoveError
         if not self.player.is_current_turn():
@@ -590,6 +598,7 @@ class IceWizard(Piece):
         target_piece = self.game.get_piece_by_location(location)
         if target_piece:
             target_piece = target_piece.freeze()
+            logging.info("[{}] {} froze {} with {}".format(self.game, self.player, target_piece, self))
             self.special = 0
             self.save(update_fields=['special'])
         else:
@@ -605,6 +614,7 @@ class Cleric(Piece):
         piece = Piece.take_damage(self, damage)
         if piece.health == 0:
             self.update_shields(False)
+            logging.info("[{}] {} has lost shields".format(self.game, self.player))
         return piece
 
     def update_shields(self, value):
@@ -618,4 +628,5 @@ class Werewolf(Piece):
     def finish_attack(self):
         self.attack = 0
         self.attack_start += 1
+        logging.info("[{}] The attack of {}'s Werewolf increased to {}'".format(self.game, self.player, self.attack_start))
         self.save(update_fields=['attack', 'attack_start'])
