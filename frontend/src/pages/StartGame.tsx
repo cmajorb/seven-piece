@@ -7,6 +7,8 @@ import { Stack, Button, Paper, Typography, TextField, useTheme } from '@mui/mate
 import getValidUUID from '../utils/getValidUUID';
 import useKeyPress from '../utils/useKeyPress';
 import BackgroundImage from '../images/login_background.jpeg';
+import WaitingScreen from '../components/misc/WaitingScreen';
+import { BG_COLOR, EDGE_COLOR, MIDDLE_COLOR } from '../utils/defaultColors';
 
 export default function StartGame() {
     const navigate = useNavigate();
@@ -75,6 +77,16 @@ export default function StartGame() {
                 justifyContent: 'center'
             }}
         >
+        { lastJsonMessage && JSON.parse(JSON.stringify(lastJsonMessage)).type == "searching" && 
+            <WaitingScreen
+                wait_time={120}
+                bg_color={BG_COLOR}
+                middle_color={MIDDLE_COLOR}
+                edge_color={EDGE_COLOR}
+            />
+        }
+          { (lastJsonMessage === null || (lastJsonMessage && JSON.parse(JSON.stringify(lastJsonMessage)).type != "searching")) &&
+            <>  
             <Stack spacing={3} alignItems={'center'}>
                 <Stack direction={'row'} spacing={1} justifyContent={'center'} alignItems={'center'}>
                     <Typography variant={'h2'}>
@@ -140,6 +152,8 @@ export default function StartGame() {
                     Join Game
                 </Button>
             </Stack>
+            </>
+        }
         </Paper>
     );
 };

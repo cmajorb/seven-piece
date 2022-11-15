@@ -206,6 +206,9 @@ class MenuConsumer(JsonWebsocketConsumer):
 
     def start_game(self, event):
         self.send_json(event)
+        
+    def searching(self, event):
+        self.send_json(event)
 
     def get_maps(self, event):
         self.send_json(event)
@@ -244,6 +247,12 @@ class MenuConsumer(JsonWebsocketConsumer):
                 else:
                     self.player.state = "MATCHING"
                     self.player.save(update_fields=['state'])
+                    async_to_sync(self.channel_layer.group_send)(
+                        self.room_name,
+                        {
+                            "type": "searching",
+                        },
+                    )
             except Exception as e:
                 logging.error("Failed to create game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(
