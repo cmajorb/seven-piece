@@ -80,7 +80,7 @@ const processTokens = async (functions: Function) => {
 }
 
 const getUser = async (token: string) => {
-  const response = await axios.get(BASE_API.url + '/current_user/', { headers: { Authorization: `JWT ${token}` } });
+  const response = await axios.get(BASE_API.url + 'current_user/', { headers: { Authorization: `JWT ${token}` } });
   let role = response.data.group_names;
   let fullName = response.data.full_name;
   return { displayName: fullName, handle: fullName, role, ...(response?.data || {}) };
