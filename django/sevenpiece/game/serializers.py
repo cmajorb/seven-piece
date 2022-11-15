@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from game.models import Player, Piece
+from django.contrib.auth.models import User
 
 class MapSerializer(serializers.Serializer):
     id = serializers.IntegerField()
@@ -7,7 +9,6 @@ class MapSerializer(serializers.Serializer):
     num_characters = serializers.IntegerField()
     score_to_win = serializers.IntegerField()
     
-
 class CharacterSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField(max_length=150)
@@ -25,3 +26,21 @@ class CharacterSerializer(serializers.Serializer):
 class UserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)
     email = serializers.EmailField(required=True)
+
+class PieceSerializer(serializers.ModelSerializer):
+    character_name = serializers.ReadOnlyField(source='character.name')
+    class Meta:
+        model = Piece
+        fields = ('id', 'character_name', 'stats_movements', 'stats_damage_dealt', 'stats_damage_taken', 'stats_wins', 'stats_games_played', 'stats_kills', 'stats_objectives_captured', 'stats_deaths')
+
+class PlayerSerializer(serializers.ModelSerializer):
+    piece_set = PieceSerializer(many=True)
+    class Meta:
+        model = Player
+        fields = ('stats_wins', 'stats_games_played', 'piece_set')
+
+class UserStatsSerializer(serializers.ModelSerializer):
+    player_set = PlayerSerializer(many=True)
+    class Meta:
+        model = User
+        fields = ('id', 'player_set')    

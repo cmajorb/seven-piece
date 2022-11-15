@@ -5,7 +5,7 @@ from game.models import GameState, Player, Character, MapTemplate
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from game.serializers import UserSerializer, MapSerializer, CharacterSerializer
+from game.serializers import UserSerializer, MapSerializer, CharacterSerializer, UserStatsSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
@@ -14,6 +14,11 @@ from collections import Counter
 @api_view(['GET'])
 def current_user(request):
     serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def current_user_stats(request):
+    serializer = UserStatsSerializer(request.user)
     return Response(serializer.data)
 
 @api_view(['POST'])
