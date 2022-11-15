@@ -89,7 +89,7 @@ const getUser = async (token: string) => {
 const login = async (username: string, password: string) => {
   const res =  await new Promise(async (resolve, reject) => {
     try {
-      await axios.post(BASE_API.url + '/token_obtain/', {
+      await axios.post(BASE_API.url + 'token_obtain/', {
         username,
         password,
       }).then(async (response) => {
