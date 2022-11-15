@@ -44,3 +44,9 @@ class UserStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'player_set')    
+
+class LeaderboardSerializer(serializers.ModelSerializer):
+    player_username = serializers.ReadOnlyField(source='user.username')
+    class Meta:
+        model = Player
+        fields = ('id', 'player_username', 'stats_wins', 'stats_games_played')    
