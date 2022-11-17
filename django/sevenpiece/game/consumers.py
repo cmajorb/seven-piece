@@ -1,5 +1,6 @@
+import random
 from channels.generic.websocket import JsonWebsocketConsumer
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from game.simulate import simulation_setup, simulate
 from game.models import GameState, Player, Piece, MapTemplate, Character
 from game.game_logic import create_game
@@ -7,7 +8,7 @@ from game.serializers import MapSerializer, CharacterSerializer
 import json
 import logging
 from channels.consumer import SyncConsumer
-
+from django.contrib.auth.models import User
 from datetime import datetime, timezone
 from game.data.constants import TURN_LENGTH
 
@@ -27,11 +28,8 @@ class GameConsumer(JsonWebsocketConsumer):
         # self.room_name = "test_room"
         logging.info(self.room_name)
         self.accept()
-        logging.info(self.scope)
-        self.user = self.scope["user"]
         self.scope["session"].save()
         self.session_id = self.scope["session"].session_key
-        
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
             self.channel_name,
@@ -80,7 +78,6 @@ class GameConsumer(JsonWebsocketConsumer):
                 )
                 return
         elif message_type == "get_characters":
-            logging.info("Getting characters")
             characters = Character.objects.all()
             serializer = CharacterSerializer(characters, many=True)
             async_to_sync(self.channel_layer.group_send)(
@@ -91,7 +88,6 @@ class GameConsumer(JsonWebsocketConsumer):
                 },
             )
         elif message_type == "get_specials":
-            logging.info("Getting specials")
             specials = json.loads((open('sevenpiece/game/data/specials.json')).read())
             async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
@@ -103,34 +99,30 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
-                self.current_game_state, self.player = game.join_game(self.session_id)
+                self.current_game_state, self.player = game.join_game(self.scope["user_id"])
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
-
-                logging.info(f"Joined game: {self.session_id}")
             except Exception as e:
-                logging.info("Failed to join game: {}".format(e))
+                error = "Failed to join game: {}".format(e)
+                logging.info(error)
                 async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
                 {
                     "type": "error",
-                    "message": "Could not join game",
+                    "message": error,
                 },
                 )
                 return
 
         elif message_type == "end_turn":
-            logging.info("End turn")
             try:
                 self.player.end_turn()
             except Exception as e:
                 error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
-            logging.info("selecting pieces")
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
             except Exception as e:
-                error = "Failed to select pieces"
-                logging.error(e)
+                error = f"Failed to select pieces: {e}"
         elif message_type == "action":
             #Make sure it belongs to the user
             self.current_game_state.refresh_from_db()
@@ -160,7 +152,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 try:
                     piece.freeze_special([content["location_x"], content["location_y"]])
                 except Exception as e:
-                    error = f"Failed to attack piece: {e}"
+                    error = f"Failed to freeze piece: {e}"
         else:
             error = "Unknown command"
         if error != "":
@@ -197,6 +189,11 @@ class MenuConsumer(JsonWebsocketConsumer):
         logging.info(self.room_name)
         self.accept()
         
+        self.player, created = Player.objects.get_or_create(user=User.objects.get(id=self.scope['user_id']))
+        self.player.state = "IDLE"
+        self.player.session = self.room_name
+        self.player.save(update_fields=['session','state'])
+
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
             self.channel_name,
@@ -208,6 +205,9 @@ class MenuConsumer(JsonWebsocketConsumer):
         return super().disconnect(code)
 
     def start_game(self, event):
+        self.send_json(event)
+        
+    def searching(self, event):
         self.send_json(event)
 
     def get_maps(self, event):
@@ -221,17 +221,38 @@ class MenuConsumer(JsonWebsocketConsumer):
         
     def receive_json(self, content, **kwargs):
         message_type = content["type"]
-        if message_type == "create_game":            
+        if message_type == "find_match":
             try:
-                current_game_state = create_game(content["map"])
-                logging.info(str(current_game_state.session))
-                async_to_sync(self.channel_layer.group_send)(
-                    self.room_name,
-                    {
-                        "type": "start_game",
-                        "session_id": str(current_game_state.session),
-                    },
-                )
+                opponent = Player.objects.filter(state="MATCHING").first()
+                if opponent:
+                    opponent.state = "PLAYING"
+                    opponent.save(update_fields=['state'])
+                    self.player.state = "PLAYING"
+                    self.player.save(update_fields=['state'])
+                    current_game_state = create_game(random.choice(MapTemplate.objects.all()).id)
+                    async_to_sync(self.channel_layer.group_send)(
+                        self.room_name,
+                        {
+                            "type": "start_game",
+                            "session_id": str(current_game_state.session),
+                        },
+                    )
+                    async_to_sync(self.channel_layer.group_send)(
+                        opponent.session,
+                        {
+                            "type": "start_game",
+                            "session_id": str(current_game_state.session),
+                        },
+                    )
+                else:
+                    self.player.state = "MATCHING"
+                    self.player.save(update_fields=['state'])
+                    async_to_sync(self.channel_layer.group_send)(
+                        self.room_name,
+                        {
+                            "type": "searching",
+                        },
+                    )
             except Exception as e:
                 logging.error("Failed to create game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(

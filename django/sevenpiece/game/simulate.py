@@ -1,7 +1,3 @@
-from game.models import GameState, Character, Map, ColorScheme, Player, Piece, IceWizard, MapTemplate
-import json
-from game.game_logic import create_game
-from game.exceptions import JoinGameError
 import logging
 import time
 from channels.layers import get_channel_layer
