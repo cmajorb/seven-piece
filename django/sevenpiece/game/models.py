@@ -167,7 +167,7 @@ class GameState(models.Model):
         dictionary["winner"] = state.winner
         for piece in state.piece_set.all():
             dictionary["pieces"].append(piece.get_info())
-        for player in state.player_set.all():
+        for player in state.player_set.all().order_by('number'):
             dictionary["players"].append(player.get_info())
 
         return json.dumps(dictionary, indent = 4)
