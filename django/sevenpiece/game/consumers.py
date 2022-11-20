@@ -59,13 +59,14 @@ class GameConsumer(JsonWebsocketConsumer):
     def receive_json(self, content, **kwargs):
         if self.player:
             self.player.refresh_from_db() 
+            self.current_game_state.refresh_from_db()
         message_type = content["type"]
         error = ""
         if message_type == "check_timer":
             if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
                 error = "Timer has expired"
                 try:
-                    self.player.end_turn()
+                    self.current_game_state.end_turn_current_player()
                 except Exception as e:
                     error += f", Failed to end turn: {e}"
             else:
@@ -125,7 +126,6 @@ class GameConsumer(JsonWebsocketConsumer):
                 error = f"Failed to select pieces: {e}"
         elif message_type == "action":
             #Make sure it belongs to the user
-            self.current_game_state.refresh_from_db()
             try:
                 piece = Piece.objects.get(player=self.player, id=content["piece"])
                 piece = piece.cast_piece()
@@ -134,7 +134,7 @@ class GameConsumer(JsonWebsocketConsumer):
             if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
                 error = "Timer has expired"
                 try:
-                    self.player.end_turn()
+                    self.current_game_state.end_turn_current_player()
                 except Exception as e:
                     error += f", Failed to end turn: {e}"
 

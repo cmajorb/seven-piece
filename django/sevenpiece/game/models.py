@@ -74,6 +74,11 @@ class GameState(models.Model):
     def get_piece_by_location(self, location):
         return self.piece_set.all().filter(location_x=location[0], location_y=location[1]).first()
 
+    def end_turn_current_player(self):
+        player_number = self.turn_count % self.map.player_size
+        current_player = Player.objects.get(game=self, number=player_number)
+        current_player.end_turn()
+        
     def init_game(self):
         logging.info("[{}] Starting PLACING phase".format(self))
         self.state = "PLACING"
