@@ -26,6 +26,7 @@ def initial_setup():
     cleric = Character.objects.get_or_create(name="Cleric", image="https://d36mxiodymuqjm.cloudfront.net/card_art/Revealer.png", description="Adds a protective shield to friendly pieces. Shields block any amount of damage once before being destroyed.")
     werewolf = Character.objects.get_or_create(name="Werewolf", speed=2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Vulguine.png", description="Gains 1 attack and 1 health each time it deals damage.")
     
+    User.objects.create_user(username='computer', password='12345')
     User.objects.create_superuser('admin', 'admin@example.com', env("ADMIN_PASSWORD"))
 
 initial_setup()
