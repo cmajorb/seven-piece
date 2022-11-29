@@ -46,6 +46,7 @@ class Character(models.Model):
     speed = models.IntegerField(default=1)
     special = models.CharField(max_length=150, default="None")
     image = models.CharField(max_length=150)
+    point_value = models.IntegerField(default=1)
     description = models.CharField(max_length=500)
     attack_range_min = models.IntegerField(default=1)
     attack_range_max = models.IntegerField(default=1)
@@ -78,7 +79,7 @@ class GameState(models.Model):
         player_number = self.turn_count % self.map.player_size
         current_player = Player.objects.get(game=self, number=player_number)
         current_player.end_turn()
-        
+
     def init_game(self):
         logging.info("[{}] Starting PLACING phase".format(self))
         self.state = "PLACING"
@@ -291,7 +292,6 @@ class Piece(models.Model):
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     special = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
-    point_value = models.IntegerField(default=1)
     state = models.CharField(max_length=50, default='normal')
 
     stats_movements = models.IntegerField(default=0)
@@ -428,7 +428,7 @@ class Piece(models.Model):
             self.player.score += points
             self.player.save(update_fields=['score'])
             self.stats_kills += 1
-            logging.info("[{}] {} killed {} with {}".format(self.game, self.player, target_piece, self))
+            logging.info("[{}] {} killed {} with {} for {} points".format(self.game, self.player, target_piece, self, points))
         self.finish_attack()
         self.game.refresh_from_db()
         return self.game
@@ -539,14 +539,12 @@ class Piece(models.Model):
         
     def remove_piece(self):
         self.health = 0
-        point_value = self.point_value
         self.game.map.data["data"][self.location_x][self.location_y] &=  ~MAP_DEFINITION['player']
         self.game.map.save(update_fields=['data'])
-        self.point_value = 0
         self.location_x = -1
         self.location_y = -1
-        self.save(update_fields=['location_x','location_y','point_value','health'])
-        return point_value
+        self.save(update_fields=['location_x','location_y','health'])
+        return self.character.point_value
     
 class Archer(Piece):
     class Meta:
