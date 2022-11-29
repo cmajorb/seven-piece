@@ -1,19 +1,16 @@
 import logging
 from game.data.constants import MAP_DEFINITION
 import random
+import math
 
 logging.basicConfig(level=logging.INFO)
 
 def execute_turn(player):
+    game_map = player.game.map.data["data"]
     if player.game.state == "PLAYING":
+        available_objectives = get_objectives(game_map,player.game.objectives.split(","),player.number)
         for piece in player.piece_set.all():
-            try:
-                available_moves = calculate_available_moves(piece)
-                new_move = random.choice(available_moves)
-                piece.make_move(new_move)
-            except Exception as e:
-                logging.info("Can't move forward {}".format(e))
-                pass
+            closest_objective = closest_tile(available_objectives, [piece.location_x,piece.location_y])
             try:
                 piece.refresh_from_db()
                 available_attacks = calculate_available_attacks(piece)
@@ -21,9 +18,60 @@ def execute_turn(player):
                 piece.attack_piece(new_attack)
             except Exception as e:
                 logging.info("Can't attack {}".format(e))
-                pass
+            try:
+                available_moves = calculate_available_moves(piece)
+                new_move = closest_tile(available_moves, closest_objective)
+                # new_move = random.choice(available_moves)
+                piece.make_move(new_move)
+            except Exception as e:
+                logging.info("Can't move forward {}".format(e))
+            try:
+                piece.refresh_from_db()
+                available_attacks = calculate_available_attacks(piece)
+                new_attack = random.choice(available_attacks)
+                piece.attack_piece(new_attack)
+            except Exception as e:
+                logging.info("Can't attack {}".format(e))
+    elif player.game.state == "PLACING":
+        objective_list = [0] * sum(x.count(MAP_DEFINITION['objective']) for x in game_map)
+        available_objectives = get_objectives(game_map,objective_list,player.number)
+        closest_objective = closest_tile(available_objectives, player.game.map.data["start_tiles"][player.number][0])
+        
+        for piece in player.piece_set.all():
+            try:
+                player.game.refresh_from_db()
+                game_map = player.game.map.data["data"]
+                available_tiles = available_start_tiles(game_map, player.game.map.data["start_tiles"][player.number])
+                new_move = closest_tile(available_tiles, closest_objective)
+                piece.make_move(new_move)
+            except Exception as e:
+                logging.info("Can't place {}".format(e))
     else:
         logging.info("Not in right phase")
+
+def available_start_tiles(map, start_tiles):
+    available_tiles = []
+    for start_tile in start_tiles:
+        if map[start_tile[0]][start_tile[1]] == MAP_DEFINITION['normal']:
+            available_tiles.append(start_tile)
+    return available_tiles
+
+def closest_tile(tiles, location):
+    distances = []
+    for tile in tiles:
+        distances.append(math.dist(tile,location))
+    return tiles[distances.index(min(distances))]
+
+def get_objectives(map,current_scores,player_num):
+    available_objectives = []
+    i = 0
+    for row in range(len(map)):
+        for col in range(len(map[0])):
+            if map[row][col] & MAP_DEFINITION['objective'] == MAP_DEFINITION['objective']:
+                if current_scores[i] != str(player_num):
+                    available_objectives.append([row,col])
+                i+=1
+    return available_objectives
 
 def get_moves(map,x,y,dir_x,dir_y,max_range):
     map_length_x = len(map)
@@ -52,7 +100,6 @@ def calculate_available_moves(piece):
             if x != 0 or y != 0:
                 new_moves = get_moves(map,piece.location_x,piece.location_y,x,y,piece_range)
                 if new_moves:
-                    logging.info(new_moves)
                     valid_moves += new_moves
     return valid_moves
 
