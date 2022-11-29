@@ -11,6 +11,7 @@ from channels.consumer import SyncConsumer
 from django.contrib.auth.models import User
 from datetime import datetime, timezone
 from game.data.constants import TURN_LENGTH
+from game.single_player import execute_turn
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,6 +22,8 @@ class GameConsumer(JsonWebsocketConsumer):
         self.room_name = None
         self.current_game_state = None
         self.player = None
+        self.single_player = False
+        self.opponent = None
 
     def connect(self):
         logging.info("Connected!")
@@ -101,6 +104,11 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 game = GameState.objects.get(session=content["session"])
                 self.current_game_state, self.player = game.join_game(self.scope["user_id"])
+                if self.current_game_state.player_set.filter(user__username="computer").count() == 1:
+                    self.single_player = True
+                    self.opponent = self.current_game_state.player_set.filter(user__username="computer").first()
+                    self.current_game_state.turn_count += 1
+                    self.current_game_state.save(update_fields=['turn_count'])
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
             except Exception as e:
                 error = "Failed to join game: {}".format(e)
@@ -117,11 +125,16 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "end_turn":
             try:
                 self.player.end_turn()
+                if self.single_player:
+                    execute_turn(self.opponent)
+                    self.opponent.end_turn()
             except Exception as e:
                 error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
+                if self.single_player:
+                    self.opponent.select_pieces(["Soldier","Scout","Berserker"])
             except Exception as e:
                 error = f"Failed to select pieces: {e}"
         elif message_type == "action":
@@ -245,14 +258,36 @@ class MenuConsumer(JsonWebsocketConsumer):
                         },
                     )
                 else:
-                    self.player.state = "MATCHING"
+                    #comment this out if you don't want single player
+                    opponent_user = User.objects.get(username='computer')
+                    logging.info(opponent_user)
+                    opponent, created = Player.objects.get_or_create(user=opponent_user)
+                    logging.info(opponent)
+                    opponent.state = "PLAYING"
+                    opponent.save(update_fields=['state'])
+                    self.player.state = "PLAYING"
                     self.player.save(update_fields=['state'])
+                    current_game_state = create_game(random.choice(MapTemplate.objects.all()).id)
+                    current_game_state, opponent = current_game_state.join_game(opponent_user.id)
+                    
                     async_to_sync(self.channel_layer.group_send)(
                         self.room_name,
                         {
-                            "type": "searching",
+                            "type": "start_game",
+                            "session_id": str(current_game_state.session),
                         },
                     )
+                    
+                    #Uncomment this for normal matching
+                    
+                    # self.player.state = "MATCHING"
+                    # self.player.save(update_fields=['state'])
+                    # async_to_sync(self.channel_layer.group_send)(
+                    #     self.room_name,
+                    #     {
+                    #         "type": "searching",
+                    #     },
+                    # )
             except Exception as e:
                 logging.error("Failed to create game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(
