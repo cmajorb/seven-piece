@@ -71,7 +71,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 try:
                     self.current_game_state.end_turn_current_player()
                 except Exception as e:
-                    error += f", Failed to end turn: {e}"
+                    error += f", Failed to end turn from timer: {e}"
             else:
                 async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
@@ -134,7 +134,8 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
                 if self.single_player:
-                    self.opponent.select_pieces(["Soldier","Scout","Berserker"])
+                    characters = list(Character.objects.exclude(name="Ice Wizard").values_list('name', flat=True))
+                    self.opponent.select_pieces(random.sample(characters, 3))
             except Exception as e:
                 error = f"Failed to select pieces: {e}"
         elif message_type == "action":
@@ -149,7 +150,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 try:
                     self.current_game_state.end_turn_current_player()
                 except Exception as e:
-                    error += f", Failed to end turn: {e}"
+                    error += f", Failed to end turn from timer on action: {e}"
 
             elif content["action_type"] == "move":
                 try:
@@ -279,7 +280,7 @@ class MenuConsumer(JsonWebsocketConsumer):
                     )
                     
                     #Uncomment this for normal matching
-                    
+
                     # self.player.state = "MATCHING"
                     # self.player.save(update_fields=['state'])
                     # async_to_sync(self.channel_layer.group_send)(

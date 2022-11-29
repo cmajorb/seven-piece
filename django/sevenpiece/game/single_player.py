@@ -9,7 +9,7 @@ def execute_turn(player):
     game_map = player.game.map.data["data"]
     if player.game.state == "PLAYING":
         available_objectives = get_objectives(game_map,player.game.objectives.split(","),player.number)
-        for piece in player.piece_set.all():
+        for piece in player.piece_set.all().filter(game=player.game):
             closest_objective = closest_tile(available_objectives, [piece.location_x,piece.location_y])
             try:
                 piece.refresh_from_db()
