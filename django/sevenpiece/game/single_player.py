@@ -2,10 +2,14 @@ import logging
 from game.data.constants import MAP_DEFINITION
 import random
 import math
+import time
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 logging.basicConfig(level=logging.INFO)
+channel_layer = get_channel_layer()
 
-def execute_turn(player):
+def execute_turn(player,session):
     game_map = player.game.map.data["data"]
     if player.game.state == "PLAYING":
         available_objectives = get_objectives(game_map,player.game.objectives.split(","),player.number)
@@ -32,6 +36,14 @@ def execute_turn(player):
                 piece.attack_piece(new_attack)
             except Exception as e:
                 logging.info("Can't attack {}".format(e))
+
+            player.game.refresh_from_db()
+            async_to_sync(channel_layer.group_send)(
+                session,
+                {"type": "game_state",
+                "state": player.game.get_game_state()}
+            )
+            time.sleep(1)
     elif player.game.state == "PLACING":
         objective_list = [0] * sum(x.count(MAP_DEFINITION['objective']) for x in game_map)
         available_objectives = get_objectives(game_map,objective_list,player.number)

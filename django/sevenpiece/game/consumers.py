@@ -126,8 +126,7 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 self.player.end_turn()
                 if self.single_player:
-                    execute_turn(self.opponent)
-                    self.opponent.end_turn()
+                    async_to_sync(self.channel_layer.send)('background-tasks', {'type': 'ai_move', 'game_session':str(self.current_game_state.session), 'room_name' : self.room_name})
             except Exception as e:
                 error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
@@ -327,3 +326,16 @@ class BackgroundTaskConsumer(SyncConsumer):
     def simulate(self, message):
         game = GameState.objects.get(session=message['game_session'])
         simulate(game)
+
+    def ai_move(self, message):
+        game = GameState.objects.get(session=message['game_session'])
+        computer = game.player_set.filter(user__username="computer").first()
+        execute_turn(computer,message['room_name'])
+        computer.end_turn()
+        async_to_sync(self.channel_layer.group_send)(
+                message['room_name'],
+                {
+                    "type": "game_state",
+                    "state": game.get_game_state(),
+                },
+            )
