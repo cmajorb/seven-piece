@@ -132,6 +132,7 @@ class GameState(models.Model):
             player.save(update_fields=['ready','score'])
             for piece in player.piece_set.all():
                 piece.game = None
+                piece.shield = False
                 piece.location_x = None
                 piece.location_y = None
                 piece.save(update_fields=['game','location_x','location_y'])
