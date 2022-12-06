@@ -124,9 +124,9 @@ export default function StartGame() {
                                 opacity: 0.5
                             }
                         }}
-                        onClick={() => { sendJsonMessage({ type: "simulate" }) }}
+                        onClick={() => { sendJsonMessage({ type: "single_player" }) }}
                     >
-                        Simulate Game
+                        Single Player
                     </Button>
                 </Stack>
                 <TextField
