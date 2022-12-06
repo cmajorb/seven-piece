@@ -68,6 +68,7 @@ class GameState(models.Model):
     created = models.DateTimeField(default=datetime.now)
     ended = models.DateTimeField(blank=True, null=True)
     start_turn_time = models.DateTimeField(default=datetime.now)
+    single_player = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.session)
@@ -107,6 +108,28 @@ class GameState(models.Model):
 
     def join_game(self, user_id):
         current_player, created = Player.objects.get_or_create(user=User.objects.get(id=user_id))
+
+        if self.single_player:
+            if current_player.game == self:
+                opponent = Player.objects.filter(game=self,number=1).first()
+                logging.info("[{}] {} has rejoined the game".format(self, current_player))
+            else:
+                opponent_user = User.objects.get(username='computer')
+                opponent, created = Player.objects.get_or_create(user=opponent_user)
+                opponent.number = 0
+                opponent.state = "PLAYING"
+                opponent.game = self
+                opponent.save(update_fields=['game','number','state'])
+                current_player.state = "PLAYING"
+                current_player.game = self
+                current_player.number = 1
+                current_player.save(update_fields=['game','number','state'])
+                self.state = "SELECTING"
+                self.reset_players()
+                self.turn_count += 1
+                self.save(update_fields=['turn_count','state'])
+            return [self, current_player, opponent]
+           
         if current_player.game == self:
             logging.info("[{}] {} has rejoined the game".format(self, current_player))
             return [self, current_player]

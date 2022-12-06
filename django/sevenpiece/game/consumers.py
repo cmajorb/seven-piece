@@ -22,7 +22,6 @@ class GameConsumer(JsonWebsocketConsumer):
         self.room_name = None
         self.current_game_state = None
         self.player = None
-        self.single_player = False
         self.opponent = None
 
     def connect(self):
@@ -103,12 +102,10 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
-                self.current_game_state, self.player = game.join_game(self.scope["user_id"])
-                if self.current_game_state.player_set.filter(user__username="computer").count() == 1:
-                    self.single_player = True
-                    self.opponent = self.current_game_state.player_set.filter(user__username="computer").first()
-                    self.current_game_state.turn_count += 1
-                    self.current_game_state.save(update_fields=['turn_count'])
+                if game.single_player:
+                    self.current_game_state, self.player, self.opponent = game.join_game(self.scope["user_id"])
+                else:
+                    self.current_game_state, self.player = game.join_game(self.scope["user_id"])
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
             except Exception as e:
                 error = "Failed to join game: {}".format(e)
@@ -125,14 +122,14 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "end_turn":
             try:
                 self.player.end_turn()
-                if self.single_player:
+                if self.current_game_state.single_player:
                     async_to_sync(self.channel_layer.send)('background-tasks', {'type': 'ai_move', 'game_session':str(self.current_game_state.session), 'room_name' : self.room_name})
             except Exception as e:
                 error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
-                if self.single_player:
+                if self.current_game_state.single_player:
                     characters = list(Character.objects.exclude(name="Ice Wizard").values_list('name', flat=True))
                     self.opponent.select_pieces(random.sample(characters, 3))
             except Exception as e:
@@ -258,36 +255,14 @@ class MenuConsumer(JsonWebsocketConsumer):
                         },
                     )
                 else:
-                    #comment this out if you don't want single player
-                    opponent_user = User.objects.get(username='computer')
-                    logging.info(opponent_user)
-                    opponent, created = Player.objects.get_or_create(user=opponent_user)
-                    logging.info(opponent)
-                    opponent.state = "PLAYING"
-                    opponent.save(update_fields=['state'])
-                    self.player.state = "PLAYING"
+                    self.player.state = "MATCHING"
                     self.player.save(update_fields=['state'])
-                    current_game_state = create_game(random.choice(MapTemplate.objects.all()).id)
-                    current_game_state, opponent = current_game_state.join_game(opponent_user.id)
-                    
                     async_to_sync(self.channel_layer.group_send)(
                         self.room_name,
                         {
-                            "type": "start_game",
-                            "session_id": str(current_game_state.session),
+                            "type": "searching",
                         },
                     )
-                    
-                    #Uncomment this for normal matching
-
-                    # self.player.state = "MATCHING"
-                    # self.player.save(update_fields=['state'])
-                    # async_to_sync(self.channel_layer.group_send)(
-                    #     self.room_name,
-                    #     {
-                    #         "type": "searching",
-                    #     },
-                    # )
             except Exception as e:
                 logging.error("Failed to create game: {}".format(e))
                 async_to_sync(self.channel_layer.group_send)(
@@ -305,6 +280,15 @@ class MenuConsumer(JsonWebsocketConsumer):
                 {
                     "type": "get_maps",
                     "maps": serializer.data,
+                },
+            )
+        elif message_type == "single_player":            
+            current_game_state = create_game(random.choice(MapTemplate.objects.all()).id, single_player=True)
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "start_game",
+                    "session_id": str(current_game_state.session),
                 },
             )
         elif message_type == "simulate":
