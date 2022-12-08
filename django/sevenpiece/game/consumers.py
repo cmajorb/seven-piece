@@ -11,6 +11,7 @@ from channels.consumer import SyncConsumer
 from django.contrib.auth.models import User
 from datetime import datetime, timezone
 from game.data.constants import TURN_LENGTH
+from game.single_player import execute_turn
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,15 +22,14 @@ class GameConsumer(JsonWebsocketConsumer):
         self.room_name = None
         self.current_game_state = None
         self.player = None
+        self.opponent = None
 
     def connect(self):
-        logging.info("Connected!")
         self.room_name = f"{self.scope['url_route']['kwargs']['game_id']}"
-        # self.room_name = "test_room"
-        logging.info(self.room_name)
         self.accept()
         self.scope["session"].save()
         self.session_id = self.scope["session"].session_key
+        logging.info("{} has connected to room {}".format(self.session_id,self.room_name))
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
             self.channel_name,
@@ -68,7 +68,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 try:
                     self.current_game_state.end_turn_current_player()
                 except Exception as e:
-                    error += f", Failed to end turn: {e}"
+                    error += f", Failed to end turn from timer: {e}"
             else:
                 async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
@@ -100,7 +100,10 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "join_game":
             try:
                 game = GameState.objects.get(session=content["session"])
-                self.current_game_state, self.player = game.join_game(self.scope["user_id"])
+                if game.single_player:
+                    self.current_game_state, self.player, self.opponent = game.join_game(self.scope["user_id"])
+                else:
+                    self.current_game_state, self.player = game.join_game(self.scope["user_id"])
                 self.send(json.dumps({'type': "connect", 'player': self.player.get_info()}))
             except Exception as e:
                 error = "Failed to join game: {}".format(e)
@@ -117,11 +120,16 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "end_turn":
             try:
                 self.player.end_turn()
+                if self.current_game_state.single_player:
+                    async_to_sync(self.channel_layer.send)('background-tasks', {'type': 'ai_move', 'game_session':str(self.current_game_state.session), 'room_name' : self.room_name})
             except Exception as e:
                 error = f"Failed to end turn: {e}"
         elif message_type == "select_pieces":
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
+                if self.current_game_state.single_player:
+                    characters = list(Character.objects.exclude(name="Ice Wizard").values_list('name', flat=True))
+                    self.opponent.select_pieces(random.sample(characters, 3))
             except Exception as e:
                 error = f"Failed to select pieces: {e}"
         elif message_type == "action":
@@ -136,7 +144,7 @@ class GameConsumer(JsonWebsocketConsumer):
                 try:
                     self.current_game_state.end_turn_current_player()
                 except Exception as e:
-                    error += f", Failed to end turn: {e}"
+                    error += f", Failed to end turn from timer on action: {e}"
 
             elif content["action_type"] == "move":
                 try:
@@ -272,6 +280,15 @@ class MenuConsumer(JsonWebsocketConsumer):
                     "maps": serializer.data,
                 },
             )
+        elif message_type == "single_player":
+            current_game_state = create_game(random.choice(MapTemplate.objects.all()).id, single_player=True)
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    "type": "start_game",
+                    "session_id": str(current_game_state.session),
+                },
+            )
         elif message_type == "simulate":
             logging.info("Running simulation")
             simulated_game_state = create_game(2)
@@ -291,3 +308,17 @@ class BackgroundTaskConsumer(SyncConsumer):
     def simulate(self, message):
         game = GameState.objects.get(session=message['game_session'])
         simulate(game)
+
+    def ai_move(self, message):
+        game = GameState.objects.get(session=message['game_session'])
+        computer = Player.objects.filter(game=game,number=0).first()
+        execute_turn(computer,message['room_name'])
+        computer.end_turn()
+        game.refresh_from_db() 
+        async_to_sync(self.channel_layer.group_send)(
+                message['room_name'],
+                {
+                    "type": "game_state",
+                    "state": game.get_game_state(),
+                },
+            )

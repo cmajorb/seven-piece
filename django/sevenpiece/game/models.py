@@ -46,6 +46,7 @@ class Character(models.Model):
     speed = models.IntegerField(default=1)
     special = models.CharField(max_length=150, default="None")
     image = models.CharField(max_length=150)
+    point_value = models.IntegerField(default=1)
     description = models.CharField(max_length=500)
     attack_range_min = models.IntegerField(default=1)
     attack_range_max = models.IntegerField(default=1)
@@ -67,6 +68,7 @@ class GameState(models.Model):
     created = models.DateTimeField(default=datetime.now)
     ended = models.DateTimeField(blank=True, null=True)
     start_turn_time = models.DateTimeField(default=datetime.now)
+    single_player = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.session)
@@ -78,7 +80,7 @@ class GameState(models.Model):
         player_number = self.turn_count % self.map.player_size
         current_player = Player.objects.get(game=self, number=player_number)
         current_player.end_turn()
-        
+
     def init_game(self):
         logging.info("[{}] Starting PLACING phase".format(self))
         self.state = "PLACING"
@@ -106,6 +108,29 @@ class GameState(models.Model):
 
     def join_game(self, user_id):
         current_player, created = Player.objects.get_or_create(user=User.objects.get(id=user_id))
+
+        if self.single_player:
+            if current_player.game == self:
+                opponent = Player.objects.filter(game=self,number=0).first()
+                logging.info("[{}] {} has rejoined the game".format(self, current_player))
+            else:
+                logging.info("[{}] {} is starting a single player game".format(self, current_player))
+                opponent_user = User.objects.get(username='computer')
+                opponent = Player.objects.create(user=opponent_user)
+                opponent.number = 0
+                opponent.state = "PLAYING"
+                opponent.game = self
+                opponent.save(update_fields=['game','number','state'])
+                current_player.state = "PLAYING"
+                current_player.game = self
+                current_player.number = 1
+                current_player.save(update_fields=['game','number','state'])
+                self.state = "SELECTING"
+                self.reset_players()
+                self.turn_count += 1
+                self.save(update_fields=['turn_count','state'])
+            return [self, current_player, opponent]
+           
         if current_player.game == self:
             logging.info("[{}] {} has rejoined the game".format(self, current_player))
             return [self, current_player]
@@ -131,6 +156,7 @@ class GameState(models.Model):
             player.save(update_fields=['ready','score'])
             for piece in player.piece_set.all():
                 piece.game = None
+                piece.shield = False
                 piece.location_x = None
                 piece.location_y = None
                 piece.save(update_fields=['game','location_x','location_y'])
@@ -154,6 +180,8 @@ class GameState(models.Model):
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
         self.calculate_stats(winner)
+        if self.single_player:
+            Player.objects.filter(game=self,number=0).delete()
         
     def get_game_state(state):
         if state == None:
@@ -291,7 +319,6 @@ class Piece(models.Model):
     game = models.ForeignKey(GameState, on_delete=models.CASCADE, null=True)
     special = models.IntegerField(default=0)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, null=False)
-    point_value = models.IntegerField(default=1)
     state = models.CharField(max_length=50, default='normal')
 
     stats_movements = models.IntegerField(default=0)
@@ -428,7 +455,7 @@ class Piece(models.Model):
             self.player.score += points
             self.player.save(update_fields=['score'])
             self.stats_kills += 1
-            logging.info("[{}] {} killed {} with {}".format(self.game, self.player, target_piece, self))
+            logging.info("[{}] {} killed {} with {} for {} points".format(self.game, self.player, target_piece, self, points))
         self.finish_attack()
         self.game.refresh_from_db()
         return self.game
@@ -539,14 +566,12 @@ class Piece(models.Model):
         
     def remove_piece(self):
         self.health = 0
-        point_value = self.point_value
         self.game.map.data["data"][self.location_x][self.location_y] &=  ~MAP_DEFINITION['player']
         self.game.map.save(update_fields=['data'])
-        self.point_value = 0
         self.location_x = -1
         self.location_y = -1
-        self.save(update_fields=['location_x','location_y','point_value','health'])
-        return point_value
+        self.save(update_fields=['location_x','location_y','health'])
+        return self.character.point_value
     
 class Archer(Piece):
     class Meta:
