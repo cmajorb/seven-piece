@@ -25,13 +25,11 @@ class GameConsumer(JsonWebsocketConsumer):
         self.opponent = None
 
     def connect(self):
-        logging.info("Connected!")
         self.room_name = f"{self.scope['url_route']['kwargs']['game_id']}"
-        # self.room_name = "test_room"
-        logging.info(self.room_name)
         self.accept()
         self.scope["session"].save()
         self.session_id = self.scope["session"].session_key
+        logging.info("{} has connected to room {}".format(self.session_id,self.room_name))
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
             self.channel_name,
@@ -282,7 +280,7 @@ class MenuConsumer(JsonWebsocketConsumer):
                     "maps": serializer.data,
                 },
             )
-        elif message_type == "single_player":            
+        elif message_type == "single_player":
             current_game_state = create_game(random.choice(MapTemplate.objects.all()).id, single_player=True)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
@@ -313,9 +311,10 @@ class BackgroundTaskConsumer(SyncConsumer):
 
     def ai_move(self, message):
         game = GameState.objects.get(session=message['game_session'])
-        computer = game.player_set.filter(user__username="computer").first()
+        computer = Player.objects.filter(game=game,number=0).first()
         execute_turn(computer,message['room_name'])
         computer.end_turn()
+        game.refresh_from_db() 
         async_to_sync(self.channel_layer.group_send)(
                 message['room_name'],
                 {

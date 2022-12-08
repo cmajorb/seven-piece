@@ -111,11 +111,12 @@ class GameState(models.Model):
 
         if self.single_player:
             if current_player.game == self:
-                opponent = Player.objects.filter(game=self,number=1).first()
+                opponent = Player.objects.filter(game=self,number=0).first()
                 logging.info("[{}] {} has rejoined the game".format(self, current_player))
             else:
+                logging.info("[{}] {} is starting a single player game".format(self, current_player))
                 opponent_user = User.objects.get(username='computer')
-                opponent, created = Player.objects.get_or_create(user=opponent_user)
+                opponent = Player.objects.create(user=opponent_user)
                 opponent.number = 0
                 opponent.state = "PLAYING"
                 opponent.game = self
@@ -179,6 +180,8 @@ class GameState(models.Model):
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
         self.calculate_stats(winner)
+        if self.single_player:
+            Player.objects.filter(game=self,number=0).delete()
         
     def get_game_state(state):
         if state == None:
