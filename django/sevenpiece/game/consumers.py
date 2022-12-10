@@ -130,6 +130,8 @@ class GameConsumer(JsonWebsocketConsumer):
                 if self.current_game_state.single_player:
                     characters = list(Character.objects.exclude(name="Ice Wizard").values_list('name', flat=True))
                     self.opponent.select_pieces(random.sample(characters, 3))
+                    async_to_sync(self.channel_layer.send)('background-tasks', {'type': 'ai_move', 'game_session':str(self.current_game_state.session), 'room_name' : self.room_name})
+
             except Exception as e:
                 error = f"Failed to select pieces: {e}"
         elif message_type == "action":

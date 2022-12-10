@@ -127,7 +127,6 @@ class GameState(models.Model):
                 current_player.save(update_fields=['game','number','state'])
                 self.state = "SELECTING"
                 self.reset_players()
-                self.turn_count += 1
                 self.save(update_fields=['turn_count','state'])
             return [self, current_player, opponent]
            
