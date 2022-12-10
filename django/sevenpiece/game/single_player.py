@@ -14,50 +14,51 @@ def execute_turn(player,session):
     if player.game.state == "PLAYING":
         available_objectives = get_objectives(game_map,player.game.objectives.split(","),player.number)
         for piece in player.piece_set.all().filter(game=player.game):
-            piece = piece.cast_piece()
-            closest_objective = closest_tile(available_objectives, [piece.location_x,piece.location_y])
-            try:
-                piece.refresh_from_db()
-                available_attacks = calculate_available_attacks(piece)
-                new_attack = random.choice(available_attacks)
-                piece.attack_piece(new_attack)
-                player.game.refresh_from_db()
-                async_to_sync(channel_layer.group_send)(
-                    session,
-                    {"type": "game_state",
-                    "state": player.game.get_game_state()}
-                )
-                time.sleep(1)
-            except Exception as e:
-                logging.info("Can't attack {}".format(e))
-            try:
-                available_moves = calculate_available_moves(piece)
-                new_move = closest_tile(available_moves, closest_objective)
-                # new_move = random.choice(available_moves)
-                piece.make_move(new_move)
-                player.game.refresh_from_db()
-                async_to_sync(channel_layer.group_send)(
-                    session,
-                    {"type": "game_state",
-                    "state": player.game.get_game_state()}
-                )
-                time.sleep(1)
-            except Exception as e:
-                logging.info("Can't move forward {}".format(e))
-            try:
-                piece.refresh_from_db()
-                available_attacks = calculate_available_attacks(piece)
-                new_attack = random.choice(available_attacks)
-                piece.attack_piece(new_attack)
-                player.game.refresh_from_db()
-                async_to_sync(channel_layer.group_send)(
-                    session,
-                    {"type": "game_state",
-                    "state": player.game.get_game_state()}
-                )
-                time.sleep(1)
-            except Exception as e:
-                logging.info("Can't attack {}".format(e))
+            if piece.location_x != -1:
+                piece = piece.cast_piece()
+                closest_objective = closest_tile(available_objectives, [piece.location_x,piece.location_y])
+                try:
+                    piece.refresh_from_db()
+                    available_attacks = calculate_available_attacks(piece)
+                    new_attack = random.choice(available_attacks)
+                    piece.attack_piece(new_attack)
+                    player.game.refresh_from_db()
+                    async_to_sync(channel_layer.group_send)(
+                        session,
+                        {"type": "game_state",
+                        "state": player.game.get_game_state()}
+                    )
+                    time.sleep(1)
+                except Exception as e:
+                    logging.info("Can't attack {}".format(e))
+                try:
+                    available_moves = calculate_available_moves(piece)
+                    new_move = closest_tile(available_moves, closest_objective)
+                    # new_move = random.choice(available_moves)
+                    piece.make_move(new_move)
+                    player.game.refresh_from_db()
+                    async_to_sync(channel_layer.group_send)(
+                        session,
+                        {"type": "game_state",
+                        "state": player.game.get_game_state()}
+                    )
+                    time.sleep(1)
+                except Exception as e:
+                    logging.info("Can't move forward {}".format(e))
+                try:
+                    piece.refresh_from_db()
+                    available_attacks = calculate_available_attacks(piece)
+                    new_attack = random.choice(available_attacks)
+                    piece.attack_piece(new_attack)
+                    player.game.refresh_from_db()
+                    async_to_sync(channel_layer.group_send)(
+                        session,
+                        {"type": "game_state",
+                        "state": player.game.get_game_state()}
+                    )
+                    time.sleep(1)
+                except Exception as e:
+                    logging.info("Can't attack {}".format(e))
 
     elif player.game.state == "PLACING":
         objective_list = [0] * sum(x.count(MAP_DEFINITION['objective']) for x in game_map)
