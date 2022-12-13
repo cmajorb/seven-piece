@@ -24,7 +24,7 @@ def initial_setup():
     berserker = Character.objects.get_or_create(name="Berserker", health=2, attack=2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Grum%20Flameblade.png", description="Attacks deal an additional point of damage.")
     ice_wizard = Character.objects.get_or_create(name="Ice Wizard", attack=0, special="Freeze", special_range_min = 1, special_range_max = 2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Djinn%20Oshannus.png", description="Freezes opponents from 1-3 spaces away. Frozen pieces cannot attack or move on their next turn.")
     cleric = Character.objects.get_or_create(name="Cleric", image="https://d36mxiodymuqjm.cloudfront.net/card_art/Revealer.png", description="Adds a protective shield to friendly pieces. Shields block any amount of damage once before being destroyed.")
-    werewolf = Character.objects.get_or_create(name="Werewolf", speed=2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Vulguine.png", description="Gains 1 attack and 1 health each time it deals damage.")
+    werewolf = Character.objects.get_or_create(name="Werewolf", speed=2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Vulguine.png", description="Gains 1 attack each time it deals damage.")
     
     User.objects.create_user(username='computer', password='12345')
     User.objects.create_superuser('admin', 'admin@example.com', env("ADMIN_PASSWORD"))
