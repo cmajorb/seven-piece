@@ -165,7 +165,7 @@ class GameState(models.Model):
                 piece.shield = False
                 piece.location_x = None
                 piece.location_y = None
-                piece.save(update_fields=['game','location_x','location_y'])
+                piece.save(update_fields=['game','shield','location_x','location_y'])
 
     def calculate_stats(self, winner):
         for player in self.player_set.all():
