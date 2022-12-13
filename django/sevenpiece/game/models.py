@@ -73,6 +73,13 @@ class GameState(models.Model):
     def __str__(self):
         return str(self.session)
 
+    def check_for_winner(self):
+        self.refresh_from_db()
+        current_scores = self.objectives.split(",")
+        for player in self.player_set.all():
+            if player.score + current_scores.count(str(player.number)) >= self.map.score_to_win:
+                self.end_game(player)
+
     def get_piece_by_location(self, location):
         return self.piece_set.all().filter(location_x=location[0], location_y=location[1]).first()
 
@@ -127,7 +134,6 @@ class GameState(models.Model):
                 current_player.save(update_fields=['game','number','state'])
                 self.state = "SELECTING"
                 self.reset_players()
-                self.turn_count += 1
                 self.save(update_fields=['turn_count','state'])
             return [self, current_player, opponent]
            
@@ -290,10 +296,7 @@ class Player(models.Model):
             raise IllegalMoveError("Must be in the PLAYING state to end turn")
         if self.is_current_turn():
             self.game.start_turn_time = datetime.now(timezone.utc)
-            current_scores = self.game.objectives.split(",")
-            for player in self.game.player_set.all():
-                if player.score + current_scores.count(str(player.number)) >= self.game.map.score_to_win:
-                    self.game.end_game(player)
+            self.game.check_for_winner()
             self.game.turn_count = self.game.turn_count + 1
             logging.info("[{}] {} has ended their turn".format(self.game, self))
             self.game.save(update_fields=['turn_count','start_turn_time'])
@@ -458,6 +461,7 @@ class Piece(models.Model):
             logging.info("[{}] {} killed {} with {} for {} points".format(self.game, self.player, target_piece, self, points))
         self.finish_attack()
         self.game.refresh_from_db()
+        self.game.check_for_winner()
         return self.game
 
     def make_move(self, location):
@@ -493,11 +497,9 @@ class Piece(models.Model):
             if val & MAP_DEFINITION['objective'] == MAP_DEFINITION['objective']:
                 score_location += 1
         current_scores[score_location] = str(self.player.number)
-        if self.player.score + current_scores.count(str(self.player.number)) == self.game.map.score_to_win:
-            self.game.end_game(self.player)
-
         self.game.objectives = ",".join(current_scores)
         self.game.save(update_fields=['objectives'])
+        self.game.check_for_winner()
 
     def move_piece(self, location):
         previous_x = self.location_x
