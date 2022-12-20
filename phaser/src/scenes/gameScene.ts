@@ -36,10 +36,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   select_tile(tile): void {
-    if (tile.index == 1) {
-      tile.index = 2
-    } else if (tile.index == 6) {
-      tile.index = 3
+    if (tile.index == 16) {
+      tile.index = 17
+    } else if (tile.index == 21) {
+      tile.index = 18
     }
   }
 
