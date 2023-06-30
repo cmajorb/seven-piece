@@ -43,21 +43,21 @@ export default function StartGame() {
             const message = JSON.parse(message_str);
             switch (message.type) {
                 case 'start_game':
-                const session_id = message.session_id;
-                navigate(PATH_DASHBOARD.general.board + session_id);
-                break;
+                    const session_id = message.session_id;
+                    navigate(PATH_DASHBOARD.general.board + session_id);
+                    break;
                 case 'error':
-                console.log(message.message);
-                break;
+                    console.log(message.message);
+                    break;
                 case 'get_maps':
-                console.log(message.maps);
-                break;
+                    console.log(message.maps);
+                    break;
                 case 'get_simulation':
-                navigate(PATH_DASHBOARD.general.board + message.session)
-                break;
+                    navigate(PATH_DASHBOARD.general.board + message.session)
+                    break;
                 default:
-                console.error('Unknown message type!');
-                break;
+                    console.error('Unknown message type!');
+                    break;
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -54,9 +54,9 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
     else { setCurrentSession(undefined) };
   }, [pathname]);
 
-  const copy = async (current_session: string | undefined) => {
-    if (current_session) { await navigator.clipboard.writeText(current_session) };
-  }
+  // const copy = async (current_session: string | undefined) => {
+  //   if (current_session) { await navigator.clipboard.writeText(current_session) };
+  // }
 
   function setSoundPrefs() {
     if (musicOn) { setMusicOn(false); localStorage.setItem('musicPref', 'false') }
@@ -94,7 +94,7 @@ export default function MainAppBar ({ connection_status, current_state }: Props)
                   <Stack justifyContent={'center'} alignItems={'center'} sx={{ pr: 1, pb: 0.5, animation: `${ripple} 0.85s infinite alternate ease-in-out` }}>
                     <div style={{ backgroundColor: getConnectionColor(connection_status, theme), borderRadius: '50%', width: '10px', height: '10px', justifyContent: 'center', alignItems: 'center' }}/>
                   </Stack>
-                  <Button sx={{ pl: 0.5 }} color="inherit" onClick={() => { copy(currentSession) }}>{username}</Button>
+                  <Button sx={{ pl: 0.5 }} color="inherit">{username}</Button>
                 </Stack>
               </Stack>
               { current_state && current_state !== 'None' && (pathname.includes(PATH_DASHBOARD.general.board)) &&

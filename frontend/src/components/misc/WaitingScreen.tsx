@@ -54,12 +54,12 @@ export default function WaitingScreen({ wait_time, bg_color, middle_color, edge_
 
     return (
         <>
-            <Sound
+            {/* <Sound
                 url={AndrewTest}
                 playFromPosition={0}
                 playStatus={musicPlaying ? 'PLAYING' : 'STOPPED'}
                 onFinishedPlaying={resetMusic}
-            />
+            /> */}
             <Stack spacing={6} sx={{ height: '100vh', justifyContent: 'space-around' }}>
                 <Stack spacing={4}>
                     { playerNotFound ? <Typography variant='h5'>No Opponent Found</Typography> : <Typography variant='h5'>Looking for a Worthy Opponent...</Typography> }
