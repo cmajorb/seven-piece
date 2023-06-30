@@ -62,24 +62,24 @@ class GameConsumer(JsonWebsocketConsumer):
             self.current_game_state.refresh_from_db()
         message_type = content["type"]
         error = ""
-        if message_type == "check_timer":
-            if not self.current_game_state.single_player:
-                if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
-                    error = "Timer has expired"
-                    try:
-                        self.current_game_state.end_turn_current_player()
-                    except Exception as e:
-                        error += f", Failed to end turn from timer: {e}"
-                else:
-                    async_to_sync(self.channel_layer.group_send)(
-                    self.room_name,
-                    {
-                        "type": "timer",
-                        "time": TURN_LENGTH - (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds,
-                    },
-                    )
-                    return
-        elif message_type == "get_characters":
+        # if message_type == "check_timer":
+        #     if not self.current_game_state.single_player:
+        #         if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
+        #             error = "Timer has expired"
+        #             try:
+        #                 self.current_game_state.end_turn_current_player()
+        #             except Exception as e:
+        #                 error += f", Failed to end turn from timer: {e}"
+        #         else:
+        #             async_to_sync(self.channel_layer.group_send)(
+        #             self.room_name,
+        #             {
+        #                 "type": "timer",
+        #                 "time": TURN_LENGTH - (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds,
+        #             },
+        #             )
+        #             return
+        if message_type == "get_characters":
             characters = Character.objects.all()
             serializer = CharacterSerializer(characters, many=True)
             async_to_sync(self.channel_layer.group_send)(
@@ -142,15 +142,17 @@ class GameConsumer(JsonWebsocketConsumer):
                 piece = piece.cast_piece()
             except:
                 error = "Piece does not exist"
-            if not self.current_game_state.single_player:
-                if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
-                    error = "Timer has expired"
-                    try:
-                        self.current_game_state.end_turn_current_player()
-                    except Exception as e:
-                        error += f", Failed to end turn from timer on action: {e}"
+            
+            # NOTE: Disabled timer for now, since it was making it impossible to do anything!
+            # if not self.current_game_state.single_player:
+            #     if (datetime.now(timezone.utc) - self.current_game_state.start_turn_time).seconds > TURN_LENGTH:
+            #         error = "Timer has expired"
+            #         try:
+            #             self.current_game_state.end_turn_current_player()
+            #         except Exception as e:
+            #             error += f", Failed to end turn from timer on action: {e}"
 
-            elif content["action_type"] == "move":
+            if content["action_type"] == "move":
                 try:
                     piece.make_move([content["location_x"], content["location_y"]])
                 except Exception as e:

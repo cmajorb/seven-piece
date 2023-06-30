@@ -33,6 +33,6 @@ export function joinGame (game_id: string | undefined, sendJsonMessage: any) {
     sendJsonMessage({ type: "join_game", session: game_id });
 };
 
-export function getTime (sendJsonMessage: any) {
-    sendJsonMessage({ type: "check_timer" });
-};
+// export function getTime (sendJsonMessage: any) {
+//     sendJsonMessage({ type: "check_timer" });
+// };

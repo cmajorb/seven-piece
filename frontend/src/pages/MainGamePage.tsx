@@ -14,13 +14,13 @@ import getPiece from '../utils/pieces/getPiece';
 import handleGameState from '../utils/handleGameState';
 import useWindowDimensions from '../utils/useWindowDimensions';
 import GameFinished from '../components/misc/GameFinished';
-import { getStartingInfo, getTime, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
+import { getStartingInfo, joinGame, PathStr, submitPieceAction } from '../utils/sendJsonMessages';
 import { useParams } from 'react-router-dom';
 import handleSelectedPiece from '../utils/pieces/handleSelectedPiece';
 import { getActionLocations } from '../utils/pieces/calcValidPieceActions';
 import calcAttackDirection from '../utils/pieces/calcAttackDirection';
 import WaitingScreen from '../components/misc/WaitingScreen';
-import delay from '../utils/delay';
+// import delay from '../utils/delay';
 
 // ----------------------------------------------------------------------
 
@@ -92,15 +92,15 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTile, actionType, gameState]);
 
-  useEffect(() => {
-    if (thisPlayer && thisPlayer.is_turn) {
-      delay(1000).then(() => { getTime(sendJsonMessage) } );
-    } else if (thisPlayer && !thisPlayer.is_turn) {
-      setRemainingTime(0);
-    }
+  // useEffect(() => {
+  //   if (thisPlayer && thisPlayer.is_turn) {
+  //     delay(1000).then(() => { getTime(sendJsonMessage) } );
+  //   } else if (thisPlayer && !thisPlayer.is_turn) {
+  //     setRemainingTime(0);
+  //   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remainingTime, thisPlayer]);
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [remainingTime, thisPlayer]);
 
   const handleTurnChange = () => {
     setSelectedTile([]);
@@ -189,14 +189,14 @@ export default function MainGamePage ({ setConnectionStatus, setCurrentState }: 
           <>
             { (gameState.state === 'PLAYING' || gameState.state === 'PLACING') &&
               <Stack direction='row'>
-                <TurnLine
+                {/* <TurnLine
                   start_position={height * 0.45}
                   is_turn={thisPlayer.is_turn}
                   bg_color={BG_COLOR}
                   middle_color={MIDDLE_COLOR}
                   edge_color={EDGE_COLOR}
                   turn_seconds={remainingTime}
-                />
+                /> */}
                 <MainBoard
                   grid_size={height * 0.8}
                   pieces={gameState.pieces}

@@ -30,8 +30,9 @@ export default function handleGameState
           console.log("Specials", message.specials);
           break;
         case 'timer':
-          console.log("Check Timer", message.time);
-          setRemainingTime(message.time);
+          console.log("disabled timer");
+          // console.log("Check Timer", message.time);
+          // setRemainingTime(message.time);
           break;
         default:
           console.error('Unknown message type!');
