@@ -31,8 +31,8 @@ application = ProtocolTypeRouter({
     "websocket": AllowedHostsOriginValidator(
         TokenAuthMiddlewareStack(
             URLRouter([
-                re_path(r"^game/(?P<game_id>.+)$", consumers.GameConsumer.as_asgi()),
-                re_path(r"^menu$", consumers.MenuConsumer.as_asgi()),
+                re_path(r"^game/(?P<user_id>.+)/(?P<game_id>.+)$", consumers.GameConsumer.as_asgi()),
+                re_path(r"^menu/(?P<user_id>.+)$", consumers.MenuConsumer.as_asgi()),
             ])
         )
     ),

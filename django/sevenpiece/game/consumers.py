@@ -198,15 +198,20 @@ class MenuConsumer(JsonWebsocketConsumer):
 
     def connect(self):
         logging.info("Connected to menu!")
+
+        self.scope['user_id'] = self.scope['url_route']['kwargs']['user_id']
+        logging.info(f"USER ID: {self.scope['user_id']}")
+
         self.scope["session"].save()
         self.room_name = self.scope["session"].session_key
-        logging.info(self.room_name)
+        logging.info(f"ROOM: {self.room_name}")
         self.accept()
-        
+
         self.player, created = Player.objects.get_or_create(user=User.objects.get(id=self.scope['user_id']))
         self.player.state = "IDLE"
         self.player.session = self.room_name
         self.player.save(update_fields=['session','state'])
+        logging.info(f"PLAYER: {self.player}")
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
@@ -235,6 +240,7 @@ class MenuConsumer(JsonWebsocketConsumer):
         
     def receive_json(self, content, **kwargs):
         message_type = content["type"]
+
         if message_type == "find_match":
             try:
                 opponent = Player.objects.filter(state="MATCHING").first()
