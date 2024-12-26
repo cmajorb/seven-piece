@@ -9,73 +9,150 @@ from asgiref.sync import async_to_sync
 logging.basicConfig(level=logging.INFO)
 channel_layer = get_channel_layer()
 
-def execute_turn(player,session):
-    game_map = player.game.map.data["data"]
-    if player.game.state == "PLAYING":
-        available_objectives = get_objectives(game_map,player.game.objectives.split(","),player.number)
-        for piece in player.piece_set.all().filter(game=player.game):
-            if piece.location_x != -1:
-                piece = piece.cast_piece()
-                closest_objective = closest_tile(available_objectives, [piece.location_x,piece.location_y])
-                try:
-                    piece.refresh_from_db()
-                    available_attacks = calculate_available_attacks(piece)
-                    new_attack = random.choice(available_attacks)
-                    piece.attack_piece(new_attack)
-                    player.game.refresh_from_db()
-                    async_to_sync(channel_layer.group_send)(
-                        session,
-                        {"type": "game_state",
-                        "state": player.game.get_game_state()}
-                    )
-                    time.sleep(1)
-                except Exception as e:
-                    logging.info("Can't attack {}".format(e))
-                try:
-                    available_moves = calculate_available_moves(piece)
-                    new_move = closest_tile(available_moves, closest_objective)
-                    # new_move = random.choice(available_moves)
-                    piece.make_move(new_move)
-                    player.game.refresh_from_db()
-                    async_to_sync(channel_layer.group_send)(
-                        session,
-                        {"type": "game_state",
-                        "state": player.game.get_game_state()}
-                    )
-                    time.sleep(1)
-                except Exception as e:
-                    logging.info("Can't move forward {}".format(e))
-                try:
-                    piece.refresh_from_db()
-                    available_attacks = calculate_available_attacks(piece)
-                    new_attack = random.choice(available_attacks)
-                    piece.attack_piece(new_attack)
-                    player.game.refresh_from_db()
-                    async_to_sync(channel_layer.group_send)(
-                        session,
-                        {"type": "game_state",
-                        "state": player.game.get_game_state()}
-                    )
-                    time.sleep(1)
-                except Exception as e:
-                    logging.info("Can't attack {}".format(e))
+INVALID_LOCATION = -1
+SLEEP_DURATION = 1
 
-    elif player.game.state == "PLACING":
-        objective_list = [0] * sum(x.count(MAP_DEFINITION['objective']) for x in game_map)
-        available_objectives = get_objectives(game_map,objective_list,player.number)
-        closest_objective = closest_tile(available_objectives, player.game.map.data["start_tiles"][player.number][0])
-        
-        for piece in player.piece_set.all():
+def send_game_state_update(session, game):
+    """Send updated game state to the channel."""
+    async_to_sync(channel_layer.group_send)(
+        session,
+        {"type": "game_state", "state": game.get_game_state()}
+    )
+
+
+def handle_exception(message, exception):
+    """Log exceptions with context."""
+    logging.info(f"{message}: {exception}")
+
+
+def find_closest_tile(tiles, location):
+    """Find the closest tile to the given location."""
+    return min(tiles, key=lambda tile: math.dist(tile, location))
+
+
+# Game State Handlers
+def handle_playing_state(player, session):
+    game_map = player.game.map.data["data"]
+    objectives = get_objectives(game_map, player.game.objectives.split(","), player.number)
+
+    for piece in player.piece_set.all().filter(game=player.game):
+        if piece.location_x != INVALID_LOCATION:
+            piece = piece.cast_piece()
+            closest_objective = find_closest_tile(objectives, [piece.location_x, piece.location_y])
+
             try:
-                player.game.refresh_from_db()
-                game_map = player.game.map.data["data"]
-                available_tiles = available_start_tiles(game_map, player.game.map.data["start_tiles"][player.number])
-                new_move = closest_tile(available_tiles, closest_objective)
-                piece.make_move(new_move)
+                piece.refresh_from_db()
+                attack_and_update(piece, session)
             except Exception as e:
-                logging.info("Can't place {}".format(e))
+                handle_exception("Can't attack", e)
+
+            try:
+                move_and_update(piece, closest_objective, session)
+            except Exception as e:
+                handle_exception("Can't move forward", e)
+
+            try:
+                attack_and_update(piece, session)
+            except Exception as e:
+                handle_exception("Can't attack", e)
+
+
+def handle_placing_state(player, session):
+    game_map = player.game.map.data["data"]
+    objective_list = [0] * sum(x.count(MAP_DEFINITION["objective"]) for x in game_map)
+    objectives = get_objectives(game_map, objective_list, player.number)
+    closest_objective = find_closest_tile(
+        objectives, player.game.map.data["start_tiles"][player.number][0]
+    )
+
+    for piece in player.piece_set.all():
+        try:
+            place_piece_on_map(piece, player, game_map, closest_objective)
+        except Exception as e:
+            handle_exception("Can't place", e)
+
+
+def execute_turn(player, session):
+    """Main function to execute a player's turn."""
+    if player.game.state == "PLAYING":
+        handle_playing_state(player, session)
+    elif player.game.state == "PLACING":
+        handle_placing_state(player, session)
     else:
-        logging.info("Not in right phase")
+        logging.info("Not in the correct phase")
+
+
+# Actions
+def attack_and_update(piece, session):
+    """Perform an attack and update the game state."""
+    available_attacks = calculate_available_attacks(piece)
+    if available_attacks:
+        piece.attack_piece(random.choice(available_attacks))
+        piece.game.refresh_from_db()
+        send_game_state_update(session, piece.game)
+        time.sleep(SLEEP_DURATION)
+
+
+def move_and_update(piece, objective, session):
+    """Move the piece and update the game state."""
+    available_moves = calculate_available_moves(piece)
+    if available_moves:
+        new_move = find_closest_tile(available_moves, objective)
+        piece.make_move(new_move)
+        piece.game.refresh_from_db()
+        send_game_state_update(session, piece.game)
+        time.sleep(SLEEP_DURATION)
+
+
+def place_piece_on_map(piece, player, game_map, closest_objective):
+    """Place the piece on the map."""
+    player.game.refresh_from_db()
+    start_tiles = available_start_tiles(
+        game_map, player.game.map.data["start_tiles"][player.number]
+    )
+    new_move = find_closest_tile(start_tiles, closest_objective)
+    piece.make_move(new_move)
+
+
+# Calculations and Helpers
+def calculate_available_moves(piece):
+    """Calculate all valid moves for a piece."""
+    map_data = piece.game.map.data["data"]
+    valid_moves = []
+
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            if dx != 0 or dy != 0:
+                valid_moves += get_moves(
+                    map_data, piece.location_x, piece.location_y, dx, dy, piece.speed
+                )
+    return valid_moves
+
+
+def calculate_available_attacks(piece):
+    """Calculate all valid attacks for a piece."""
+    map_data = piece.game.map.data["data"]
+    current_pieces = piece.game.piece_set.all().filter(player=piece.player)
+    piece_locations = [[p.location_x, p.location_y] for p in current_pieces]
+    valid_attacks = []
+
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            if dx != 0 or dy != 0:
+                new_attacks = get_attacks(
+                    map_data,
+                    piece.location_x,
+                    piece.location_y,
+                    dx,
+                    dy,
+                    piece.character.attack_range_min,
+                    piece.character.attack_range_max,
+                )
+                if new_attacks:
+                    valid_attacks += new_attacks
+
+    return [location for location in valid_attacks if location not in piece_locations]
+
 
 def available_start_tiles(map, start_tiles):
     available_tiles = []
@@ -83,12 +160,6 @@ def available_start_tiles(map, start_tiles):
         if map[start_tile[0]][start_tile[1]] == MAP_DEFINITION['normal']:
             available_tiles.append(start_tile)
     return available_tiles
-
-def closest_tile(tiles, location):
-    distances = []
-    for tile in tiles:
-        distances.append(math.dist(tile,location))
-    return tiles[distances.index(min(distances))]
 
 def get_objectives(map,current_scores,player_num):
     available_objectives = []
@@ -119,17 +190,6 @@ def get_moves(map,x,y,dir_x,dir_y,max_range):
             return valid_moves
     return valid_moves
 
-def calculate_available_moves(piece):
-    valid_moves = []
-    map = piece.game.map.data["data"]
-    piece_range = piece.speed
-    for x in range(-1,2):
-        for y in range(-1,2):
-            if x != 0 or y != 0:
-                new_moves = get_moves(map,piece.location_x,piece.location_y,x,y,piece_range)
-                if new_moves:
-                    valid_moves += new_moves
-    return valid_moves
 
 def get_attacks(map,x,y,dir_x,dir_y,min_range,max_range):
     map_length_x = len(map)
@@ -147,17 +207,3 @@ def get_attacks(map,x,y,dir_x,dir_y,min_range,max_range):
                 return
         else:
             return
-
-def calculate_available_attacks(piece):
-    valid_attacks = []
-    map = piece.game.map.data["data"]
-    current_pieces = piece.game.piece_set.all().filter(player=piece.player)
-    piece_locations = [[piece.location_x,piece.location_y] for piece in current_pieces]
-    
-    for x in range(-1,2):
-        for y in range(-1,2):
-            if x != 0 or y != 0:
-                new_attacks = get_attacks(map,piece.location_x,piece.location_y,x,y,piece.character.attack_range_min,piece.character.attack_range_max)
-                if new_attacks:
-                    valid_attacks += new_attacks
-    return [location for location in valid_attacks if location not in piece_locations]
