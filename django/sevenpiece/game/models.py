@@ -186,8 +186,8 @@ class GameState(models.Model):
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
         self.calculate_stats(winner)
-        if self.single_player:
-            Player.objects.filter(game=self,number=0).delete()
+        # if self.single_player:
+        #     Player.objects.filter(game=self,number=0).delete()
         
     def get_game_state(state):
         if state == None:
