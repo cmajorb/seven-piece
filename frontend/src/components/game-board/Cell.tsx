@@ -87,6 +87,7 @@ export default function Cell({
       { piece && cell_status.contains_objective && cell_status.contains_piece && (show_opponent_pieces || piece.player === this_player_id) &&
         <ObjectiveAndPieceImg
           player_id={piece.player}
+          this_player_id={this_player_id}
           piece={piece}
           selected={selected}
           size={cell_size * 0.95}
@@ -100,6 +101,7 @@ export default function Cell({
       { piece && cell_status.contains_piece && !cell_status.contains_objective && (show_opponent_pieces || piece.player === this_player_id) &&
         <PieceImg
           player_id={piece.player}
+          this_player_id={this_player_id}
           piece={piece}
           health={piece.current_stats.health}
           on_board={true}

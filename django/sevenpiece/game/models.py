@@ -123,7 +123,7 @@ class GameState(models.Model):
             else:
                 logging.info("[{}] {} is starting a single player game".format(self, current_player))
                 opponent_user = User.objects.get(username='computer')
-                opponent = Player.objects.create(user=opponent_user)
+                opponent, _ = Player.objects.get_or_create(user=opponent_user, game=None)
                 opponent.number = 0
                 opponent.state = "PLAYING"
                 opponent.game = self
@@ -186,8 +186,7 @@ class GameState(models.Model):
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
         self.calculate_stats(winner)
-        # if self.single_player:
-        #     Player.objects.filter(game=self,number=0).delete()
+        Player.objects.filter(game=self).update(game=None)
         
     def get_game_state(state):
         if state == None:
@@ -272,13 +271,25 @@ class Player(models.Model):
         for i, piece in enumerate(pieces):
             start_tile = self.game.map.data["start_tiles"][self.number][i]
             character = Character.objects.get(name=piece)
-            new_piece, created = Piece.objects.get_or_create(character=character, player=self)
+            new_piece, _ = Piece.objects.get_or_create(character=character, player=self)
             new_piece.game = self.game
             new_piece.save(update_fields=['game'])
             new_piece = new_piece.cast_piece()
             new_piece.make_move([start_tile[0],start_tile[1]])
             all_pieces.append(new_piece)
-        if self.game.piece_set.all().count() == self.game.map.num_characters * self.game.map.player_size:
+            
+            if character.name == "Assassin":
+                for i in range(2):
+                    decoy_character = Character.objects.get(name=f"Assassin Decoy {i+1}")
+                    decoy_piece, _ = Piece.objects.get_or_create(character=decoy_character, player=self)
+                    decoy_piece.game = self.game
+                    decoy_piece.save(update_fields=['game'])
+                    decoy_start_tile = self.game.map.data["start_tiles"][self.number][(i+1)*-1]
+                    decoy_piece.make_move([decoy_start_tile[0], decoy_start_tile[1]])
+                    all_pieces.append(decoy_piece)
+                    
+        logging.info(self.game.piece_set.exclude(character__name__icontains="Decoy").count())
+        if self.game.piece_set.exclude(character__name__icontains="Decoy").count() == self.game.map.num_characters * self.game.map.player_size:
             self.game.init_game()
         return all_pieces
 
@@ -293,7 +304,7 @@ class Player(models.Model):
                 self.game.start_game()
             return self.game
         if self.game.state != "PLAYING":
-            raise IllegalMoveError("Must be in the PLAYING state to end turn")
+            raise IllegalMoveError(f"Must be in the PLAYING state to end turn (currently in {self.game.state})")
         if self.is_current_turn():
             self.game.start_turn_time = datetime.now(timezone.utc)
             self.game.check_for_winner()
@@ -347,6 +358,10 @@ class Piece(models.Model):
             return Cleric.objects.get(id=self.id)
         elif self.character.name == "Werewolf":
             return Werewolf.objects.get(id=self.id) 
+        elif self.character.name == "Assassin":
+            return Assassin.objects.get(id=self.id)
+        elif "Assassin Decoy" in self.character.name:
+            return AssassinDecoy.objects.get(id=self.id) 
         return self
 
     def reset_stats(self):
@@ -574,6 +589,22 @@ class Piece(models.Model):
         self.location_y = -1
         self.save(update_fields=['location_x','location_y','health'])
         return self.character.point_value
+    
+class Assassin(Piece):
+    class Meta:
+        proxy = True
+    def remove_piece(self):
+        for piece in self.game.piece_set.all().filter(player=self.player, character__name__icontains="Decoy"):
+            piece.remove_piece()
+        self.save(update_fields=['attack'])
+        return Piece.remove_piece(self)
+    
+class AssassinDecoy(Piece):
+    class Meta:
+        proxy = True
+    def capture_objective(self, location):
+        logging.info("[{}] {} cannot capture objective at [{},{}] with {}".format(self.game, self.player, location[0], location[1], self))
+        return
     
 class Archer(Piece):
     class Meta:

@@ -80,7 +80,7 @@ class GameConsumer(JsonWebsocketConsumer):
         #             )
         #             return
         if message_type == "get_characters":
-            characters = Character.objects.all()
+            characters = Character.objects.exclude(name__icontains="Decoy")
             serializer = CharacterSerializer(characters, many=True)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_name,
@@ -129,7 +129,7 @@ class GameConsumer(JsonWebsocketConsumer):
             try:
                 self.player.select_pieces(json.loads(content["pieces"]))
                 if self.current_game_state.single_player:
-                    characters = list(Character.objects.exclude(name="Ice Wizard").values_list('name', flat=True))
+                    characters = list(Character.objects.exclude(name="Ice Wizard").exclude(name__icontains="Decoy").values_list('name', flat=True))
                     self.opponent.select_pieces(random.sample(characters, 3))
                     async_to_sync(self.channel_layer.send)('background-tasks', {'type': 'ai_move', 'game_session':str(self.current_game_state.session), 'room_name' : self.room_name})
 

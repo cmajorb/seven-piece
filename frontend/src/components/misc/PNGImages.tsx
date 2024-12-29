@@ -33,6 +33,7 @@ type ObjectiveProps = {
 
 type PieceProps = {
     player_id?: number,
+    this_player_id?: number,
     piece: Piece,
     health?: number,
     on_board: boolean,
@@ -56,6 +57,7 @@ type BottomProps = {
 
 type ObjectiveAndPieceProps = {
     player_id: number,
+    this_player_id?: number,
     piece: Piece,
     selected: boolean,
     size: number,
@@ -113,7 +115,7 @@ export function KillObjectiveImg ({ player_id, width, height }: ObjectiveProps) 
     );
 }
 
-export function PieceImg ({ player_id, piece, health, on_board, selected, height, width, sx, animation, animation_delay }: PieceProps) {
+export function PieceImg ({ player_id, this_player_id, piece, health, on_board, selected, height, width, sx, animation, animation_delay }: PieceProps) {
     // const heart_nums = (Array.from(Array(health).keys()));
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
@@ -121,6 +123,7 @@ export function PieceImg ({ player_id, piece, health, on_board, selected, height
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
 
+    const highlight_assassin = piece.name == "Assassin" && piece.player === this_player_id
     return (
         <Stack
             alignItems="center"
@@ -133,6 +136,18 @@ export function PieceImg ({ player_id, piece, health, on_board, selected, height
             }}
         >
             <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
+            <Box
+                sx={{
+                    position: "absolute",
+                    width: height ? height : default_piece_container_size,
+                    height: width ? width : default_piece_container_size,
+                    border: (on_board && highlight_assassin) ? '4px solid #FFD700' : 'none',
+                    boxShadow: (on_board && highlight_assassin) ? '0 0 15px 5px rgba(255, 215, 0, 0.6)' : 'none',
+                    borderRadius: '50%', // Optional: make it circular if needed
+                    zIndex: -1, // Place behind the piece
+                    transition: 'all 0.3s ease-in-out', // Smooth transition
+                }}
+            />
                 <Box
                     height={height ? height : default_piece_container_size}
                     width={width ? width : default_piece_container_size}
@@ -216,13 +231,16 @@ export function BottomBarImgs ({ current_stat, max_stat, type, height, width, ha
     );
 }
 
-export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animation, animation_delay }: ObjectiveAndPieceProps) {
+export function ObjectiveAndPieceImg ({ player_id, this_player_id, piece, selected, size, animation, animation_delay }: ObjectiveAndPieceProps) {
     let objective_img = NeutralBanner;
     const default_piece_container_size = 60;
     const default_piece_image_size = 42;
 
-    if (player_id === 0) { objective_img = Team1Banner }
-    else if (player_id === 1) { objective_img = Team2Banner };
+    if(!piece.name.startsWith("Assassin Decoy")) {
+        if (player_id === 0) { objective_img = Team1Banner }
+        else if (player_id === 1) { objective_img = Team2Banner };
+    }
+    
     const ObjectiveAvatar = styled(Avatar)(() => ({
         backgroundColor: 'transparent',
         width: (size / 3),
@@ -231,6 +249,7 @@ export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animat
     }));
     let filter_string: string = 'invert(100%) sepia(100%) saturate(400%) hue-rotate(610deg) brightness(40%) contrast(100%)';
     if (player_id === 1) { filter_string = 'invert(100%) sepia(100%) saturate(500%) hue-rotate(410deg) brightness(60%) contrast(100%)' };
+    const highlight_assassin = piece.name == "Assassin" && piece.player === this_player_id
 
     return (
         <Stack
@@ -249,6 +268,18 @@ export function ObjectiveAndPieceImg ({ player_id, piece, selected, size, animat
                 badgeContent={<ObjectiveAvatar variant={'square'} src={objective_img}/>}
             >
                 <Stack alignItems="center" justifyContent="center" sx={{ position: "relative" }}>
+                <Box
+                sx={{
+                    position: "absolute",
+                    width: size ? size : default_piece_container_size,
+                    height: size ? size : default_piece_container_size,
+                    border: highlight_assassin ? '4px solid #FFD700' : 'none',
+                    boxShadow: highlight_assassin ? '0 0 15px 5px rgba(255, 215, 0, 0.6)' : 'none',
+                    borderRadius: '50%', // Optional: make it circular if needed
+                    zIndex: -1, // Place behind the piece
+                    transition: 'all 0.3s ease-in-out', // Smooth transition
+                }}
+            />
                     <Box
                         height={size}
                         width={size}

@@ -25,7 +25,10 @@ def initial_setup():
     ice_wizard = Character.objects.get_or_create(name="Ice Wizard", attack=0, special="Freeze", special_range_min = 1, special_range_max = 2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Djinn%20Oshannus.png", description="Freezes opponents from 1-3 spaces away. Frozen pieces cannot attack or move on their next turn.")
     cleric = Character.objects.get_or_create(name="Cleric", image="https://d36mxiodymuqjm.cloudfront.net/card_art/Revealer.png", description="Adds a protective shield to friendly pieces. Shields block any amount of damage once before being destroyed.")
     werewolf = Character.objects.get_or_create(name="Werewolf", speed=2, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Vulguine.png", description="Gains 1 attack each time it deals damage.")
-    
+    assassin = Character.objects.get_or_create(name="Assassin", image="https://d36mxiodymuqjm.cloudfront.net/card_art/Skeleton%20Assassin.png", description="Has two decoys which cannot attack.")
+    assassin_decoy_1 = Character.objects.get_or_create(name="Assassin Decoy 1", attack=0, point_value=0, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Skeleton%20Assassin.png", description="Decoy cannot attack")
+    assassin_decoy_2 = Character.objects.get_or_create(name="Assassin Decoy 2", attack=0, point_value=0, image="https://d36mxiodymuqjm.cloudfront.net/card_art/Skeleton%20Assassin.png", description="Decoy cannot attack")
+
     User.objects.create_user(username='computer', password='12345')
     User.objects.create_superuser('admin', 'admin@example.com', env("ADMIN_PASSWORD"))
 
