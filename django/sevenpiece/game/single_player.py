@@ -24,6 +24,45 @@ def calculate_best_move(piece, objective, map_data):
     def heuristic_cost_estimate(start, goal):
         # Using Euclidean distance as the heuristic
         return dist(start, goal)
+    
+    def is_tile_safe(tile, enemy_pieces):
+        """
+        Determine if the tile is safe by checking if it lies within the attack range of any enemy piece.
+        """
+        for enemy in enemy_pieces:
+            attack_tiles = calculate_attack_range(enemy)
+            if tile in attack_tiles:
+                return False
+        return True
+    
+    def is_viable_counterattack(current_tile, enemy_pieces):
+        """
+        Check if moving to a tile allows for a counterattack on an opponent piece.
+        """
+        for enemy in enemy_pieces:
+            if [enemy.location_x, enemy.location_y] == current_tile:
+                # The piece can attack the enemy after moving
+                return True
+        return False
+    
+    def calculate_attack_range(piece):
+        """
+        Calculate all tiles within the attack range of a given piece.
+        """
+        attack_tiles = []
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                if dx != 0 or dy != 0:
+                    attack_tiles += get_attacks(
+                        map_data,
+                        piece.location_x,
+                        piece.location_y,
+                        dx,
+                        dy,
+                        piece.character.attack_range_min,
+                        piece.character.attack_range_max,
+                    )
+        return attack_tiles
 
     def reconstruct_path(came_from, current):
         # Reconstruct the path to the current node
@@ -42,6 +81,10 @@ def calculate_best_move(piece, objective, map_data):
     f_score = {start: heuristic_cost_estimate(start, objective)}  # Total estimated cost to goal
     visited = set()  # Tracks visited tiles to prevent redundant processing
 
+    enemy_pieces = piece.game.piece_set.exclude(player=piece.player)
+    closest_tile = start
+    closest_distance = heuristic_cost_estimate(start, objective)
+    
     while open_set:
         _, current = heapq.heappop(open_set)  # Current node with the lowest f_score
 
@@ -58,8 +101,15 @@ def calculate_best_move(piece, objective, map_data):
         neighbors = calculate_available_moves(current, map_data, piece.speed)
 
         for neighbor in neighbors:
+            tile_safe = is_tile_safe(neighbor, enemy_pieces)
+            # counterattack_viable = is_viable_counterattack(neighbor, enemy_pieces)
+
+            # Penalize unsafe moves unless they allow for a counterattack
+            # safety_penalty = 10 if not tile_safe and not counterattack_viable else 0
+            safety_penalty = 10 if not tile_safe else 0
+
             # Calculate tentative g_score for the neighbor
-            tentative_g_score = g_score[current] + 1  # Assuming uniform movement cost
+            tentative_g_score = g_score[current] + 1 + safety_penalty
 
             # If this path to the neighbor is better, record it
             if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
@@ -68,9 +118,17 @@ def calculate_best_move(piece, objective, map_data):
                 # Calculate f_score using g_score + heuristic estimate
                 f_score[neighbor] = tentative_g_score + heuristic_cost_estimate(neighbor, objective)
                 heapq.heappush(open_set, (f_score[neighbor], neighbor))
+                
+                # Update the closest tile if this neighbor is closer to the objective
+                distance_to_objective = heuristic_cost_estimate(neighbor, objective)
+                if distance_to_objective < closest_distance:
+                    closest_tile = neighbor
+                    closest_distance = distance_to_objective
 
-    # If no path is found, return the current position
-    logging.warning("No path found to the objective. Staying in current position.")
+    # If no path to the objective is found, move toward the closest tile
+    logging.warning(f"{piece} found no complete path to the objective. Moving toward the closest tile {closest_tile}.")
+    if closest_tile != start:
+        return closest_tile
     return start
 
 
@@ -107,9 +165,9 @@ def evaluate_target(piece, target):
     # Prioritize objectives, then enemy players
     priority = 0
     if tile_value & MAP_DEFINITION["objective"] == MAP_DEFINITION["objective"]:
-        priority += 100
-    if tile_value & MAP_DEFINITION["player"] == MAP_DEFINITION["player"] and target in piece.game.piece_set.exclude(player=piece.player):
         priority += 50
+    if tile_value & MAP_DEFINITION["player"] == MAP_DEFINITION["player"] and target in piece.game.piece_set.exclude(player=piece.player):
+        priority += 100
 
     # Add proximity to weight
     distance = math.dist([piece.location_x, piece.location_y], [x, y])
@@ -175,7 +233,7 @@ def handle_placing_state(player, session):
         objectives, player.game.map.data["start_tiles"][player.number][0]
     )
 
-    for piece in player.piece_set.all():
+    for piece in player.piece_set.all().order_by('-speed'):
         try:
             place_piece_on_map(piece, player, closest_objective)
         except Exception as e:
