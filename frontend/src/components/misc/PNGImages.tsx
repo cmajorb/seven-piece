@@ -129,7 +129,7 @@ export function PieceImg ({ player_id, this_player_id, piece, health, on_board, 
             alignItems="center"
             justifyContent="center"
             sx={{
-                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} ${animation_delay} ease-in-out forwards` }),
+                ...(animation && { zIndex: 10, animation: `${animation} ${attack_animation_speed} ${animation_delay} ease-in-out forwards` }),
                 ...(on_board && { position: "absolute", paddingTop: '0.75%' }),
                 ...(sx && { sx }),
                 ...(on_board && selected && { animation: `${piece_decrease} ${animation_speed} forwards linear` }),
@@ -258,7 +258,7 @@ export function ObjectiveAndPieceImg ({ player_id, this_player_id, piece, select
             sx={{
                 position: "absolute",
                 paddingTop: '0.75%',
-                ...(animation && { zIndex: 9999, animation: `${animation} ${attack_animation_speed} ${animation_delay} ease-in-out forwards` }),
+                ...(animation && { zIndex: 10, animation: `${animation} ${attack_animation_speed} ${animation_delay} ease-in-out forwards` }),
                 ...(selected && { animation: `${piece_decrease} ${animation_speed} forwards linear` })
             }}
         >

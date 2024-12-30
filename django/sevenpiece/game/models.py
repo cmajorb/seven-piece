@@ -186,7 +186,7 @@ class GameState(models.Model):
         self.ended = datetime.now(timezone.utc)
         self.save(update_fields=['state','winner','ended'])
         self.calculate_stats(winner)
-        Player.objects.filter(game=self).update(game=None)
+        
         
     def get_game_state(state):
         if state == None:
@@ -207,7 +207,8 @@ class GameState(models.Model):
             dictionary["pieces"].append(piece.get_info())
         for player in state.player_set.all().order_by('number'):
             dictionary["players"].append(player.get_info())
-
+        if state.state == "FINISHED":
+            Player.objects.filter(game=state).update(game=None)
         return json.dumps(dictionary, indent = 4)
 
     def get_game_summary(state):
